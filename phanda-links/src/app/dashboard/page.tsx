@@ -1,66 +1,106 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 
-export default function Dashboard() {
-  const router = useRouter()
-  const [errorMsg, setErrorMsg] = useState("")
+type Job = {
+  id: string
+  status: string
+  created_at: string
+  client: {
+    full_name: string
+  } | null
+}
 
-  useEffect(() => {
-    const checkUser = async () => {
-      // 1. Get logged-in user
-      const { data: userData, error: userError } = await supabase.auth.getUser()
+export default function WorkerDashboard() {
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [loading, setLoading] = useState(true)
 
-      if (userError || !userData.user) {
-        router.push("/login")
-        return
-      }
+  const fetchJobs = async () => {
+    const { data: userData } = await supabase.auth.getUser()
+    const user = userData.user
 
-      const user = userData.user
+    if (!user) return
 
-      // 2. Get user profile
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single()
+    const { data, error } = await supabase
+      .from("jobs")
+      .select(`
+        id,
+        status,
+        created_at,
+        client:profiles!jobs_client_id_fkey (
+          full_name
+        )
+      `)
+      .eq("worker_id", user.id)
 
-      if (profileError || !profile) {
-        console.error(profileError)
-        setErrorMsg("Failed to load your profile. Please try logging in again.")
-        return
-      }
-
-      // 3. Redirect based on role
-      if (profile.role === "worker") {
-        router.push("/dashboard/worker")
-      } else if (profile.role === "client") {
-        router.push("/dashboard/client")
-      }
+    if (error) {
+      console.error(error)
+    } else {
+      setJobs((data as any) || [])
     }
 
-    checkUser()
-  }, [router])
-
-  if (errorMsg) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen space-y-4">
-        <p className="text-red-500">{errorMsg}</p>
-        <button 
-          onClick={() => router.push("/login")}
-          className="bg-black text-white px-4 py-2 rounded border"
-        >
-          Return to Login
-        </button>
-      </div>
-    )
+    setLoading(false)
   }
 
+  useEffect(() => {
+    fetchJobs()
+  }, [])
+
+  // 🔹 Update job status
+  const updateStatus = async (jobId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("jobs")
+      .update({ status: newStatus })
+      .eq("id", jobId)
+
+    if (error) {
+      alert(error.message)
+    } else {
+      fetchJobs() // refresh UI
+    }
+  }
+
+  if (loading) return <p className="p-6">Loading...</p>
+
   return (
-    <div className="flex items-center justify-center h-screen">
-      <p>Loading dashboard...</p>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Incoming Jobs</h1>
+
+      {jobs.length === 0 ? (
+        <p>No jobs yet</p>
+      ) : (
+        <div className="space-y-4">
+          {jobs.map((job) => (
+            <div key={job.id} className="bg-white p-4 rounded shadow">
+              <p><strong>Client:</strong> {job.client?.full_name}</p>
+              <p><strong>Status:</strong> {job.status}</p>
+              <p className="text-sm text-gray-500">
+                {new Date(job.created_at).toLocaleString()}
+              </p>
+
+              {/* ACTION BUTTONS */}
+              {job.status === "pending" && (
+                <div className="flex gap-3 mt-4">
+                  <button
+                    onClick={() => updateStatus(job.id, "accepted")}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Accept
+                  </button>
+
+                  <button
+                    onClick={() => updateStatus(job.id, "rejected")}
+                    className="bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
