@@ -47,6 +47,13 @@ export default function ClientDashboard() {
     fetchJobs()
   }, [])
 
+  // 🔹 Status color helper
+  const getStatusColor = (status: string) => {
+    if (status === "accepted") return "text-green-600"
+    if (status === "rejected") return "text-red-600"
+    return "text-yellow-600"
+  }
+
   if (loading) return <p className="p-6">Loading...</p>
 
   return (
@@ -59,11 +66,22 @@ export default function ClientDashboard() {
         <div className="space-y-4">
           {jobs.map((job) => (
             <div key={job.id} className="bg-white p-4 rounded shadow">
-              <p><strong>Worker:</strong> {job.worker?.full_name}</p>
-              <p><strong>Status:</strong> {job.status}</p>
+
+              <p>
+                <strong>Worker:</strong> {job.worker?.full_name}
+              </p>
+
+              <p>
+                <strong>Status:</strong>{" "}
+                <span className={`font-semibold ${getStatusColor(job.status)}`}>
+                  {job.status}
+                </span>
+              </p>
+
               <p className="text-sm text-gray-500">
                 {new Date(job.created_at).toLocaleString()}
               </p>
+
             </div>
           ))}
         </div>
