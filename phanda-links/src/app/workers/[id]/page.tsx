@@ -3,16 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
+import toast from "react-hot-toast"
 
-type Worker = {
-  id: string
-  full_name: string
-  location: string
-  worker_profiles?: {
-    skills: string[]
-    bio: string
-  }[]
-}
+import { Worker } from "@/types"
 
 export default function WorkerProfilePage() {
   const params = useParams()
@@ -56,13 +49,13 @@ export default function WorkerProfilePage() {
     const user = userData.user
 
     if (!user) {
-      alert("Please login first")
+      toast.error("Please login first")
       return
     }
 
     // Prevent hiring yourself
     if (user.id === id) {
-      alert("You cannot hire yourself")
+      toast.error("You cannot hire yourself")
       return
     }
 
@@ -72,9 +65,9 @@ export default function WorkerProfilePage() {
     })
 
     if (error) {
-      alert(error.message)
+      toast.error(error.message)
     } else {
-      alert("Worker hired successfully!")
+      toast.success("Worker hired successfully!")
     }
   }
 

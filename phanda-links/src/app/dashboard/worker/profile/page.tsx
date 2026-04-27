@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 export default function WorkerProfileForm() {
     const router = useRouter()
@@ -18,7 +19,7 @@ export default function WorkerProfileForm() {
         const user = userData.user
 
         if (!user) {
-            alert("Not logged in")
+            toast.error("Not logged in")
             return
         }
 
@@ -33,9 +34,9 @@ export default function WorkerProfileForm() {
         setLoading(false)
 
         if (error) {
-            alert(error.message)
+            toast.error(error.message)
         } else {
-            alert("Profile saved!")
+            toast.success("Profile saved!")
             router.push("/workers")
         }
     }

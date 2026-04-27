@@ -1,106 +1,56 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
+import toast from "react-hot-toast"
 
-type Job = {
-  id: string
-  status: string
-  created_at: string
-  client: {
-    full_name: string
-  } | null
-}
-
-export default function WorkerDashboard() {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const fetchJobs = async () => {
-    const { data: userData } = await supabase.auth.getUser()
-    const user = userData.user
-
-    if (!user) return
-
-    const { data, error } = await supabase
-      .from("jobs")
-      .select(`
-        id,
-        status,
-        created_at,
-        client:profiles!jobs_client_id_fkey (
-          full_name
-        )
-      `)
-      .eq("worker_id", user.id)
-
-    if (error) {
-      console.error(error)
-    } else {
-      setJobs((data as any) || [])
-    }
-
-    setLoading(false)
-  }
+export default function DashboardRouter() {
+  const router = useRouter()
 
   useEffect(() => {
-    fetchJobs()
-  }, [])
+    const checkUserRole = async () => {
+      const { data: userData } = await supabase.auth.getUser()
+      const user = userData.user
 
-  // 🔹 Update job status
-  const updateStatus = async (jobId: string, newStatus: string) => {
-    const { error } = await supabase
-      .from("jobs")
-      .update({ status: newStatus })
-      .eq("id", jobId)
+      if (!user) {
+        router.push("/login")
+        return
+      }
 
-    if (error) {
-      alert(error.message)
-    } else {
-      fetchJobs() // refresh UI
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single()
+
+      if (error || !profile) {
+        console.error("Error fetching profile:", error)
+        toast.error("Profile not found or missing role.")
+        // Fallback route to avoid infinite login loop
+        router.replace("/dashboard/worker")
+        return
+      }
+
+      const role = profile?.role?.toLowerCase()
+
+      if (role === "client") {
+        router.replace("/dashboard/client")
+      } else {
+        // If worker, null, undefined, or generic, default them to worker safely.
+        if (!role || role !== "worker") {
+          toast.success("Role defaulted to Worker. Please update your profile.")
+        }
+        router.replace("/dashboard/worker")
+      }
     }
-  }
 
-  if (loading) return <p className="p-6">Loading...</p>
+    checkUserRole()
+  }, [router])
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Incoming Jobs</h1>
-
-      {jobs.length === 0 ? (
-        <p>No jobs yet</p>
-      ) : (
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <div key={job.id} className="bg-white p-4 rounded shadow">
-              <p><strong>Client:</strong> {job.client?.full_name}</p>
-              <p><strong>Status:</strong> {job.status}</p>
-              <p className="text-sm text-gray-500">
-                {new Date(job.created_at).toLocaleString()}
-              </p>
-
-              {/* ACTION BUTTONS */}
-              {job.status === "pending" && (
-                <div className="flex gap-3 mt-4">
-                  <button
-                    onClick={() => updateStatus(job.id, "accepted")}
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    Accept
-                  </button>
-
-                  <button
-                    onClick={() => updateStatus(job.id, "rejected")}
-                    className="bg-red-600 text-white px-4 py-2 rounded"
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="flex items-center justify-center p-6 h-full">
+      <p>Loading your dashboard...</p>
     </div>
   )
 }

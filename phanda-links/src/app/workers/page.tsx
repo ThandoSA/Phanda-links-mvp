@@ -4,15 +4,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import Link from "next/link"
 
-type Worker = {
-    id: string
-    full_name: string
-    location: string
-    worker_profiles?: {
-        skills: string[]
-        bio: string
-    }[]
-}
+import { Worker } from "@/types"
 
 export default function WorkersPage() {
     const [workers, setWorkers] = useState<Worker[]>([])

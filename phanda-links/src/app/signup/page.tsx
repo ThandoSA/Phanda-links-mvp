@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
 
 export default function Signup() {
   const router = useRouter()
@@ -28,7 +29,7 @@ export default function Signup() {
     })
 
     if (error) {
-      alert(error.message)
+      toast.error(error.message)
       return
     }
 
@@ -47,11 +48,11 @@ export default function Signup() {
       .eq("id", user.id)
 
     if (profileError) {
-      alert(profileError.message)
+      toast.error(profileError.message)
       return
     }
 
-    alert("Signup successful!")
+    toast.success("Signup successful!")
 
     // 3. Redirect to dashboard
     router.push("/dashboard")
