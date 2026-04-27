@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import Image from "next/image"
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,9 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const [role, setRole] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -29,60 +32,98 @@ export default function DashboardLayout({
         .single()
 
       setRole(profile?.role?.toLowerCase() || "worker")
+      setLoading(false)
     }
 
     fetchRole()
   }, [router])
 
+  const isActive = (path: string) => pathname === path
+
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Link 
+      href={href} 
+      className={`px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+        isActive(href) 
+          ? "bg-gold text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]" 
+          : "text-gray-400 hover:text-white hover:bg-white/10"
+      }`}
+    >
+      {children}
+    </Link>
+  )
+
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-black text-white relative overflow-hidden selection:bg-gold selection:text-black">
+      
+      {/* Background glow for the whole dashboard */}
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gold/10 blur-[150px] rounded-full pointer-events-none z-0" />
 
       {/* SIDEBAR */}
-      <aside className="w-64 bg-black text-white p-6 flex flex-col">
-        <h2 className="text-xl font-bold mb-8">Phanda Links</h2>
+      <aside className="w-72 glass-luxury border-r border-white/10 flex flex-col relative z-10">
+        <div className="p-8 border-b border-white/10 flex items-center gap-3">
+            <Image
+                src="/images/logo-icon.jpeg"
+                alt="Phanda Links"
+                width={32}
+                height={32}
+                style={{ width: "auto", height: "auto" }}
+                className="rounded-md"
+            />
+            <h2 className="text-2xl font-bold tracking-wide">
+                Phanda <span className="text-gold">Links</span>
+            </h2>
+        </div>
 
-        <nav className="flex flex-col gap-4 flex-1">
-          {role === "worker" && (
-            <>
-              <Link href="/dashboard/worker" className="opacity-80 hover:opacity-100">Worker Dashboard</Link>
-              <Link href="/dashboard/worker/earnings" className="opacity-80 hover:opacity-100">Earnings</Link>
-              <Link href="/dashboard/worker/jobs" className="opacity-80 hover:opacity-100">Find Jobs</Link>
-              <Link href="/dashboard/worker/profile" className="opacity-80 hover:opacity-100">My Profile</Link>
-            </>
-          )}
+        <div className="flex-1 overflow-y-auto py-6 px-4 no-scrollbar">
+            <nav className="flex flex-col gap-2">
+            {role === "worker" && (
+                <>
+                <NavLink href="/dashboard/worker">Dashboard</NavLink>
+                <NavLink href="/dashboard/worker/earnings">Earnings</NavLink>
+                <NavLink href="/dashboard/worker/jobs">Find Jobs</NavLink>
+                <NavLink href="/dashboard/worker/profile">My Profile</NavLink>
+                </>
+            )}
 
-          {role === "client" && (
-            <>
-              <Link href="/dashboard/client" className="opacity-80 hover:opacity-100">Client Dashboard</Link>
-              <Link href="/dashboard/client/bookings" className="opacity-80 hover:opacity-100">My Bookings</Link>
-              <Link href="/dashboard/client/saved" className="opacity-80 hover:opacity-100">Saved Workers</Link>
-              <Link href="/workers" className="opacity-80 hover:opacity-100">Browse Workers</Link>
-            </>
-          )}
+            {role === "client" && (
+                <>
+                <NavLink href="/dashboard/client">Dashboard</NavLink>
+                <NavLink href="/dashboard/client/bookings">My Bookings</NavLink>
+                <NavLink href="/dashboard/client/saved">Saved Workers</NavLink>
+                <NavLink href="/workers">Browse Workers</NavLink>
+                </>
+            )}
 
-          {!role && (
-            <div className="animate-pulse flex flex-col gap-4">
-              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
-            </div>
-          )}
-        </nav>
+            {loading && (
+                <div className="animate-pulse flex flex-col gap-4 px-4 py-2">
+                    <div className="h-10 bg-white/5 rounded-xl w-full"></div>
+                    <div className="h-10 bg-white/5 rounded-xl w-full"></div>
+                    <div className="h-10 bg-white/5 rounded-xl w-3/4"></div>
+                </div>
+            )}
+            </nav>
+        </div>
 
         {/* LOGOUT BUTTON */}
-        <button
-          onClick={async () => {
-            await supabase.auth.signOut()
-            router.push("/login")
-          }}
-          className="mt-auto text-left text-red-400 hover:text-red-300 opacity-80 hover:opacity-100 transition"
-        >
-          Sign Out
-        </button>
+        <div className="p-6 border-t border-white/10">
+            <button
+                onClick={async () => {
+                    await supabase.auth.signOut()
+                    router.push("/login")
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-red-400 border border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50 transition-all"
+            >
+                <span>Sign Out</span>
+            </button>
+        </div>
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-6 bg-gray-100 overflow-y-auto">
-        {children}
+      <main className="flex-1 overflow-y-auto relative z-10 bg-black/40 backdrop-blur-3xl">
+        <div className="min-h-full">
+            {children}
+        </div>
       </main>
 
     </div>

@@ -6,9 +6,17 @@ export type Job = {
   created_at: string
   worker_id: string
   client_id: string
+
+  // ✅ NEW FIELDS (add these)
+  title: string
+  description: string
+  price: number
+  location: string
+
   client?: {
     full_name: string
   } | null
+
   worker?: {
     full_name: string
   } | null
@@ -31,5 +39,6 @@ export type Worker = {
   id: string
   full_name: string
   location: string
+  avatar_url?: string | null
   worker_profiles?: WorkerProfile[]
 }
