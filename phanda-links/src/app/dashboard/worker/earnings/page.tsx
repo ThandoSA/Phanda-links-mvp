@@ -37,7 +37,7 @@ export default function EarningsPage() {
       if (error) {
         toast.error("Failed to load earnings history")
       } else {
-        setJobs(data as any)
+        setJobs((data as unknown as Job[]) || [])
       }
       
       setLoading(false)

@@ -13,6 +13,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 
@@ -32,6 +33,12 @@ export default function Signup() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName,
+          role: role,
+        }
+      }
     })
 
     if (error) {
@@ -46,20 +53,54 @@ export default function Signup() {
         return
     }
 
-    // 2. Update profile
+    // 2. Check if session exists (if not, email confirmation is likely required)
+    if (!data.session) {
+      toast.success("Account created! Please check your email to confirm your account.")
+      setLoading(false)
+      router.push("/login")
+      return
+    }
+
+    // 3. Update profile (using upsert to ensure record exists)
     const { error: profileError } = await supabase
       .from("profiles")
-      .update({
+      .upsert({
+        id: user.id,
         full_name: fullName,
         role: role,
         location: location,
       })
-      .eq("id", user.id)
 
     if (profileError) {
-      toast.error(profileError.message)
+      console.error("Profile creation error:", {
+        message: profileError.message,
+        code: profileError.code,
+        details: profileError.details,
+        hint: profileError.hint
+      })
+      
+      if (profileError.code === "42501") {
+        toast.error("Permission denied (RLS). Your profile couldn't be initialized.")
+      } else {
+        toast.error(`Profile Error: ${profileError.message || "Unknown error"}`)
+      }
       setLoading(false)
       return
+    }
+
+    // 4. Initialize worker_profile if role is worker
+    if (role === "worker") {
+      const { error: workerError } = await supabase
+        .from("worker_profiles")
+        .upsert({
+          user_id: user.id,
+          skills: [],
+          bio: "",
+        })
+      
+      if (workerError) {
+        console.error("Worker profile creation error:", workerError)
+      }
     }
 
     toast.success("Account created successfully!")

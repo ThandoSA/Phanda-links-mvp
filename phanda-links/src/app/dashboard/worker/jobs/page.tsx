@@ -7,10 +7,12 @@ import Image from "next/image"
 
 import { Job } from "@/types"
 
+import QuoteModal from "@/components/dashboard/QuoteModal"
+
 export default function JobsPage() {
-  const [openJobs, setOpenJobs] = useState<any[]>([])
+  const [openJobs, setOpenJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
-  const [applyingId, setApplyingId] = useState<string | null>(null)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
@@ -20,12 +22,15 @@ export default function JobsPage() {
         .from("jobs")
         .select(`
           id,
+          status,
+          worker_id,
+          client_id,
           created_at,
           title,
           description,
           price,
           location,
-          client:profiles!jobs_client_id_fkey (
+          client:profiles!client_id (
             full_name,
             avatar_url
           )
@@ -36,7 +41,7 @@ export default function JobsPage() {
       if (error) {
         toast.error("Failed to load open jobs")
       } else {
-        setOpenJobs(data || [])
+        setOpenJobs((data as unknown as Job[]) || [])
       }
 
       setLoading(false)
@@ -44,38 +49,6 @@ export default function JobsPage() {
 
     fetchOpenJobs()
   }, [])
-
-  const handleApply = async (jobId: string) => {
-    setApplyingId(jobId)
-
-    const { data: userData } = await supabase.auth.getUser()
-    const user = userData.user
-
-    if (!user) {
-      toast.error("You must be logged in to apply")
-      setApplyingId(null)
-      return
-    }
-
-    // Assign the job to the current worker and set status to pending
-    const { error } = await supabase
-      .from("jobs")
-      .update({ 
-        worker_id: user.id,
-        status: "pending" 
-      })
-      .eq("id", jobId)
-
-    if (error) {
-      toast.error("Failed to apply for job")
-    } else {
-      toast.success("Application submitted successfully!")
-      // Remove from list
-      setOpenJobs(openJobs.filter(j => j.id !== jobId))
-    }
-
-    setApplyingId(null)
-  }
 
   // Filter jobs based on search
   const filteredJobs = openJobs.filter((job) => 
@@ -97,8 +70,8 @@ export default function JobsPage() {
       {/* HEADER & SEARCH */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
         <div>
-          <h1 className="text-3xl font-bold tracking-wide text-white mb-2">Open Job Board</h1>
-          <p className="text-gray-400">Browse and apply for public jobs posted by clients in your area.</p>
+          <h1 className="text-3xl font-bold tracking-wide text-white mb-2">Open <span className="text-gold">Job Board</span></h1>
+          <p className="text-gray-400">Browse and send quotes for public jobs posted by clients.</p>
         </div>
 
         <div className="w-full md:w-96 relative">
@@ -119,7 +92,7 @@ export default function JobsPage() {
             <div className="text-6xl mb-6 opacity-40">🌍</div>
             <h2 className="text-2xl font-bold text-white mb-2">No Open Jobs Available</h2>
             <p className="text-gray-400 max-w-md">
-              {searchQuery ? "No jobs match your search criteria. Try a different keyword." : "Clients haven't posted any public jobs recently. Most clients hire workers directly from the directory."}
+              {searchQuery ? "No jobs match your search criteria. Try a different keyword." : "Clients haven't posted any public jobs recently."}
             </p>
         </div>
       ) : (
@@ -164,17 +137,29 @@ export default function JobsPage() {
                 </div>
               </div>
 
-              {/* Apply Button */}
+              {/* Action Button */}
               <button 
-                onClick={() => handleApply(job.id)}
-                disabled={applyingId === job.id}
-                className="w-full bg-white text-black hover:bg-gold py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                onClick={() => setSelectedJob(job)}
+                className="w-full bg-white text-black hover:bg-gold py-3 rounded-xl text-sm font-bold transition-all shadow-lg"
               >
-                {applyingId === job.id ? "Submitting..." : "Apply Now"}
+                Send Quote
               </button>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Quote Modal */}
+      {selectedJob && (
+          <QuoteModal
+            jobId={selectedJob.id}
+            jobTitle={selectedJob.title}
+            clientPrice={selectedJob.price}
+            onClose={() => setSelectedJob(null)}
+            onSuccess={() => {
+                setOpenJobs(openJobs.filter(j => j.id !== selectedJob.id))
+            }}
+          />
       )}
     </div>
   )

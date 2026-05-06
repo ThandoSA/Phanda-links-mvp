@@ -6,6 +6,25 @@ import { supabase } from "@/lib/supabaseClient"
 import { useRouter, usePathname } from "next/navigation"
 import Image from "next/image"
 
+type NavLinkProps = {
+  href: string
+  children: React.ReactNode
+  isActive: boolean
+}
+
+const NavLink = ({ href, children, isActive }: NavLinkProps) => (
+  <Link
+    href={href}
+    className={`px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+      isActive
+        ? "bg-gold text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+        : "text-gray-400 hover:text-white hover:bg-white/10"
+    }`}
+  >
+    {children}
+  </Link>
+)
+
 export default function DashboardLayout({
   children,
 }: {
@@ -13,6 +32,7 @@ export default function DashboardLayout({
 }) {
   const [role, setRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -31,7 +51,8 @@ export default function DashboardLayout({
         .eq("id", userData.user.id)
         .single()
 
-      setRole(profile?.role?.toLowerCase() || "worker")
+      const userRole = profile?.role || userData.user.user_metadata?.role || "worker"
+      setRole(userRole.toLowerCase())
       setLoading(false)
     }
 
@@ -40,18 +61,7 @@ export default function DashboardLayout({
 
   const isActive = (path: string) => pathname === path
 
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <Link 
-      href={href} 
-      className={`px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
-        isActive(href) 
-          ? "bg-gold text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]" 
-          : "text-gray-400 hover:text-white hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </Link>
-  )
+  const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
     <div className="flex h-screen bg-black text-white relative overflow-hidden selection:bg-gold selection:text-black">
@@ -59,9 +69,26 @@ export default function DashboardLayout({
       {/* Background glow for the whole dashboard */}
       <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-gold/10 blur-[150px] rounded-full pointer-events-none z-0" />
 
+      {/* Mobile Header & Toggle */}
+      <div className="md:hidden fixed top-0 left-0 w-full glass-luxury border-b border-white/10 p-4 flex justify-between items-center z-50">
+          <div className="flex items-center gap-2">
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={24} height={24} className="rounded-md" />
+              <h2 className="text-lg font-bold tracking-wide">
+                  Phanda <span className="text-gold">Links</span>
+              </h2>
+          </div>
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2">
+              <div className="w-6 h-0.5 bg-white mb-1.5" />
+              <div className="w-6 h-0.5 bg-gold mb-1.5" />
+              <div className="w-4 h-0.5 bg-white ml-auto" />
+          </button>
+      </div>
+
       {/* SIDEBAR */}
-      <aside className="w-72 glass-luxury border-r border-white/10 flex flex-col relative z-10">
-        <div className="p-8 border-b border-white/10 flex items-center gap-3">
+      <aside className={`${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      } fixed md:static top-0 left-0 w-72 h-full glass-luxury border-r border-white/10 flex flex-col z-40 transition-transform duration-300`}>
+        <div className="hidden md:flex p-8 border-b border-white/10 items-center gap-3">
             <Image
                 src="/images/logo-icon.jpeg"
                 alt="Phanda Links"
@@ -74,24 +101,27 @@ export default function DashboardLayout({
                 Phanda <span className="text-gold">Links</span>
             </h2>
         </div>
+        <div className="md:hidden h-16 border-b border-white/10" /> {/* Spacer for mobile header */}
 
         <div className="flex-1 overflow-y-auto py-6 px-4 no-scrollbar">
             <nav className="flex flex-col gap-2">
             {role === "worker" && (
                 <>
-                <NavLink href="/dashboard/worker">Dashboard</NavLink>
-                <NavLink href="/dashboard/worker/earnings">Earnings</NavLink>
-                <NavLink href="/dashboard/worker/jobs">Find Jobs</NavLink>
-                <NavLink href="/dashboard/worker/profile">My Profile</NavLink>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/worker" isActive={isActive("/dashboard/worker")}>Dashboard</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/worker/earnings" isActive={isActive("/dashboard/worker/earnings")}>Earnings</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/worker/jobs" isActive={isActive("/dashboard/worker/jobs")}>Find Jobs</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/worker/profile" isActive={isActive("/dashboard/worker/profile")}>My Profile</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/messages" isActive={isActive("/dashboard/messages")}>Messages</NavLink></div>
                 </>
             )}
 
             {role === "client" && (
                 <>
-                <NavLink href="/dashboard/client">Dashboard</NavLink>
-                <NavLink href="/dashboard/client/bookings">My Bookings</NavLink>
-                <NavLink href="/dashboard/client/saved">Saved Workers</NavLink>
-                <NavLink href="/workers">Browse Workers</NavLink>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/client" isActive={isActive("/dashboard/client")}>Dashboard</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/client/bookings" isActive={isActive("/dashboard/client/bookings")}>My Bookings</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/client/saved" isActive={isActive("/dashboard/client/saved")}>Saved Workers</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/workers" isActive={isActive("/workers")}>Browse Workers</NavLink></div>
+                <div onClick={closeMobileMenu}><NavLink href="/dashboard/messages" isActive={isActive("/dashboard/messages")}>Messages</NavLink></div>
                 </>
             )}
 
@@ -119,10 +149,24 @@ export default function DashboardLayout({
         </div>
       </aside>
 
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+            onClick={closeMobileMenu}
+          />
+      )}
+
       {/* MAIN CONTENT */}
-      <main className="flex-1 overflow-y-auto relative z-10 bg-black/40 backdrop-blur-3xl">
+      <main className="flex-1 overflow-y-auto relative z-10 bg-black/40 backdrop-blur-3xl pt-16 md:pt-0">
         <div className="min-h-full">
-            {children}
+            {loading ? (
+                <div className="flex h-full items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+                </div>
+            ) : (
+                children
+            )}
         </div>
       </main>
 
