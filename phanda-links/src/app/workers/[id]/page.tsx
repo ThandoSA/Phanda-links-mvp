@@ -6,8 +6,11 @@ import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
 import Navbar from "@/components/layout/Navbar"
-
+import Footer from "@/components/layout/Footer"
 import { Worker } from "@/types"
+import { Star, MapPin, CheckCircle2, Briefcase, ShieldCheck, X, MessageSquare, ArrowRight, Image as ImageIcon } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { PortfolioItem } from "@/types"
 
 export default function WorkerProfilePage() {
   const params = useParams()
@@ -16,10 +19,12 @@ export default function WorkerProfilePage() {
   const [worker, setWorker] = useState<Worker | null>(null)
   const [avgRating, setAvgRating] = useState<string | null>(null)
   const [reviews, setReviews] = useState<any[]>([])
+  const [portfolios, setPortfolios] = useState<PortfolioItem[]>([])
   const [completedJobsCount, setCompletedJobsCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isHiring, setIsHiring] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [jobTitle, setJobTitle] = useState("")
   const [jobDescription, setJobDescription] = useState("")
 
@@ -68,7 +73,16 @@ export default function WorkerProfilePage() {
           }
         }
 
-        // 3. Completed Jobs Count
+        // 3. Portfolios
+        const { data: portfolioData } = await supabase
+            .from("worker_portfolios")
+            .select("*")
+            .eq("worker_id", id)
+            .order("created_at", { ascending: false })
+        
+        if (portfolioData) setPortfolios(portfolioData)
+
+        // 4. Completed Jobs Count
         const { count } = await supabase
           .from("jobs")
           .select("*", { count: 'exact', head: true })
@@ -190,11 +204,15 @@ export default function WorkerProfilePage() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div>
                             <h1 className="text-4xl font-bold tracking-tight mb-1">{worker.full_name}</h1>
-                            <p className="text-gold text-sm font-medium tracking-wide uppercase">{worker.location}</p>
+                            <div className="flex items-center justify-center md:justify-start gap-1.5 text-gold text-sm font-medium tracking-wide uppercase">
+                                <MapPin className="w-3.5 h-3.5" />
+                                {worker.location}
+                            </div>
                         </div>
                         <div className="flex flex-col items-center md:items-end">
                             <div className="text-2xl font-black text-white mb-1 flex items-center gap-2">
-                                <span className="text-gold">⭐</span> {avgRating || "0.0"}
+                                <Star className="w-6 h-6 text-gold fill-gold" />
+                                {avgRating || "0.0"}
                             </div>
                             <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{reviews.length} Reviews</p>
                         </div>
@@ -227,6 +245,52 @@ export default function WorkerProfilePage() {
                     </p>
                 </section>
 
+                {/* 🖼 WORK PORTFOLIO GALLERY */}
+                <section className="glass-panel p-8 rounded-3xl border-t border-white/5 space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                            Work Portfolio
+                        </h2>
+                        {portfolios.length > 0 && (
+                            <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{portfolios.length} Projects</span>
+                        )}
+                    </div>
+
+                    {portfolios.length === 0 ? (
+                        <div className="py-12 border border-white/5 bg-white/2 rounded-3xl flex flex-col items-center justify-center text-center gap-3">
+                            <ImageIcon className="w-8 h-8 text-white/10" />
+                            <p className="text-gray-500 text-xs italic">No portfolio projects uploaded yet.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {portfolios.map((item, i) => (
+                                <motion.div
+                                    key={item.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    onClick={() => setSelectedImage(item.image_url)}
+                                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-zoom-in border border-white/5"
+                                >
+                                    <Image 
+                                        src={item.image_url} 
+                                        alt={item.title} 
+                                        fill 
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
+                                        <h4 className="text-white font-bold text-sm mb-1 transform translate-y-4 group-hover:translate-y-0 transition-transform">{item.title}</h4>
+                                        {item.description && (
+                                            <p className="text-gray-300 text-[10px] line-clamp-2 transform translate-y-4 group-hover:translate-y-0 transition-transform delay-75">{item.description}</p>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
                 <section className="glass-panel p-8 rounded-3xl border-t border-white/5">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 bg-gold rounded-full" />
@@ -237,7 +301,7 @@ export default function WorkerProfilePage() {
                         {reviews.length === 0 ? (
                             <div className="text-center py-16 border border-white/5 bg-white/5 rounded-3xl flex flex-col items-center justify-center shadow-inner">
                                 <div className="w-16 h-16 bg-black/40 rounded-full flex items-center justify-center mb-4 border border-white/10">
-                                    <span className="text-2xl opacity-60">⭐</span>
+                                    <Star className="w-8 h-8 text-white/20" />
                                 </div>
                                 <p className="text-white font-bold mb-1">No Reviews Yet</p>
                                 <p className="text-gray-500 text-xs max-w-[200px]">Be the first to experience and review their premium service.</p>
@@ -260,8 +324,13 @@ export default function WorkerProfilePage() {
                                                 <p className="text-gray-600 text-[9px]">{new Date(review.created_at).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="text-gold text-[10px] font-bold">
-                                            {"★".repeat(Math.floor(review.rating || 0))}{"☆".repeat(5 - Math.floor(review.rating || 0))}
+                                        <div className="flex gap-0.5">
+                                            {[...Array(5)].map((_, i) => (
+                                              <Star 
+                                                key={i} 
+                                                className={`w-3 h-3 ${i < review.rating ? "text-gold fill-gold" : "text-gray-700"}`} 
+                                              />
+                                            ))}
                                         </div>
                                     </div>
                                     <p className="text-gray-400 text-xs italic leading-relaxed">&quot;{review.comment}&quot;</p>
@@ -287,11 +356,16 @@ export default function WorkerProfilePage() {
 
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full bg-gold text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] flex items-center justify-center min-h-[56px]"
+                    className="w-full bg-gold text-black py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] flex items-center justify-center min-h-[56px] gap-2"
                 >
-                    Book Service Now
+                    Book Service Now <ArrowRight className="w-4 h-4" />
                 </button>
-                <p className="text-center text-[10px] text-gray-500 font-medium">Safe & Secure Payment via Phanda Pay</p>
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    Safe & Secure Payment via Phanda Pay
+                  </div>
+                </div>
             </div>
         </div>
 
@@ -304,12 +378,12 @@ export default function WorkerProfilePage() {
                         onClick={() => setIsModalOpen(false)}
                         className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
                     >
-                        ✕
+                        <X className="w-6 h-6" />
                     </button>
                     
                     <div className="text-center mb-8">
                         <div className="w-16 h-16 bg-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gold/20">
-                            <span className="text-2xl text-gold">🤝</span>
+                            <Briefcase className="w-8 h-8 text-gold" />
                         </div>
                         <h2 className="text-2xl font-bold text-white">Hire {worker.full_name.split(' ')[0]}</h2>
                         <p className="text-gray-500 text-xs mt-1">Describe what you need to get started.</p>
@@ -340,16 +414,51 @@ export default function WorkerProfilePage() {
                         <button
                             onClick={handleHire}
                             disabled={isHiring}
-                            className="w-full bg-gold text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] disabled:opacity-50 flex items-center justify-center"
+                            className="w-full bg-gold text-black py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            {isHiring ? <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" /> : "Confirm Booking"}
+                            {isHiring ? <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" /> : <>Confirm Booking <CheckCircle2 className="w-4 h-4" /></>}
                         </button>
                     </div>
                 </div>
             </div>
         )}
 
+        {/* 🎞 LIGHTBOX */}
+        <AnimatePresence>
+            {selectedImage && (
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSelectedImage(null)}
+                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10 cursor-zoom-out"
+                >
+                    <motion.button 
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
+                    >
+                        <X className="w-8 h-8" />
+                    </motion.button>
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        className="relative w-full h-full max-w-5xl"
+                    >
+                        <Image 
+                            src={selectedImage} 
+                            alt="Portfolio Full View" 
+                            fill 
+                            className="object-contain" 
+                            priority 
+                        />
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
       </div>
+      <Footer />
     </div>
   )
 }

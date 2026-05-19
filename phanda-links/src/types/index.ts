@@ -63,6 +63,16 @@ export type Message = {
   job_id: string
 }
 
+export type PortfolioItem = {
+  id: string
+  worker_id: string
+  title: string
+  description?: string
+  image_url: string
+  created_at: string
+}
+
 export type Worker = Profile & {
   worker_profiles?: WorkerProfile[]
+  portfolios?: PortfolioItem[]
 }

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
+import { X, Send } from "lucide-react"
 
 interface QuoteModalProps {
     jobId: string
@@ -62,7 +63,9 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                             <h2 className="text-2xl font-bold text-white mb-1">Send a <span className="text-gold">Quote</span></h2>
                             <p className="text-gray-400 text-xs font-medium">Job: {jobTitle}</p>
                         </div>
-                        <button onClick={onClose} className="text-gray-500 hover:text-white text-2xl">×</button>
+                        <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
+                            <X className="w-6 h-6" />
+                        </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -101,9 +104,13 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-2 bg-gold text-black py-3 rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-gold/20 disabled:opacity-50"
+                                className="flex-2 bg-gold text-black py-3 rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-gold/20 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {loading ? "Sending..." : "Submit Quote"}
+                                {loading ? (
+                                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <>Submit Quote <Send className="w-4 h-4" /></>
+                                )}
                             </button>
                         </div>
                     </form>
