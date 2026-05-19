@@ -69,13 +69,24 @@ export default function Home() {
 
   useEffect(() => {
     const fetchFeatured = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
-        .select(`id, full_name, location, avatar_url, rating, worker_profiles(skills)`)
+        .select(`id, full_name, location, avatar_url, worker_profiles(skills, rating, verified)`)
         .eq("role", "worker")
-        .order("rating", { ascending: false })
-        .limit(3)
-      if (data) setFeaturedWorkers(data)
+      if (!error && data) {
+        const mapped = data.map((profile: any) => {
+          const wp = profile.worker_profiles?.[0]
+          return {
+            ...profile,
+            rating: wp?.rating || 0,
+            is_verified: wp?.verified || false
+          }
+        })
+        const sorted = [...mapped].sort((a: any, b: any) => b.rating - a.rating)
+        setFeaturedWorkers(sorted.slice(0, 3))
+      } else if (error) {
+        console.error("Error fetching featured workers:", error)
+      }
     }
     fetchFeatured()
   }, [])

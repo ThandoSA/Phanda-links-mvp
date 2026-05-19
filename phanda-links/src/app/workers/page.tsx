@@ -42,9 +42,22 @@ function WorkersContent() {
     const fetchWorkers = async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select(`id, full_name, location, avatar_url, rating, is_verified, worker_profiles (skills, bio, availability)`)
+        .select(`id, full_name, location, avatar_url, worker_profiles (skills, bio, availability, rating, verified)`)
         .eq("role", "worker")
-      if (!error) setWorkers(data || [])
+      if (!error && data) {
+        const mappedWorkers = data.map((profile: any) => {
+          const wp = profile.worker_profiles?.[0]
+          return {
+            ...profile,
+            rating: wp?.rating || 0,
+            is_verified: wp?.verified || false
+          }
+        })
+        setWorkers(mappedWorkers)
+      } else {
+        if (error) console.error("Error fetching workers:", error)
+        setWorkers([])
+      }
       setLoading(false)
     }
     fetchWorkers()

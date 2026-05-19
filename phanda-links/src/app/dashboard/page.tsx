@@ -80,6 +80,13 @@ export default function DashboardRouter() {
     if (error) {
       toast.error("Failed to save role: " + error.message)
     } else {
+      if (selectedRole === "worker") {
+        await supabase.from("worker_profiles").upsert({
+          user_id: userData.user.id,
+          skills: [],
+          bio: "",
+        })
+      }
       toast.success("Welcome! Redirecting...")
       router.replace(selectedRole === "client" ? "/dashboard/client" : "/dashboard/worker")
     }

@@ -18,10 +18,26 @@ export default function SavedPage() {
       try {
         const { data, error } = await supabase
           .from("saved_workers")
-          .select(`worker:profiles (id, full_name, avatar_url, location, rating, is_verified, worker_profiles (skills, bio, availability))`)
+          .select(`worker:profiles (id, full_name, avatar_url, location, worker_profiles (skills, bio, availability, rating, verified))`)
           .eq("client_id", userData.user.id)
-        if (!error && data) setSavedWorkers(data.map((item: any) => item.worker) || [])
-      } catch { console.log("Saved workers table not yet available.") }
+        if (!error && data) {
+          const mapped = data.map((item: any) => {
+            const worker = item.worker
+            if (worker) {
+              const wp = worker.worker_profiles?.[0]
+              return {
+                ...worker,
+                rating: wp?.rating || 0,
+                is_verified: wp?.verified || false
+              }
+            }
+            return null
+          }).filter(Boolean)
+          setSavedWorkers(mapped || [])
+        }
+      } catch (err) {
+        console.log("Saved workers fetch error:", err)
+      }
       setLoading(false)
     }
     fetchSaved()
