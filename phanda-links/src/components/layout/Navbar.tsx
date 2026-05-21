@@ -94,23 +94,23 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-8">
 
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 overflow-hidden rounded-xl border border-white/10 group-hover:border-[#D4AF37]/50 transition-all duration-500">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+            <div className="relative w-9 h-9 overflow-hidden rounded-sm border border-white/10 group-hover:border-[#C5A059] transition-all duration-75">
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover transition-transform duration-75" />
             </div>
-            <span className="font-bold text-lg tracking-tighter text-white">
-              Phanda <span className="text-[#D4AF37]">Links</span>
+            <span className="font-extrabold text-lg tracking-tighter text-white">
+              Phanda <span className="text-[#C5A059]">Links</span>
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em]">
+          <div className="hidden md:flex items-center gap-8 text-[11px] font-mono font-bold uppercase tracking-[0.25em]">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`relative transition-all duration-300 pb-1 group ${isActive(href) ? "text-[#D4AF37]" : "text-gray-400 hover:text-white"}`}
+                className={`relative transition-all duration-75 pb-1 group ${isActive(href) ? "text-[#C5A059]" : "text-gray-400 hover:text-white"}`}
               >
                 {label}
-                <span className={`absolute -bottom-0.5 left-0 w-full h-0.5 rounded-full bg-[#D4AF37] transition-all duration-300 ${isActive(href) ? "opacity-100" : "opacity-0 scale-x-0 group-hover:scale-x-100 group-hover:opacity-30"}`} />
+                <span className={`absolute -bottom-0.5 left-0 w-full h-0.5 bg-[#C5A059] transition-all duration-75 ${isActive(href) ? "opacity-100" : "opacity-0 scale-x-0 group-hover:scale-x-100 group-hover:opacity-100"}`} />
               </Link>
             ))}
           </div>
@@ -119,16 +119,16 @@ export default function Navbar() {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="text-[11px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors"
+                className="text-[11px] font-mono font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors"
               >
                 Logout
               </button>
             ) : (
               <>
-                <Link href="/login" className="text-[11px] font-black uppercase tracking-widest text-white hover:text-[#D4AF37] transition-colors mr-2">
+                <Link href="/login" className="text-[11px] font-mono font-bold uppercase tracking-widest text-white hover:text-[#C5A059] transition-colors mr-2">
                   Login
                 </Link>
-                <Link href="/signup" className="btn-luxury bg-[#D4AF37] text-black px-7 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-[0_8px_20px_rgba(212,175,55,0.25)]">
+                <Link href="/signup" className="btn-luxury btn-luxury-primary px-6 py-2.5 font-extrabold text-[11px] uppercase tracking-widest">
                   Get Started
                 </Link>
               </>
@@ -141,41 +141,41 @@ export default function Navbar() {
             aria-label="Open menu"
           >
             <span className="w-6 h-0.5 bg-white block" />
-            <span className="w-6 h-0.5 bg-[#D4AF37] block" />
+            <span className="w-6 h-0.5 bg-[#C5A059] block" />
             <span className="w-4 h-0.5 bg-white block ml-auto" />
           </button>
         </div>
       </nav>
 
       {/* Mobile Overlay */}
-      <div className={`fixed inset-0 bg-black/97 backdrop-blur-2xl z-[100] flex flex-col items-center justify-center transition-all duration-500 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+      <div className={`fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center transition-all duration-75 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <button
           onClick={() => setMenuOpen(false)}
-          className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#D4AF37] hover:text-black transition-all text-lg font-bold"
+          className="absolute top-8 right-8 w-10 h-10 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#C5A059] hover:text-black transition-all text-sm font-bold"
         >
           ✕
         </button>
 
-        <div className={`flex flex-col gap-8 text-center transition-all duration-500 ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
+        <div className={`flex flex-col gap-8 text-center transition-all duration-75 ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className={`text-3xl font-black transition-all ${isActive(href) ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}
+              className={`text-2xl font-black uppercase tracking-widest transition-all ${isActive(href) ? "text-[#C5A059]" : "text-white hover:text-[#C5A059]"}`}
             >
               {label}
             </Link>
           ))}
-          <div className="h-px w-20 bg-[#D4AF37]/30 mx-auto my-2" />
+          <div className="h-px w-12 bg-[#C5A059]/30 mx-auto my-2" />
           {user ? (
-            <button onClick={() => { setMenuOpen(false); handleLogout() }} className="text-xl font-bold text-red-400 hover:text-red-300">
+            <button onClick={() => { setMenuOpen(false); handleLogout() }} className="text-lg font-bold text-red-500 hover:text-red-400">
               Logout
             </button>
           ) : (
             <>
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-xl font-bold text-gray-400 hover:text-white">Login</Link>
-              <Link href="/signup" onClick={() => setMenuOpen(false)} className="bg-[#D4AF37] text-black px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest">
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-gray-400 hover:text-white uppercase tracking-wider font-mono">Login</Link>
+              <Link href="/signup" onClick={() => setMenuOpen(false)} className="btn-luxury btn-luxury-primary px-10 py-4 font-black text-sm uppercase tracking-widest">
                 Get Started
               </Link>
             </>

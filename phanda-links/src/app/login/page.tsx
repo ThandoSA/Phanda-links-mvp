@@ -78,11 +78,9 @@ export default function Login() {
     <div className="bg-black min-h-screen">
       <div className="flex min-h-screen bg-black text-white overflow-hidden">
         {/* Left — Brand Panel */}
-        <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
-          {/* Animated background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-[#0a0a0a] to-black" />
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#D4AF37]/8 blur-[160px] rounded-full" />
-          <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-[#D4AF37]/5 blur-[120px] rounded-full" />
+        <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden border-r border-white/10">
+          {/* Flat deep background */}
+          <div className="absolute inset-0 bg-[#0B0B0C]" />
           {/* Grid pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{
             backgroundImage: "linear-gradient(rgba(212,175,55,1) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,1) 1px, transparent 1px)",
@@ -91,27 +89,27 @@ export default function Login() {
 
           <div className="relative z-10 text-center space-y-8">
             <div className="flex justify-center mb-8">
-              <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-[#D4AF37]/20 shadow-[0_0_60px_rgba(212,175,55,0.15)]">
-                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover" />
+              <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-[#D4AF37]/30">
+                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover filter grayscale contrast-125" />
               </div>
             </div>
             <div>
-              <h1 className="text-5xl font-black tracking-tighter mb-4">
+              <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">
                 Phanda <span className="text-[#D4AF37]">Links</span>
               </h1>
-              <p className="text-gray-400 text-lg leading-relaxed max-w-sm mx-auto">
+              <p className="text-gray-400 text-sm font-medium tracking-wide leading-relaxed max-w-sm mx-auto uppercase">
                 The premium marketplace connecting elite professionals with discerning clients.
               </p>
             </div>
-            <div className="flex flex-col gap-4 text-left max-w-xs mx-auto">
+            <div className="flex flex-col gap-4 text-left max-w-xs mx-auto border-t border-white/10 pt-6">
               {["Verified elite professionals", "Real-time job matching", "Secure payments & chat"].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center flex-shrink-0">
+                  <div className="w-5 h-5 rounded-[2px] bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0">
                     <svg className="w-2.5 h-2.5 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-sm text-gray-300 font-medium">{item}</span>
+                  <span className="text-xs text-gray-300 font-semibold uppercase tracking-wider">{item}</span>
                 </div>
               ))}
             </div>
@@ -120,18 +118,18 @@ export default function Login() {
 
         {/* Right — Form Panel */}
         <div className="flex-1 flex items-center justify-center p-6 md:p-12 relative">
-          <div className="absolute inset-0 bg-[#050505]" />
+          <div className="absolute inset-0 bg-[#000000]" />
           <div className="w-full max-w-md relative z-10 space-y-8">
             {/* Mobile logo */}
             <div className="flex lg:hidden justify-center">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-2xl shadow-lg" />
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-[2px] border border-white/10 filter grayscale contrast-125" />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl font-black tracking-tight text-white">
+              <h2 className="text-3xl font-black tracking-tight text-white uppercase">
                 Welcome <span className="text-[#D4AF37]">Back</span>
               </h2>
-              <p className="text-gray-500 text-sm">Sign in to your premium account</p>
+              <p className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Sign in to your premium account</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -169,10 +167,10 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-luxury w-full bg-[#D4AF37] text-black font-black py-4 rounded-2xl text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(212,175,55,0.25)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2"
+                className="btn-luxury btn-luxury-primary w-full py-4 text-xs uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-2"
               >
                 {loading ? (
-                  <><div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> Signing in...</>
+                  <><div className="w-4 h-4 border border-black border-t-transparent rounded-[1px] animate-spin" /> Signing in...</>
                 ) : "Sign In"}
               </button>
             </form>
@@ -186,9 +184,9 @@ export default function Login() {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full bg-transparent border border-white/10 hover:border-gold/30 hover:bg-white/3 text-white font-black py-4 rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
+              className="btn-luxury w-full bg-transparent border border-white/10 hover:border-gold/30 hover:bg-white/3 text-white font-black py-4 text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
@@ -197,9 +195,9 @@ export default function Login() {
               Sign In with Google
             </button>
 
-            <p className="text-center text-gray-500 text-sm">
+            <p className="text-center text-gray-500 text-xs uppercase tracking-wider">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-[#D4AF37] font-bold hover:underline">
+              <Link href="/signup" className="text-[#D4AF37] font-extrabold hover:underline">
                 Create one
               </Link>
             </p>
