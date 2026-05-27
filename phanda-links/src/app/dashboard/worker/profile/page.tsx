@@ -101,10 +101,10 @@ export default function WorkerProfileForm() {
   if (loading) {
     return (
       <div className="p-8 max-w-5xl mx-auto space-y-10 pt-20">
-        <div className="h-10 w-64 bg-white/5 rounded-xl animate-pulse" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="h-80 bg-white/5 rounded-3xl animate-pulse" />
-          <div className="lg:col-span-2 h-[500px] bg-white/5 rounded-3xl animate-pulse" />
+        <div className="h-10 w-64 bg-white/5 rounded-sm animate-pulse" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="h-80 bg-white/5 rounded-md animate-pulse" />
+          <div className="lg:col-span-2 h-[500px] bg-white/5 rounded-md animate-pulse" />
         </div>
       </div>
     )
@@ -122,9 +122,9 @@ export default function WorkerProfileForm() {
         {/* Left Column */}
         <div className="space-y-6">
           {/* Avatar */}
-          <div className="card-luxury p-8 rounded-3xl text-center border border-white/5">
-            <div className="relative w-36 h-36 mx-auto mb-6 rounded-3xl overflow-hidden border-2 border-gold/40 shadow-[0_0_40px_rgba(212,175,55,0.15)] group cursor-pointer transition-all hover:scale-105">
-              <Image src={avatarUrl || "/images/default-avatar.svg"} alt="Avatar" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+          <div className="card-luxury p-6 rounded-md text-center border border-white/5">
+            <div className="relative w-36 h-36 mx-auto mb-6 rounded-sm overflow-hidden border-2 border-gold/40 group cursor-pointer">
+              <Image src={avatarUrl || "/images/default-avatar.svg"} alt="Avatar" fill className="object-cover img-reveal" />
               <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-black uppercase tracking-widest cursor-pointer gap-2">
                 <Camera className="w-5 h-5" />
                 Change Photo
@@ -136,7 +136,7 @@ export default function WorkerProfileForm() {
           </div>
 
           {/* Trust Profile */}
-          <div className="card-luxury p-7 rounded-3xl space-y-5 border border-white/5">
+          <div className="card-luxury p-6 rounded-md space-y-5 border border-white/5">
             <div>
               <h3 className="text-white font-bold text-sm mb-0.5">Trust Profile</h3>
               <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Public visible stats</p>
@@ -145,7 +145,7 @@ export default function WorkerProfileForm() {
               <div className="flex justify-between items-center pb-4 border-b border-white/5">
                 <span className="text-sm text-gray-400 font-medium">Verification</span>
                 {isVerified ? (
-                  <span className="flex items-center gap-1.5 text-[10px] text-gold font-black uppercase tracking-wider bg-gold/10 px-2 py-1 rounded-full border border-gold/20">
+                  <span className="flex items-center gap-1.5 text-[10px] text-gold font-black uppercase tracking-wider bg-gold/10 px-2 py-1 rounded-sm border border-gold/20">
                     <BadgeCheck className="w-3.5 h-3.5" />
                     Verified
                   </span>
@@ -173,7 +173,7 @@ export default function WorkerProfileForm() {
 
         {/* Right Column — Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="card-luxury p-8 md:p-10 rounded-[2.5rem] space-y-7 border border-white/5 shadow-2xl">
+          <div className="card-luxury p-6 md:p-8 rounded-md space-y-7 border border-white/5">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -205,7 +205,7 @@ export default function WorkerProfileForm() {
               {skillsArray.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {skillsArray.map((skill, i) => (
-                    <span key={i} className="bg-gold/10 border border-gold/25 text-gold text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                    <span key={i} className="bg-gold/10 border border-gold/25 text-gold text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-sm">
                       {skill}
                     </span>
                   ))}
@@ -228,16 +228,16 @@ export default function WorkerProfileForm() {
             {/* Availability Toggle */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Availability Status</label>
-              <div className="flex bg-white/3 border border-white/8 rounded-2xl p-1.5 gap-2">
+              <div className="flex bg-white/3 border border-white/8 rounded-sm p-1.5 gap-2">
                 {[
                   { val: "available", label: "Available", dotClass: "bg-emerald-400 animate-pulse", activeClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
                   { val: "busy", label: "Busy", dotClass: "bg-orange-400", activeClass: "bg-orange-500/15 text-orange-400 border-orange-500/30" },
                 ].map(({ val, label, dotClass, activeClass }) => (
-                  <button
+                    <button
                     key={val}
                     type="button"
                     onClick={() => setAvailability(val as "available" | "busy")}
-                    className={`flex-1 py-4 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2 ${
+                      className={`flex-1 py-4 px-4 rounded-sm text-[10px] font-black uppercase tracking-widest border flex items-center justify-center gap-2 ${
                       availability === val ? activeClass : "text-gray-500 border-transparent hover:text-white"
                     }`}
                   >
@@ -253,7 +253,7 @@ export default function WorkerProfileForm() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="bg-gold text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_15px_40px_rgba(212,175,55,0.2)] disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3 hover:scale-105 transition-all"
+                className="bg-gold text-black px-12 py-5 rounded-sm font-black text-xs uppercase tracking-widest disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3 hard-offset-hover"
               >
                 {saving ? (
                   <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Updating...</>
@@ -263,8 +263,8 @@ export default function WorkerProfileForm() {
           </div>
 
           {/* Security note */}
-          <div className="p-8 border border-white/5 bg-white/[0.015] rounded-[2rem] flex items-center gap-6 group hover:border-gold/20 transition-all">
-            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-gold/10 transition-colors">
+          <div className="p-6 border border-white/5 bg-white/[0.015] rounded-md flex items-center gap-6 group hover:border-gold/20">
+            <div className="w-14 h-14 bg-white/5 rounded-sm flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-7 h-7 text-white/20 group-hover:text-gold transition-colors" />
             </div>
             <div>

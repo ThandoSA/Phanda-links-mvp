@@ -145,7 +145,7 @@ export default function PortfolioManagement() {
                 {!isAdding && (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="bg-gold text-black px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2"
+                        className="bg-gold text-black px-5 py-2.5 rounded-sm font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hard-offset-hover"
                     >
                         <Plus className="w-4 h-4" /> Add New Project
                     </button>
@@ -154,7 +154,7 @@ export default function PortfolioManagement() {
 
             {/* ADD ITEM FORM */}
             {isAdding && (
-                <div className="glass-panel p-8 rounded-3xl border border-gold/20 animate-fade-in relative overflow-hidden">
+                <div className="glass-panel p-6 rounded-md border border-gold/20 animate-fade-in relative overflow-hidden">
                     <button
                         onClick={() => { setIsAdding(false); resetForm(); }}
                         className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
@@ -168,7 +168,7 @@ export default function PortfolioManagement() {
                         {/* Image Upload Area */}
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-gold uppercase tracking-widest">Project Image</label>
-                            <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-white/10 hover:border-gold/30 transition-all group">
+                            <div className="relative aspect-video rounded-sm overflow-hidden border-2 border-dashed border-white/10 hover:border-gold/30 group">
                                 {imagePreview ? (
                                     <Image src={imagePreview} alt="Preview" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
                                 ) : (
@@ -182,7 +182,7 @@ export default function PortfolioManagement() {
                                     <button
                                         type="button"
                                         onClick={() => { setImageFile(null); setImagePreview(""); }}
-                                        className="absolute top-2 right-2 bg-black/60 p-2 rounded-lg text-white hover:bg-red-500 transition-colors"
+                                        className="absolute top-2 right-2 bg-black/60 p-2 rounded-sm text-white hover:bg-red-500"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -200,7 +200,7 @@ export default function PortfolioManagement() {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="e.g. Modern Bathroom Renovation"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -210,13 +210,13 @@ export default function PortfolioManagement() {
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Briefly explain what you did..."
                                     rows={3}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold transition-all resize-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold resize-none"
                                 />
                             </div>
                             <button
                                 type="submit"
                                 disabled={uploading}
-                                className="w-full bg-gold text-black py-4 rounded-xl font-black text-[11px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-gold/20 flex items-center justify-center gap-2"
+                                className="w-full bg-gold text-black py-4 rounded-sm font-black text-[11px] uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2 hard-offset-hover"
                             >
                                 {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Upload Project <Plus className="w-4 h-4" /></>}
                             </button>
@@ -227,8 +227,8 @@ export default function PortfolioManagement() {
 
             {/* ITEMS LIST */}
             {items.length === 0 ? (
-                <div className="p-16 border-2 border-dashed border-white/5 bg-white/[0.02] rounded-[2.5rem] text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="p-12 border-2 border-dashed border-white/5 bg-white/[0.02] rounded-md text-center">
+                    <div className="w-16 h-16 bg-white/5 rounded-sm flex items-center justify-center mx-auto mb-4">
                         <ImageIcon className="w-8 h-8 text-white/20" />
                     </div>
                     <p className="text-gray-500 font-medium italic">Your portfolio is empty. Add projects to showcase your skills!</p>
@@ -236,19 +236,19 @@ export default function PortfolioManagement() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {items.map((item) => (
-                        <div key={item.id} className="group glass-panel rounded-2xl overflow-hidden border border-white/5 hover:border-gold/30 transition-all animate-fade-in">
+                        <div key={item.id} className="group glass-panel rounded-md overflow-hidden border border-white/5 hover:border-gold/30 animate-fade-in">
                             <div className="relative aspect-video">
                                 <Image 
                                     src={item.image_url} 
                                     alt={item.title} 
                                     fill 
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                                    className="object-cover" 
                                 />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <button
                                         onClick={() => handleDeleteItem(item.id, item.image_url)}
-                                        className="bg-red-500/80 p-3 rounded-xl text-white hover:bg-red-600 transition-colors shadow-xl"
+                                        className="bg-red-500/80 p-3 rounded-sm text-white hover:bg-red-600"
                                         title="Delete Item"
                                     >
                                         <Trash2 className="w-5 h-5" />

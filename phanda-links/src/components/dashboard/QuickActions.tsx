@@ -32,9 +32,9 @@ export default function QuickActions() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {actions.map((action, i) => (
                 <Link key={i} href={action.href} className="group">
-                    <div className={`glass-panel p-6 rounded-2xl h-full transition-all duration-300 transform group-hover:-translate-y-1 border ${action.color} shadow-xl relative overflow-hidden`}>
+                    <div className={`glass-panel p-6 rounded-md h-full transition-all duration-75 border ${action.color.replace(/shadow-[^\s]+/g, '')} relative overflow-hidden`}>
                         <div className="flex items-center gap-4 relative z-10">
-                            <div className="bg-white/5 w-12 h-12 flex items-center justify-center rounded-xl border border-white/5">
+                                    <div className="bg-white/5 w-12 h-12 flex items-center justify-center rounded-sm border border-white/5">
                                 {action.icon}
                             </div>
                             <div>
@@ -42,8 +42,8 @@ export default function QuickActions() {
                                 <p className="text-xs text-gray-400 mt-1">{action.desc}</p>
                             </div>
                         </div>
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+                                {/* Subtle sweep */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-75 linear pointer-events-none" />
                     </div>
                 </Link>
             ))}

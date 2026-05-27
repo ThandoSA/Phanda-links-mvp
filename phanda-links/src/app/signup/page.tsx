@@ -90,23 +90,23 @@ export default function Signup() {
           }} />
           <div className="relative z-10 text-center space-y-8">
             <div className="flex justify-center">
-              <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-[#D4AF37]/30">
-                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover filter grayscale contrast-125" />
+              <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-gold/30">
+                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale" />
               </div>
             </div>
             <div>
               <h1 className="text-4xl font-black tracking-tighter uppercase mb-4">
-                Join <span className="text-[#D4AF37]">Phanda Links</span>
+                Join <span className="text-gold">Phanda Links</span>
               </h1>
               <p className="text-gray-400 text-sm font-medium tracking-wide leading-relaxed max-w-xs mx-auto uppercase">
                 Connect with premium clients and elite service providers across South Africa.
               </p>
             </div>
-            <div className="glass-panel p-6 rounded-[4px] border border-white/10 text-left space-y-3 max-w-xs mx-auto">
-              <p className="text-[10px] text-[#D4AF37] uppercase font-black tracking-widest">Why join?</p>
+            <div className="glass-panel p-6 rounded-sm border border-white/10 text-left space-y-3 max-w-xs mx-auto">
+              <p className="text-[10px] text-gold uppercase font-black tracking-widest">Why join?</p>
               {["Access top-tier jobs instantly", "Build your verified reputation", "Get paid securely & on time"].map((item, i) => (
                 <p key={i} className="text-xs font-semibold text-gray-300 flex items-center gap-2 uppercase tracking-wide">
-                  <CheckCircle2 className="w-4 h-4 text-[#D4AF37] flex-shrink-0" /> {item}
+                  <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0" /> {item}
                 </p>
               ))}
             </div>
@@ -118,12 +118,12 @@ export default function Signup() {
           <div className="absolute inset-0 bg-[#000000]" />
           <div className="w-full max-w-lg relative z-10 space-y-8">
             <div className="flex lg:hidden justify-center">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-[2px] border border-white/10 filter grayscale contrast-125" />
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-[2px] border border-white/10 no-grayscale" />
             </div>
 
             <div className="space-y-2">
               <h2 className="text-3xl font-black tracking-tight uppercase">
-                Create <span className="text-[#D4AF37]">Account</span>
+                Create <span className="text-gold">Account</span>
               </h2>
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Join the community of elite professionals</p>
             </div>
@@ -131,26 +131,26 @@ export default function Signup() {
             <form onSubmit={handleSignup} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">Full Name</label>
+                  <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Full Name</label>
                   <input type="text" required placeholder="John Doe" className="input-luxury" onChange={(e) => setFullName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">Email Address</label>
+                  <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Email Address</label>
                   <input type="email" required placeholder="john@example.com" className="input-luxury" onChange={(e) => setEmail(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">Password</label>
+                  <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Password</label>
                   <input type="password" required placeholder="••••••••" className="input-luxury" onChange={(e) => setPassword(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">Location</label>
+                  <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Location</label>
                   <input type="text" required placeholder="e.g. Soweto, Johannesburg" className="input-luxury" onChange={(e) => setLocation(e.target.value)} />
                 </div>
               </div>
 
               {/* Role Toggle */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">I am a...</label>
+                <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">I am a...</label>
                 <div className="grid grid-cols-2 gap-3 p-1.5 bg-white/3 border border-white/8 rounded-[4px]">
                   {[
                     { val: "worker", label: "Worker / Hustler", icon: <Hammer className="w-4 h-4" /> },
@@ -162,7 +162,7 @@ export default function Signup() {
                       onClick={() => setRole(val)}
                       className={`py-3 px-4 rounded-[2px] border transition-all text-xs uppercase tracking-wider font-extrabold flex items-center justify-center gap-2 ${
                         role === val
-                          ? "bg-[#D4AF37]/12 border-[#D4AF37] text-[#D4AF37]"
+                          ? "bg-gold/12 border-gold text-gold"
                           : "bg-transparent border-white/8 text-gray-500 hover:text-white hover:border-white/20"
                       }`}
                     >
@@ -207,7 +207,7 @@ export default function Signup() {
 
             <p className="text-center text-gray-500 text-xs uppercase tracking-wider">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#D4AF37] font-extrabold hover:underline">Sign in</Link>
+              <Link href="/login" className="text-gold font-extrabold hover:underline">Sign in</Link>
             </p>
           </div>
         </div>

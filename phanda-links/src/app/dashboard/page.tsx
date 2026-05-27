@@ -95,20 +95,20 @@ export default function DashboardRouter() {
   if (roleUnknown) {
     return (
       <div className="min-h-screen flex items-center justify-center animate-luxury-bg p-6">
-        <div className="max-w-md w-full glass-luxury p-10 rounded-3xl text-center space-y-8">
+        <div className="max-w-md w-full glass-luxury p-6 rounded-md text-center space-y-6">
           <h1 className="text-2xl font-bold text-white">Complete Your <span className="text-gold">Profile</span></h1>
           <p className="text-gray-400">We couldn&apos;t determine your role. Please select how you want to use Phanda Links:</p>
           
           <div className="grid grid-cols-1 gap-4">
             <button 
               onClick={() => handleRoleSelection("client")}
-              className="py-4 rounded-xl border border-gold/30 bg-gold/10 text-gold font-bold hover:bg-gold hover:text-black transition-all"
+              className="py-3 rounded-sm border border-gold/30 bg-gold/10 text-gold font-bold hover:bg-gold hover:text-black"
             >
               I am a Client (Hiring)
             </button>
             <button 
               onClick={() => handleRoleSelection("worker")}
-              className="py-4 rounded-xl border border-white/10 bg-white/5 text-white font-bold hover:bg-white hover:text-black transition-all"
+              className="py-3 rounded-sm border border-white/10 bg-white/5 text-white font-bold hover:bg-white hover:text-black"
             >
               I am a Worker (Hustling)
             </button>

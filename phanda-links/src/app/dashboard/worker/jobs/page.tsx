@@ -52,11 +52,11 @@ export default function JobsPage() {
     return (
       <div className="p-8 max-w-7xl mx-auto space-y-10 pt-10">
         <div className="flex justify-between items-end">
-            <Skeleton width="300px" height="3.5rem" className="rounded-2xl" />
-            <Skeleton width="400px" height="3.5rem" className="rounded-full" />
+          <Skeleton width="300px" height="3.5rem" className="rounded-none" />
+          <Skeleton width="400px" height="3.5rem" className="rounded-none" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1,2,3,4,5,6].map(i => <Skeleton key={i} height="22rem" className="rounded-[2.5rem]" />)}
+          {[1,2,3,4,5,6].map(i => <Skeleton key={i} height="22rem" className="rounded-none" />)}
         </div>
       </div>
     )
@@ -87,7 +87,7 @@ export default function JobsPage() {
               placeholder="Search by title, location or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-full py-4 pl-14 pr-6 text-sm font-bold focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all placeholder:text-gray-600"
+              className="w-full bg-white/5 border border-white/10 rounded-none py-4 pl-14 pr-6 text-[10px] font-mono font-bold uppercase tracking-widest focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder:text-gray-600"
             />
           </div>
           <div className="flex gap-2">
@@ -95,8 +95,8 @@ export default function JobsPage() {
                <button 
                 key={btn}
                 onClick={() => setFilter(btn)}
-                className={`px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  filter === btn ? "bg-gold border-gold text-black shadow-lg shadow-gold/20" : "bg-transparent border-white/10 text-gray-500 hover:text-white"
+                className={`px-6 py-4 rounded-none text-[10px] font-black uppercase tracking-widest border transition-all duration-75 ${
+                  filter === btn ? "bg-gold border-gold text-black" : "bg-transparent border-white/10 text-gray-500 hover:text-white hover:border-white/30"
                 }`}
                >
                  {btn}
@@ -108,7 +108,7 @@ export default function JobsPage() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {[
+          {[
           { label: "Active Jobs", value: openJobs.length, icon: <Briefcase className="w-5 h-5 text-gold" /> },
           { label: "Avg. Price", value: "R 2,450", icon: <Gem className="w-5 h-5 text-gold" /> },
           { label: "New Today", value: "14", icon: <Sparkles className="w-5 h-5 text-gold" /> },
@@ -116,15 +116,15 @@ export default function JobsPage() {
         ].map((stat, i) => (
           <motion.div 
             key={i}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
-            className="glass-luxury p-6 rounded-3xl border border-white/10 flex items-center gap-4"
+            className="glass-luxury p-6 rounded-none border border-white/10 flex items-center gap-4 transition-all duration-75 hover:border-gold"
           >
             <div>{stat.icon}</div>
             <div>
-              <p className="text-white font-black text-xl leading-none">{stat.value}</p>
-              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">{stat.label}</p>
+              <p className="text-white font-mono font-black text-xl leading-none">{stat.value}</p>
+              <p className="text-[10px] font-mono text-gray-500 font-black uppercase tracking-widest mt-1">{stat.label}</p>
             </div>
           </motion.div>
         ))}
@@ -136,13 +136,13 @@ export default function JobsPage() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-40 text-center glass-luxury rounded-[3rem] border border-white/10 flex flex-col items-center"
+            className="py-40 text-center glass-luxury rounded-none border border-white/10 flex flex-col items-center"
           >
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <div className="w-20 h-20 bg-white/5 rounded-none flex items-center justify-center mb-6 border border-white/10">
               <Search className="w-8 h-8 text-white/20" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-4">No matching opportunities</h2>
-            <p className="text-gray-500 max-w-md mx-auto font-medium">Try adjusting your search filters to discover more premium jobs in your area.</p>
+            <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">No matching opportunities</h2>
+            <p className="text-gray-500 text-[10px] font-mono font-black tracking-widest uppercase max-w-md mx-auto">Try adjusting your search filters to discover more premium jobs in your area.</p>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -152,73 +152,68 @@ export default function JobsPage() {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ delay: i * 0.05 }}
-                whileHover={{ y: -10 }}
-                className="group relative flex flex-col h-full glass-luxury p-8 rounded-[2.5rem] border border-white/10 hover:border-gold/30 transition-all shadow-2xl overflow-hidden"
+                className="group relative flex flex-col h-full glass-luxury p-0 rounded-none border border-white/10 hover:border-gold transition-all duration-75 hard-offset-hover overflow-hidden"
               >
-                {/* Header: Price & Date */}
-                <div className="flex justify-between items-start mb-8 relative z-10">
-                  <div className="bg-gold/10 border border-gold/20 px-4 py-2 rounded-2xl">
-                    <span className="text-gold font-black text-lg">R {Number(job.price || 0).toLocaleString()}</span>
+                <div className="p-6 flex-1 flex flex-col">
+                  {/* Header: Price & Date */}
+                  <div className="flex justify-between items-start mb-8 relative z-10">
+                    <div className="bg-gold/10 border border-gold/30 px-3 py-1 rounded-none">
+                      <span className="text-gold font-mono font-black text-lg">R {Number(job.price || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-600">
+                      <Clock className="w-3 h-3 text-gold" />
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
+                        {new Date(job.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <Clock className="w-3 h-3" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">
-                      {new Date(job.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Content */}
-                <div className="flex-1 space-y-4 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-                    <span className="text-[10px] text-gold font-black uppercase tracking-widest">Public Request</span>
+                  {/* Content */}
+                  <div className="flex-1 space-y-4 relative z-10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-none bg-gold shadow-[0_0_8px_rgba(197,160,89,0.8)] animate-pulse-slow" />
+                      <span className="text-[10px] text-gold font-mono font-black uppercase tracking-[0.2em]">[AWAITING_BIDS]</span>
+                    </div>
+                    <h3 className="text-2xl font-black text-white leading-tight uppercase tracking-tight group-hover:text-gold transition-colors duration-75">{job.title || "Service Request"}</h3>
+                    <p className="text-gray-500 text-sm font-medium line-clamp-4 leading-relaxed font-mono">
+                      "{job.description || "NO SPECIFIC DETAILS PROVIDED."}"
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-black text-white leading-tight group-hover:text-gold transition-colors">{job.title || "Service Request"}</h3>
-                  <p className="text-gray-500 text-sm font-medium line-clamp-4 leading-relaxed italic">
-                    "{job.description || "No specific details provided."}"
-                  </p>
-                </div>
 
-                {/* Footer: Client & Location */}
-                <div className="mt-8 pt-8 border-t border-white/10 space-y-6 relative z-10">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20">
-                        <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill className="object-cover" />
+                  {/* Footer: Client & Location */}
+                  <div className="mt-8 pt-6 border-t border-white/10 space-y-6 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-10 h-10 rounded-none overflow-hidden border border-white/20 group-hover:border-gold/50 transition-colors duration-75">
+                          <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill className="object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white text-[10px] font-mono font-black uppercase tracking-widest truncate">{(job.client as any)?.full_name || "PREMIUM CLIENT"}</p>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-2.5 h-2.5 text-gold fill-gold" />
+                            <span className="text-[10px] text-gray-500 font-bold font-mono">{(job.client as any)?.rating || "5.0"}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-white text-xs font-bold truncate">{(job.client as any)?.full_name || "Premium Client"}</p>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-2.5 h-2.5 text-gold fill-gold" />
-                          <span className="text-[10px] text-gray-500 font-bold">{(job.client as any)?.rating || "5.0"}</span>
+                      <div className="text-right flex flex-col items-end">
+                        <p className="text-[10px] text-gray-600 font-mono font-black uppercase tracking-widest mb-1">LOC</p>
+                        <div className="flex items-center gap-1 text-white">
+                          <MapPin className="w-3 h-3 text-gold" />
+                          <p className="text-[10px] font-mono font-bold uppercase">{(job.location || "Available").substring(0, 15)}</p>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right flex flex-col items-end">
-                      <p className="text-[10px] text-gray-600 font-black uppercase tracking-widest mb-1">Location</p>
-                      <div className="flex items-center gap-1 text-white">
-                        <MapPin className="w-3 h-3 text-gold" />
-                        <p className="text-[10px] font-bold">{job.location || "Available"}</p>
-                      </div>
-                    </div>
                   </div>
-
-                  <button
-                    onClick={() => setSelectedJob(job)}
-                    className="w-full bg-white text-black font-black py-4 rounded-2xl text-xs uppercase tracking-widest hover:bg-gold transition-all duration-300 shadow-xl group/btn overflow-hidden relative"
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      Submit Quote <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                    </span>
-                    <div className="absolute inset-0 bg-gold translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-                  </button>
                 </div>
 
-                {/* Decorative background glow */}
-                <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gold/5 blur-[60px] rounded-full pointer-events-none group-hover:bg-gold/10 transition-colors" />
+                <button
+                  onClick={() => setSelectedJob(job)}
+                  className="w-full bg-white text-black font-black py-4 text-[10px] uppercase tracking-[0.2em] hover:bg-gold hover:text-black transition-colors duration-75 flex items-center justify-center gap-2 border-t border-white/10"
+                >
+                  SUBMIT PROPOSAL <ArrowRight className="w-3 h-3" />
+                </button>
               </motion.div>
             ))}
           </div>

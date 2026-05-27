@@ -8,7 +8,7 @@ import Image from "next/image"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { Worker } from "@/types"
-import { Star, MapPin, CheckCircle2, Briefcase, ShieldCheck, X, Image as ImageIcon } from "lucide-react"
+import { Star, MapPin, CheckCircle2, Briefcase, ShieldCheck, X, Image as ImageIcon, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { PortfolioItem } from "@/types"
 
@@ -272,7 +272,7 @@ export default function WorkerProfilePage() {
                                         src={item.image_url} 
                                         alt={item.title} 
                                         fill 
-                                        className="object-cover filter grayscale contrast-125 transition-transform duration-300 group-hover:scale-105" 
+                                        className="object-cover filter grayscale contrast-125 transition-transform duration-75" 
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-75 flex flex-col justify-end p-5">
                                         <h4 className="text-white font-black text-sm mb-1 uppercase tracking-tight">{item.title}</h4>

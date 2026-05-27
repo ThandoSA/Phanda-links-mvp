@@ -110,13 +110,13 @@ export default function ClientProfileForm() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* 📸 AVATAR SECTION */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-panel p-8 rounded-[2.5rem] border-t border-white/10 text-center">
-                        <div className="relative w-40 h-40 mx-auto mb-8 rounded-3xl overflow-hidden border-2 border-gold/50 shadow-[0_0_40px_rgba(212,175,55,0.2)] group cursor-pointer transition-all hover:scale-105">
+                    <div className="glass-panel p-6 rounded-md border-t border-white/10 text-center">
+                        <div className="relative w-40 h-40 mx-auto mb-6 rounded-md overflow-hidden border-2 border-gold/50 group cursor-pointer">
                             <Image
                                 src={avatarUrl || "/images/default-avatar.svg"}
                                 alt="Avatar"
                                 fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="object-cover transition-transform duration-75"
                             />
                             <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold uppercase tracking-widest gap-2">
                                 <Camera className="w-6 h-6" />
@@ -133,7 +133,7 @@ export default function ClientProfileForm() {
 
                 {/* 📝 FORM SECTION */}
                 <div className="lg:col-span-2 space-y-8">
-                    <div className="glass-panel p-10 rounded-[2.5rem] border-t border-white/10 space-y-8 shadow-2xl">
+                    <div className="glass-panel p-6 rounded-md border-t border-white/10 space-y-6">
                         
                         <div className="space-y-6">
                             <div className="space-y-2">
@@ -145,7 +145,7 @@ export default function ClientProfileForm() {
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gold transition-all font-medium"
+                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold font-medium"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -158,7 +158,7 @@ export default function ClientProfileForm() {
                                     value={location}
                                     onChange={(e) => setLocation(e.target.value)}
                                     placeholder="e.g. Sandton, JHB"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-gold transition-all font-medium"
+                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold font-medium"
                                 />
                             </div>
                         </div>
@@ -167,15 +167,14 @@ export default function ClientProfileForm() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="bg-gold text-black px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all transform active:scale-95 shadow-[0_20px_40px_rgba(212,175,55,0.2)] disabled:opacity-50 flex items-center gap-2"
+                                className="bg-gold text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center gap-2"
                             >
                                 {saving ? <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Updating...</> : <><Save className="w-4 h-4" /> Save Settings</>}
                             </button>
                         </div>
                     </div>
-
-                    <div className="p-8 border border-white/5 bg-white/[0.02] rounded-[2rem] flex items-center gap-6 group hover:border-gold/20 transition-all">
-                        <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:bg-gold/10 transition-colors">
+                    <div className="p-6 border border-white/5 bg-white/[0.02] rounded-md flex items-center gap-6 group">
+                        <div className="w-14 h-14 bg-white/5 rounded-sm flex items-center justify-center flex-shrink-0">
                             <ShieldCheck className="w-7 h-7 text-white/20 group-hover:text-gold transition-colors" />
                         </div>
                         <div>

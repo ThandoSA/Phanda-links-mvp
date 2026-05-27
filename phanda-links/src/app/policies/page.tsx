@@ -229,7 +229,7 @@ export default function PoliciesPage() {
                                 <a 
                                     key={p.id} 
                                     href={`#${p.id}`}
-                                    className="block px-4 py-3 rounded-xl hover:bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gold transition-all border border-transparent hover:border-white/5"
+                                    className="block px-4 py-3 rounded-sm hover:bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gold transition-colors border border-transparent hover:border-white/5"
                                 >
                                     {p.title}
                                 </a>
@@ -248,7 +248,7 @@ export default function PoliciesPage() {
                                     className="scroll-mt-32"
                                 >
                                     <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gold shadow-xl">
+                                        <div className="w-14 h-14 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-gold">
                                             {p.icon}
                                         </div>
                                         <div>
@@ -257,8 +257,8 @@ export default function PoliciesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="card-luxury p-8 md:p-12 rounded-[2.5rem] border border-white/5 space-y-10 relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 blur-3xl rounded-full -mr-16 -mt-16" />
+                                    <div className="card-luxury p-6 md:p-8 rounded-md border border-white/5 space-y-6 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-28 h-28 bg-gold/5 blur-[40px] rounded-full -mr-12 -mt-12" />
                                         
                                         {p.sections && (
                                             <ul className="space-y-4">

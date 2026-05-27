@@ -15,7 +15,6 @@ import {
   ArrowRight, 
   CheckCircle2,
   Search,
-  ShieldCheck,
   Star
 } from "lucide-react"
 
@@ -26,20 +25,15 @@ const heroImages = [
 ]
 
 const categories = [
-  { name: "Plumbing", icon: <Zap className="w-5 h-5" />, count: "150+ Pros" },
-  { name: "Electrical", icon: <Zap className="w-5 h-5" />, count: "120+ Pros" },
-  { name: "Cleaning", icon: <CheckCircle2 className="w-5 h-5" />, count: "300+ Pros" },
-  { name: "Beauty", icon: <Star className="w-5 h-5" />, count: "80+ Pros" },
-  { name: "Building", icon: <Gem className="w-5 h-5" />, count: "200+ Pros" },
-  { name: "Gardening", icon: <Rocket className="w-5 h-5" />, count: "100+ Pros" },
+  { name: "Specialized Plumbing Operations", icon: <Zap className="w-5 h-5" /> },
+  { name: "Specialized Electrical Contracting", icon: <Zap className="w-5 h-5" /> },
+  { name: "Property Care & Sanitation", icon: <CheckCircle2 className="w-5 h-5" /> },
+  { name: "Personal Aesthetics & Grooming", icon: <Star className="w-5 h-5" /> },
+  { name: "Construction & Site Development", icon: <Gem className="w-5 h-5" /> },
+  { name: "Landscaping & Site Clearing", icon: <Rocket className="w-5 h-5" /> },
 ]
 
-const trustSignals = [
-  { label: "ID Verified", icon: <ShieldCheck className="w-3.5 h-3.5" /> },
-  { label: "Top Rated", icon: <Star className="w-3.5 h-3.5" /> },
-  { label: "Secure Payments", icon: <Gem className="w-3.5 h-3.5" /> },
-  { label: "Community Trusted", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-]
+// trust strip removed per design request
 
 export default function Home() {
   const router = useRouter()
@@ -111,7 +105,7 @@ export default function Home() {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover grayscale contrast-125"
+                className="object-cover img-reveal"
               />
             </motion.div>
           </AnimatePresence>
@@ -121,7 +115,7 @@ export default function Home() {
         {/* Hero Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl pt-32">
           <p className="text-[#C5A059] font-mono uppercase tracking-[0.25em] text-[10px] md:text-xs mb-4">
-            Luxury Marketplace for South African Hustle
+            This is Kasi connect where talent meets your problem.
           </p>
           
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tighter mb-6 uppercase">
@@ -157,17 +151,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TRUST STRIP */}
-      <div className="bg-[#0B0B0C] border-y border-white/10 py-4">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center md:justify-around gap-6">
-          {trustSignals.map((s, i) => (
-            <div key={i} className="flex items-center gap-2 text-gray-500 text-[9px] font-mono font-bold uppercase tracking-wider">
-              <span className="text-[#C5A059]">{s.icon}</span>
-              {s.label}
+      {/* DYNAMIC OPERATIONAL METRICS */}
+      <section className="py-12 border-y border-white/10 bg-[#0B0B0C]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/10">
+            <div className="text-center px-4">
+              <p className="text-[#C5A059] font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight animate-pulse-slow">LIVE</p>
+              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Live Dispatch Active</p>
             </div>
-          ))}
+            <div className="text-center px-4">
+              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">48+</p>
+              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Verified Crews Active</p>
+            </div>
+            <div className="text-center px-4">
+              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">1.2K</p>
+              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Shifts Completed</p>
+            </div>
+            <div className="text-center px-4">
+              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">NOW</p>
+              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Ready to Deploy</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* FEATURED CATEGORIES */}
       <section className="py-24 px-6 bg-black">
@@ -186,11 +192,11 @@ export default function Home() {
                 href={`/workers?category=${cat.name.toLowerCase()}`}
                 className="card-luxury p-6 text-center group"
               >
-                <div className="w-10 h-10 rounded-sm bg-white/3 flex items-center justify-center text-[#C5A059] mx-auto mb-4 transition-colors group-hover:bg-[#C5A059] group-hover:text-black">
+                <div className="w-10 h-10 rounded-none border border-white/10 flex items-center justify-center text-[#C5A059] mx-auto mb-4 transition-colors group-hover:bg-[#C5A059] group-hover:text-black">
                   {cat.icon}
                 </div>
-                <h3 className="text-white font-extrabold text-sm mb-1 uppercase tracking-tight">{cat.name}</h3>
-                <p className="text-[9px] font-mono text-gray-500 uppercase tracking-wider">{cat.count}</p>
+                <h3 className="text-white font-extrabold text-xs mb-1 uppercase tracking-tight">{cat.name}</h3>
+                {/* count removed per client request */}
               </Link>
             ))}
           </div>
@@ -219,13 +225,14 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="relative aspect-square rounded-sm overflow-hidden border border-white/10 group shadow-2xl">
+          <div className="relative aspect-square rounded-sm overflow-hidden border border-white/10 group">
             <Image 
               src="/images/download (2).jpg" 
               alt="Worker" 
               fill 
               sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover grayscale contrast-125 transition-transform duration-75" 
+              className="object-cover img-reveal transition-transform duration-75"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
           </div>
@@ -282,14 +289,15 @@ export default function Home() {
               featuredWorkers.map((worker) => (
                 <Link key={worker.id} href={`/workers/${worker.id}`}>
                   <div 
-                    className="group relative h-[420px] rounded-sm overflow-hidden border border-white/10 transition-all duration-75 hover:border-[#C5A059] hover:shadow-[3px_3px_0px_0px_var(--gold)]"
+                    className="group relative h-[420px] rounded-none overflow-hidden border border-white/10 transition-all duration-75 hover:border-[#C5A059] hard-offset-hover"
                   >
                     <Image 
                       src={worker.avatar_url || "/images/default-avatar.svg"} 
                       alt={worker.full_name} 
                       fill 
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover grayscale contrast-125 transition-transform duration-75" 
+                      className="object-cover img-reveal transition-transform duration-75"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
                     
@@ -326,7 +334,8 @@ export default function Home() {
             alt="Phanda Links Footer" 
             fill 
             sizes="100vw"
-            className="object-cover opacity-10 grayscale" 
+            className="object-cover opacity-10 img-reveal"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black to-transparent" />
         </div>

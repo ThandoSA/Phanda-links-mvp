@@ -1,3 +1,6 @@
+/* Premium Hustler Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
 @import "tailwindcss";
 
 :root {
@@ -8,6 +11,8 @@
   --gold: #C5A059;
   --border: rgba(255, 255, 255, 0.1);
   --border-dim: rgba(255, 255, 255, 0.05);
+  --font-urbanist: 'Urbanist', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-jetbrains-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Andale Mono', 'Courier New', monospace;
 }
 
 @theme inline {
@@ -25,6 +30,86 @@ body {
   color: var(--foreground);
   font-family: var(--font-urbanist), sans-serif;
   overflow-x: hidden;
+}
+
+/* Enforce strict, hard-edged geometry and fast interactions */
+html, button, input, textarea, select {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography rules */
+.font-display, h1, h2, h3, h4, h5 {
+  font-family: var(--font-urbanist) !important;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.font-mono, .mono, code, kbd, samp {
+  font-family: var(--font-jetbrains-mono) !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+}
+
+/* Geometry: cap radius to sharp/small values */
+.rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-full, .rounded-pill {
+  border-radius: 6px !important; /* cap to md */
+}
+.rounded-lg { border-radius: 6px !important; }
+.rounded-md { border-radius: 6px !important; }
+.rounded-sm { border-radius: 2px !important; }
+
+/* Remove soft shadows globally (no diffuse glows) */
+.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl {
+  box-shadow: none !important;
+}
+
+/* Enforce 1px sharp borders for boundaries */
+* { box-sizing: border-box; }
+button, input, textarea, select, .card-luxury, .glass-luxury, .card {
+  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+}
+
+/* Make interactive transitions very fast and linear */
+a, button, input, .card-luxury, .btn-luxury, .nav-link-active, .card {
+  transition-duration: 75ms !important;
+  transition-timing-function: linear !important;
+  transition-property: background-color, border-color, color, transform, box-shadow !important;
+}
+
+/* Disable floaty transforms on small screens and touch devices */
+@media (max-width: 640px), (hover: none) {
+  .card-luxury, .btn-luxury, .glass-hover, .hover-lift, .hover-scale, .hover-glow {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Images: high-contrast grayscale by default, opt-out with .no-grayscale */
+img:not(.no-grayscale), .object-cover:not(.no-grayscale) {
+  filter: grayscale(100%) contrast(125%);
+  will-change: filter;
+}
+
+/* Iconography: ensure geometric caps/joins (reinforce earlier rule) */
+svg, path, line, rect, circle, polygon, polyline {
+  stroke-linecap: square !important;
+  stroke-linejoin: miter !important;
+}
+
+/* Hard-edged hover emphasis: solid offset block shadow using gold */
+.hard-offset-hover:hover {
+  box-shadow: 3px 3px 0 0 var(--gold) !important;
+  transform: translate(-2px, -2px) !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* Global SVG Cap-Join Override to enforce geometric hardness */
@@ -153,6 +238,55 @@ svg, path, line, rect, circle, polygon, polyline {
 
   .hover-scale:hover {
     transform: scale(1.02);
+  }
+
+  /* Image reveal on hover: grayscale -> color */
+  .img-reveal {
+    filter: grayscale(100%) contrast(125%);
+    transition: filter 200ms linear, transform 150ms linear;
+  }
+  .img-reveal:hover,
+  .group:hover .img-reveal {
+    filter: grayscale(0%) contrast(100%);
+    transform: scale(1.02);
+  }
+
+  /* Mobile and accessibility optimizations */
+  @media (max-width: 640px) {
+    /* Reduce heavy transforms and shadows on small screens */
+    .card-luxury, .btn-luxury, .glass-hover, .hover-lift, .hover-scale {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Avoid scale transforms on images for smoother scrolling */
+    .img-reveal {
+      transition: filter 150ms linear;
+      transform: none !important;
+    }
+    .img-reveal:hover,
+    .group:hover .img-reveal {
+      filter: grayscale(0%) contrast(100%);
+      transform: none !important;
+    }
+  }
+
+  /* Disable hover-specific reveal on touch devices (no hover) to avoid repaint costs */
+  @media (hover: none) {
+    .img-reveal,
+    .img-reveal:hover,
+    .group:hover .img-reveal {
+      filter: grayscale(100%) contrast(125%);
+      transform: none !important;
+    }
+  }
+
+  /* Respect user's reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 
   .hover-rotate {

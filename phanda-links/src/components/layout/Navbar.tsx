@@ -88,14 +88,14 @@ export default function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
-          ? "bg-black/70 backdrop-blur-xl border-b border-white/10 shadow-lg py-3"
+          ? "bg-black/70 border-b border-white/10 py-3"
           : "bg-transparent py-5"
         }`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-8">
 
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-9 h-9 overflow-hidden rounded-sm border border-white/10 group-hover:border-[#C5A059] transition-all duration-75">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover transition-transform duration-75" />
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale transition-transform duration-75" />
             </div>
             <span className="font-extrabold text-lg tracking-tighter text-white">
               Phanda <span className="text-[#C5A059]">Links</span>

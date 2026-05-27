@@ -17,8 +17,9 @@ export default function PostJobPage() {
     })
 
     const categories = [
-        "General", "Plumbing", "Electrical", "Gardening", "Cleaning", 
-        "Solar & Energy", "Construction", "Security", "IT Support"
+        "General Operations", "Specialized Plumbing Operations", "Specialized Electrical Contracting", 
+        "Landscaping & Site Clearing", "Property Care & Sanitation", 
+        "Construction & Site Development", "Systems & IT Support", "Security & Access Control"
     ]
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -73,8 +74,7 @@ export default function PostJobPage() {
                 <p className="text-gray-500 font-medium italic">Describe your project requirements to attract elite professionals.</p>
             </header>
 
-            <form onSubmit={handleSubmit} className="card-luxury p-8 md:p-12 rounded-[2.5rem] border border-white/5 space-y-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] rounded-full pointer-events-none" />
+            <form onSubmit={handleSubmit} className="card-luxury p-6 md:p-8 rounded-none border border-white/5 space-y-6 relative overflow-hidden">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Title */}
@@ -147,17 +147,17 @@ export default function PostJobPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gold text-black py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_50px_rgba(212,175,55,0.2)] disabled:opacity-50 flex items-center justify-center gap-3 group"
+                        className="w-full bg-gold text-black py-4 rounded-none font-black text-xs uppercase tracking-[0.2em] transition-all duration-75 hard-offset-hover disabled:opacity-50 flex items-center justify-center gap-3"
                     >
                         {loading ? (
-                            <><div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> Processing Request...</>
+                            <><div className="w-5 h-5 border border-black border-t-transparent rounded-none animate-spin" /> PROCESSING REQUEST...</>
                         ) : (
-                            <>Publish Job Request <span className="group-hover:translate-x-1 transition-transform">→</span></>
+                            <>PUBLISH DEPLOYMENT REQUEST <span>→</span></>
                         )}
                     </button>
-                    <p className="text-[10px] text-gray-600 mt-6 uppercase tracking-widest font-bold flex items-center gap-2">
-                        <span className="w-1 h-1 bg-gold rounded-full" />
-                        Your request will be broadcast to our elite professional network.
+                    <p className="text-[10px] text-gray-600 mt-6 uppercase tracking-[0.2em] font-mono font-bold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-none" />
+                        REQUEST WILL BE BROADCAST TO ELITE PROFESSIONAL NETWORK.
                     </p>
                 </div>
             </form>

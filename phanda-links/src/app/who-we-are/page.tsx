@@ -59,7 +59,7 @@ export default function WhoWeArePage() {
                             src="/images/hero.png" 
                             alt="Community Workers" 
                             fill 
-                            className="object-cover object-top filter grayscale contrast-125 transition-transform duration-300 group-hover:scale-105"
+                            className="object-cover object-top filter grayscale contrast-125 transition-transform duration-75"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">

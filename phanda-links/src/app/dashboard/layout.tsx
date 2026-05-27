@@ -71,16 +71,16 @@ const NavItem = ({ href, icon, children, isActive, onClick }: NavItemProps) => (
   <Link
     href={href}
     onClick={onClick}
-    className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-semibold text-sm group ${
+    className={`relative flex items-center gap-3 px-4 py-3 rounded-none transition-all duration-75 font-semibold text-xs uppercase tracking-widest group ${
       isActive ? "nav-link-active" : "text-gray-500 hover:text-white hover:bg-white/5"
     }`}
   >
-    <span className={`transition-colors ${isActive ? "text-[#D4AF37]" : "text-gray-600 group-hover:text-gray-300"}`}>
+    <span className={`transition-colors duration-75 ${isActive ? "text-gold" : "text-gray-600 group-hover:text-gray-300"}`}>
       {icon}
     </span>
     {children}
     {isActive && (
-      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+      <span className="ml-auto w-1 h-3 bg-gold" />
     )}
   </Link>
 )
@@ -130,22 +130,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
-    <div className="flex h-screen bg-black text-white relative overflow-hidden selection:bg-[#D4AF37] selection:text-black">
-      {/* Background glow */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#D4AF37]/8 blur-[180px] rounded-full pointer-events-none z-0" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-[#D4AF37]/4 blur-[150px] rounded-full pointer-events-none z-0" />
-
+    <div className="flex h-screen bg-black text-white relative overflow-hidden selection:bg-gold selection:text-black">
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 w-full glass-luxury border-b border-white/10 p-4 flex justify-between items-center z-50">
         <div className="flex items-center gap-2">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={28} height={28} className="rounded-lg h-auto" />
-          <h2 className="text-base font-bold tracking-wide">
-            Phanda <span className="text-[#D4AF37]">Links</span>
+          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={28} height={28} className="rounded-[2px] h-auto" />
+          <h2 className="text-base font-bold tracking-wide uppercase">
+            Phanda <span className="text-gold">Links</span>
           </h2>
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2 flex flex-col gap-1.5">
           <span className="w-6 h-0.5 bg-white block" />
-          <span className="w-5 h-0.5 bg-[#D4AF37] block" />
+          <span className="w-5 h-0.5 bg-gold block" />
           <span className="w-4 h-0.5 bg-white block ml-auto" />
         </button>
       </div>
@@ -158,9 +154,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         {/* Logo */}
         <div className="hidden md:flex p-7 border-b border-white/8 items-center gap-3">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={34} height={34} style={{ width: "auto", height: "auto" }} className="rounded-lg" />
-          <h2 className="text-xl font-bold tracking-tight">
-            Phanda <span className="text-[#D4AF37]">Links</span>
+          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={34} height={34} style={{ width: "auto", height: "auto" }} className="rounded-[2px]" />
+          <h2 className="text-xl font-black tracking-tight uppercase">
+            Phanda <span className="text-gold">Links</span>
           </h2>
         </div>
         <div className="md:hidden h-[72px] border-b border-white/8" />
@@ -169,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {!loading && profile && (
           <div className="px-5 py-4 border-b border-white/8">
             <div className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#D4AF37]/30 flex-shrink-0">
+              <div className="relative w-9 h-9 rounded-none overflow-hidden border border-gold/30 flex-shrink-0">
                 <Image
                   src={profile.avatar_url || "/images/default-avatar.svg"}
                   alt="You"
@@ -179,8 +175,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-white text-sm font-bold truncate">{profile.full_name || "User"}</p>
-                <p className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-bold">{role}</p>
+                <p className="text-white text-xs font-black uppercase truncate">{profile.full_name || "User"}</p>
+                <p className="text-[10px] text-gold uppercase tracking-widest font-bold">{role}</p>
               </div>
             </div>
           </div>
@@ -191,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <nav className="flex flex-col gap-1">
             {loading ? (
               <div className="animate-pulse flex flex-col gap-3 px-2 py-2">
-                {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-white/5 rounded-xl w-full" />)}
+                {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-white/5 rounded-none w-full" />)}
               </div>
             ) : role === "worker" ? (
               <>
@@ -217,9 +213,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-white/8">
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push("/login") }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-400/80 hover:text-red-400 hover:bg-red-500/8 transition-all group"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-none text-[10px] uppercase tracking-widest font-black text-red-400/80 hover:text-red-400 hover:bg-red-500/8 transition-all duration-75 group"
           >
-            <span className="group-hover:scale-110 transition-transform">{Icons.signout}</span>
+            <span className="group-hover:-translate-x-1 transition-transform duration-75">{Icons.signout}</span>
             Sign Out
           </button>
         </div>
@@ -237,12 +233,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <PageTransition key={pathname}>
               {loading ? (
                 <div className="p-8 max-w-7xl mx-auto space-y-8">
-                  <Skeleton height="12rem" className="rounded-3xl" />
+                  <Skeleton height="12rem" className="rounded-sm" />
                   <div className="grid grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => <Skeleton key={i} height="8rem" className="rounded-2xl" />)}
+                    {[1, 2, 3].map(i => <Skeleton key={i} height="8rem" className="rounded-sm" />)}
                   </div>
                   <div className="grid gap-6">
-                    {[1, 2].map(i => <Skeleton key={i} height="15rem" className="rounded-2xl" />)}
+                    {[1, 2].map(i => <Skeleton key={i} height="15rem" className="rounded-sm" />)}
                   </div>
                 </div>
               ) : children}

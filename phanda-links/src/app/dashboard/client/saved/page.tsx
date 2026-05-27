@@ -47,7 +47,7 @@ export default function SavedPage() {
     return (
       <div className="p-8 max-w-6xl mx-auto pt-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3].map(i => <div key={i} className="h-64 card-luxury rounded-2xl animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-64 card-luxury rounded-md animate-pulse" />)}
         </div>
       </div>
     )
@@ -64,15 +64,15 @@ export default function SavedPage() {
       </div>
 
       {savedWorkers.length === 0 ? (
-        <div className="card-luxury py-32 text-center rounded-[2.5rem] relative overflow-hidden flex flex-col items-center gap-4">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gold/4 blur-[100px] rounded-full pointer-events-none" />
+        <div className="card-luxury py-24 text-center rounded-md relative overflow-hidden flex flex-col items-center gap-4">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gold/4 blur-[40px] rounded-full pointer-events-none" />
           <div className="relative z-10 flex flex-col items-center gap-4">
             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-2">
               <Star className="w-8 h-8 text-white/20" />
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">No saved workers yet</h2>
             <p className="text-gray-500 max-w-sm text-sm font-medium">Browse our premium directory and save professionals who impress you.</p>
-            <Link href="/workers" className="mt-4 bg-gold text-black px-10 py-4 rounded-xl font-black hover:scale-105 transition-all shadow-lg shadow-gold/20 text-xs uppercase tracking-widest flex items-center gap-2">
+            <Link href="/workers" className="mt-4 bg-gold text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2">
               Browse Professionals <Search className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -83,9 +83,9 @@ export default function SavedPage() {
             const availability = (worker as any).worker_profiles?.[0]?.availability
             const isAvailable = !availability || availability === "available"
             return (
-              <div key={worker.id} className={`card-luxury p-8 rounded-[2rem] flex flex-col items-center text-center animate-fade-in-up stagger-${Math.min(i+1,6)} border border-white/5 hover:border-gold/30 transition-all group`}>
-                <div className="relative w-24 h-24 mb-6 rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-gold/50 transition-colors shadow-2xl">
-                  <Image src={worker.avatar_url || "/images/default-avatar.svg"} alt={worker.full_name || "Worker"} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div key={worker.id} className={`card-luxury p-6 rounded-md flex flex-col items-center text-center animate-fade-in-up stagger-${Math.min(i+1,6)} border border-white/5 hover:border-gold/30 group`}>
+                <div className="relative w-24 h-24 mb-6 rounded-md overflow-hidden border-2 border-white/10 group-hover:border-gold/50 transition-colors">
+                  <Image src={worker.avatar_url || "/images/default-avatar.svg"} alt={worker.full_name || "Worker"} fill className="object-cover transition-transform duration-75" />
                 </div>
 
                 {/* Availability */}
@@ -120,14 +120,14 @@ export default function SavedPage() {
                 {/* Skill Pills */}
                 <div className="flex flex-wrap justify-center gap-1.5 mb-8">
                   {worker.worker_profiles?.[0]?.skills?.slice(0, 3).map((skill, idx) => (
-                    <span key={idx} className="bg-white/5 border border-white/8 px-3 py-1 rounded-xl text-[9px] uppercase font-black text-gray-400 group-hover:text-gray-300 transition-colors">
+                    <span key={idx} className="bg-white/5 border border-white/8 px-3 py-1 rounded-sm text-[9px] uppercase font-black text-gray-400 group-hover:text-gray-300">
                       {skill}
                     </span>
                   ))}
                 </div>
 
                 <Link href={`/workers/${worker.id}`} className="w-full mt-auto">
-                  <button className="w-full bg-white text-black hover:bg-gold py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2">
+                  <button className="w-full bg-white text-black hover:bg-gold py-3 rounded-sm text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
                     View Profile <ArrowRight className="w-3 h-3" />
                   </button>
                 </Link>

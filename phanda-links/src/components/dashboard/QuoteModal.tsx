@@ -55,8 +55,8 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <div className="glass-panel w-full max-w-lg p-8 rounded-3xl border-t border-white/20 relative overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fade-in">
+            <div className="glass-panel w-full max-w-lg p-6 rounded-md border-t border-white/20 relative overflow-hidden">
                 <div className="relative z-10">
                     <div className="flex justify-between items-start mb-6">
                         <div>
@@ -76,7 +76,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                                 type="number"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold"
                             />
                             <p className="text-[10px] text-gray-500 italic">Client suggested budget: R {clientPrice}</p>
                         </div>
@@ -89,7 +89,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                                 placeholder="Explain why you're the best fit for this job..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold"
                             />
                         </div>
 
@@ -97,14 +97,14 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-xl font-bold hover:bg-white/10 transition-all"
+                                className="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-sm font-bold hover:bg-white/10"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-2 bg-gold text-black py-3 rounded-xl font-bold hover:scale-105 transition-all shadow-lg shadow-gold/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-2 bg-gold text-black py-3 rounded-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2 hard-offset-hover"
                             >
                                 {loading ? (
                                     <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -116,8 +116,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                     </form>
                 </div>
 
-                {/* Decorative background glow */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 blur-[60px] rounded-full pointer-events-none" />
+                {/* decorative glow removed per design rules */}
             </div>
         </div>
     )

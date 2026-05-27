@@ -206,7 +206,7 @@ export default function WhatWeDoPage() {
                                 className="relative p-10 card-luxury border border-white/10 group text-center"
                             >
                                 <div className="absolute top-6 left-6 text-gold/10 font-mono font-black text-4xl leading-none tracking-tighter">{s.num}</div>
-                                <div className="flex justify-center mb-8 text-gold group-hover:scale-105 transition-transform duration-75 relative z-10">
+                                <div className="flex justify-center mb-8 text-gold transition-transform duration-75 relative z-10">
                                     {s.icon}
                                 </div>
                                 <h3 className="text-2xl font-black text-white mb-4 relative z-10 uppercase">{s.title}</h3>

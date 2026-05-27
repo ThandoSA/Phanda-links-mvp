@@ -89,13 +89,13 @@ export default function Login() {
 
           <div className="relative z-10 text-center space-y-8">
             <div className="flex justify-center mb-8">
-              <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-[#D4AF37]/30">
-                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover filter grayscale contrast-125" />
+              <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-gold/30">
+                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale" />
               </div>
             </div>
             <div>
               <h1 className="text-5xl font-black tracking-tighter uppercase mb-4">
-                Phanda <span className="text-[#D4AF37]">Links</span>
+                Phanda <span className="text-gold">Links</span>
               </h1>
               <p className="text-gray-400 text-sm font-medium tracking-wide leading-relaxed max-w-sm mx-auto uppercase">
                 The premium marketplace connecting elite professionals with discerning clients.
@@ -104,8 +104,8 @@ export default function Login() {
             <div className="flex flex-col gap-4 text-left max-w-xs mx-auto border-t border-white/10 pt-6">
               {["Verified elite professionals", "Real-time job matching", "Secure payments & chat"].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-[2px] bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-2.5 h-2.5 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-5 h-5 rounded-[2px] bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-2.5 h-2.5 text-gold" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
@@ -122,19 +122,19 @@ export default function Login() {
           <div className="w-full max-w-md relative z-10 space-y-8">
             {/* Mobile logo */}
             <div className="flex lg:hidden justify-center">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-[2px] border border-white/10 filter grayscale contrast-125" />
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={56} height={56} style={{ width: "auto", height: "auto" }} className="rounded-[2px] border border-white/10 no-grayscale" />
             </div>
 
             <div className="space-y-2">
               <h2 className="text-3xl font-black tracking-tight text-white uppercase">
-                Welcome <span className="text-[#D4AF37]">Back</span>
+                Welcome <span className="text-gold">Back</span>
               </h2>
               <p className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Sign in to your premium account</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">
+                <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">
                   Email Address
                 </label>
                 <input
@@ -148,10 +148,10 @@ export default function Login() {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em]">
+                  <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">
                     Password
                   </label>
-                  <Link href="#" className="text-[10px] text-gray-500 hover:text-[#D4AF37] transition-colors font-bold uppercase tracking-wider">
+                  <Link href="#" className="text-[10px] text-gray-500 hover:text-gold transition-colors font-bold uppercase tracking-wider">
                     Forgot?
                   </Link>
                 </div>
@@ -197,7 +197,7 @@ export default function Login() {
 
             <p className="text-center text-gray-500 text-xs uppercase tracking-wider">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-[#D4AF37] font-extrabold hover:underline">
+              <Link href="/signup" className="text-gold font-extrabold hover:underline">
                 Create one
               </Link>
             </p>

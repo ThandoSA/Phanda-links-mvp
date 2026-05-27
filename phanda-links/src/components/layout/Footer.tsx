@@ -59,7 +59,7 @@ export default function Footer() {
                     <div className="lg:col-span-2 space-y-6">
                         <Link href="/" className="flex items-center gap-3 group">
                             <div className="relative w-9 h-9 overflow-hidden rounded-sm border border-white/10 group-hover:border-[#C5A059] transition-all duration-75">
-                                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover" />
+                                <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale" />
                             </div>
                             <span className="font-extrabold text-xl tracking-tighter text-white">
                                 Phanda <span className="text-[#C5A059]">Links.</span>

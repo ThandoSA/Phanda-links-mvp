@@ -52,10 +52,10 @@ export default function ClientDashboard() {
 
   if (loading) return (
     <div className="p-6 space-y-8 bg-black min-h-screen">
-      <Skeleton height="10rem" className="rounded-3xl" />
+      <Skeleton height="10rem" className="rounded-sm" />
       <div className="space-y-4">
-        <Skeleton width="150px" height="2rem" />
-        {[1,2,3].map(i => <Skeleton key={i} height="8rem" className="rounded-2xl" />)}
+        <Skeleton width="150px" height="2rem" className="rounded-sm" />
+        {[1,2,3].map(i => <Skeleton key={i} height="8rem" className="rounded-sm" />)}
       </div>
     </div>
   )
@@ -81,26 +81,25 @@ export default function ClientDashboard() {
               key={job.id} 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.01, y: -2 }}
-              className="glass-panel p-6 rounded-2xl shadow-xl hover:shadow-gold/5 transition-all border-t border-white/5"
+              transition={{ delay: i * 0.1, duration: 0.1 }}
+              className="glass-panel p-6 rounded-none border border-white/10 hover:border-gold hard-offset-hover transition-all duration-75"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="font-bold text-white text-lg mb-1">{job.title || "Premium Service Request"}</h3>
-                    <p className="text-sm text-gray-500">
-                        Assigned Professional: <span className="text-white/80 font-semibold">{job.worker?.full_name || "Searching..."}</span>
+                    <h3 className="font-bold text-white text-lg mb-1 uppercase tracking-tight">{job.title || "Premium Service Request"}</h3>
+                    <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                        ASSIGNED PROFESSIONAL: <span className="text-white font-bold">{job.worker?.full_name || "SEARCHING..."}</span>
                     </p>
                 </div>
                 <StatusBadge status={job.status} />
               </div>
 
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6 pt-6 border-t border-white/10">
                 <div className="space-y-1">
-                    {job.price && <p className="text-xl font-black text-gold">R {job.price.toLocaleString()}</p>}
-                    <p className="text-[10px] text-gray-600 font-bold uppercase tracking-wider">{new Date(job.created_at).toLocaleString()}</p>
+                    {job.price && <p className="text-xl font-black text-gold font-mono tracking-tight">R {job.price.toLocaleString()}</p>}
+                    <p className="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-[0.2em]">{new Date(job.created_at).toLocaleString()}</p>
                 </div>
-                <Link href={`/dashboard/messages/${job.id}`} className="btn-luxury bg-white/5 border border-white/10 hover:border-gold/50 text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2">
+                <Link href={`/dashboard/messages/${job.id}`} className="btn-luxury bg-white/5 border border-white/10 hover:border-gold hover:bg-gold hover:text-black text-white px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all text-center flex items-center justify-center gap-2">
                   Open Chat <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -115,15 +114,22 @@ export default function ClientDashboard() {
 function EmptyState({ text }: { text: string }) {
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-panel p-20 rounded-3xl text-center border-2 border-dashed border-white/10 flex flex-col items-center gap-4"
+      className="glass-panel p-16 rounded-none border border-white/10 flex flex-col items-center gap-6"
     >
-      <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-2">
-        <Briefcase className="w-8 h-8 text-white/20" />
+      <div className="w-24 h-24 bg-white/5 rounded-none border border-white/10 flex items-center justify-center mb-2">
+        <Briefcase className="w-10 h-10 text-white/30" />
       </div>
-      <p className="text-gray-500 font-bold uppercase tracking-widest text-sm max-w-xs mx-auto leading-relaxed">{text}</p>
-      <Link href="/workers" className="mt-4 bg-gold text-black px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-gold/20 flex items-center gap-2">
+      <p className="text-white font-black text-xl uppercase tracking-tighter leading-relaxed">
+        {text}
+      </p>
+      <div className="flex flex-wrap gap-4 items-center justify-center text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-4">
+        <span>0 ACTIVE HIRES</span>
+        <span className="w-1 h-1 bg-white/20 rounded-none"></span>
+        <span>SYSTEM AWAITING DEPLOYMENT</span>
+      </div>
+      <Link href="/workers" className="btn-luxury btn-luxury-primary px-8 py-4 rounded-none text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">
         Browse Elite Talent <Search className="w-3 h-3" />
       </Link>
     </motion.div>

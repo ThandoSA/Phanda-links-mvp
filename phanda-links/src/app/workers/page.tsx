@@ -12,7 +12,7 @@ import { Worker } from "@/types"
 import Skeleton from "@/components/ui/Skeleton"
 import { Search, MapPin, Star, BadgeCheck, ArrowRight } from "lucide-react"
 
-const CATEGORIES = ["All", "Plumbing", "Electrical", "Gardening", "Cleaning", "Construction", "IT Support"]
+const CATEGORIES = ["All", "Specialized Plumbing Operations", "Specialized Electrical Contracting", "Landscaping & Site Clearing", "Property Care & Sanitation", "Construction & Site Development", "Systems & IT Support"]
 
 function WorkersContent() {
   const [workers, setWorkers] = useState<Worker[]>([])
@@ -183,7 +183,7 @@ function WorkersContent() {
                       alt={worker.full_name || "Worker"}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover filter grayscale contrast-125 transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover filter grayscale contrast-125 transition-transform duration-75"
                     />
                   </div>
 
