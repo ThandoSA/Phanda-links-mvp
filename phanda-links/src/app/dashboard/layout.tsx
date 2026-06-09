@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion"
 import PageTransition from "@/components/ui/PageTransition"
 import Skeleton from "@/components/ui/Skeleton"
 import Footer from "@/components/layout/Footer"
+import { Menu, X, LogOut } from "lucide-react"
 
 // SVG icon components
 const Icons = {
@@ -71,16 +72,18 @@ const NavItem = ({ href, icon, children, isActive, onClick }: NavItemProps) => (
   <Link
     href={href}
     onClick={onClick}
-    className={`relative flex items-center gap-3 px-4 py-3 rounded-none transition-all duration-75 font-semibold text-xs uppercase tracking-widest group ${
-      isActive ? "nav-link-active" : "text-gray-500 hover:text-white hover:bg-white/5"
+    className={`relative flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 font-bold text-xs uppercase tracking-wider group ${
+      isActive
+        ? "bg-black/5 text-black font-extrabold"
+        : "text-gray-500 hover:text-black hover:bg-black/2"
     }`}
   >
-    <span className={`transition-colors duration-75 ${isActive ? "text-gold" : "text-gray-600 group-hover:text-gray-300"}`}>
+    <span className={`transition-colors duration-200 ${isActive ? "text-[#D4AF37]" : "text-gray-400 group-hover:text-gray-700"}`}>
       {icon}
     </span>
     {children}
     {isActive && (
-      <span className="ml-auto w-1 h-3 bg-gold" />
+      <span className="absolute right-4 w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
     )}
   </Link>
 )
@@ -130,64 +133,61 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
-    <div className="flex h-screen bg-black text-white relative overflow-hidden selection:bg-gold selection:text-black">
+    <div className="flex h-screen bg-[#FAFAFC] text-black relative overflow-hidden selection:bg-[#D4AF37] selection:text-black">
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 w-full glass-luxury border-b border-white/10 p-4 flex justify-between items-center z-50">
+      <div className="md:hidden fixed top-0 left-0 w-full bg-white/80 border-b border-black/5 p-4 flex justify-between items-center z-50 backdrop-blur-md">
         <div className="flex items-center gap-2">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={28} height={28} className="rounded-[2px] h-auto" />
-          <h2 className="text-base font-bold tracking-wide uppercase">
-            Phanda <span className="text-gold">Links</span>
+          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={28} height={28} className="rounded-full h-auto" />
+          <h2 className="text-base font-extrabold tracking-wide uppercase">
+            Phanda <span className="text-[#D4AF37]">Links</span>
           </h2>
         </div>
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-white p-2 flex flex-col gap-1.5">
-          <span className="w-6 h-0.5 bg-white block" />
-          <span className="w-5 h-0.5 bg-gold block" />
-          <span className="w-4 h-0.5 bg-white block ml-auto" />
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 p-2">
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
       {/* SIDEBAR */}
       <aside className={`${
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-white/8`}
-        style={{ background: "rgba(5,5,5,0.95)", backdropFilter: "blur(20px)" }}
+      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-black/5 bg-white/70 backdrop-blur-xl`}
       >
         {/* Logo */}
-        <div className="hidden md:flex p-7 border-b border-white/8 items-center gap-3">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={34} height={34} style={{ width: "auto", height: "auto" }} className="rounded-[2px]" />
-          <h2 className="text-xl font-black tracking-tight uppercase">
-            Phanda <span className="text-gold">Links</span>
+        <div className="hidden md:flex p-6 border-b border-black/5 items-center gap-3">
+          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={32} height={32} style={{ width: "auto", height: "auto" }} className="rounded-full" />
+          <h2 className="text-lg font-black tracking-tighter uppercase text-black">
+            Phanda <span className="text-[#D4AF37]">Links</span>
           </h2>
         </div>
-        <div className="md:hidden h-[72px] border-b border-white/8" />
+        <div className="md:hidden h-[72px] border-b border-black/5" />
 
         {/* User Mini Profile */}
         {!loading && profile && (
-          <div className="px-5 py-4 border-b border-white/8">
+          <div className="px-5 py-5 border-b border-black/5 bg-black/[0.01]">
             <div className="flex items-center gap-3">
-              <div className="relative w-9 h-9 rounded-none overflow-hidden border border-gold/30 flex-shrink-0">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
                 <Image
                   src={profile.avatar_url || "/images/default-avatar.svg"}
                   alt="You"
                   fill
-                  sizes="36px"
+                  sizes="40px"
                   className="object-cover"
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-black uppercase truncate">{profile.full_name || "User"}</p>
-                <p className="text-[10px] text-gold uppercase tracking-widest font-bold">{role}</p>
+                <p className="text-black text-xs font-bold uppercase truncate">{profile.full_name || "User"}</p>
+                <p className="text-[9px] text-[#D4AF37] uppercase tracking-widest font-black">{role}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Nav Links */}
-        <div className="flex-1 overflow-y-auto py-4 px-3 no-scrollbar">
-          <nav className="flex flex-col gap-1">
+        <div className="flex-1 overflow-y-auto py-6 px-4 no-scrollbar">
+          <nav className="flex flex-col gap-1.5">
             {loading ? (
               <div className="animate-pulse flex flex-col gap-3 px-2 py-2">
-                {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-white/5 rounded-none w-full" />)}
+                {[1,2,3,4,5].map(i => <div key={i} className="h-11 bg-black/5 rounded-xl w-full" />)}
               </div>
             ) : role === "worker" ? (
               <>
@@ -210,12 +210,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Sign Out */}
-        <div className="p-4 border-t border-white/8">
+        <div className="p-4 border-t border-black/5 bg-black/[0.01]">
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push("/login") }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-none text-[10px] uppercase tracking-widest font-black text-red-400/80 hover:text-red-400 hover:bg-red-500/8 transition-all duration-75 group"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] uppercase tracking-wider font-extrabold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group cursor-pointer"
           >
-            <span className="group-hover:-translate-x-1 transition-transform duration-75">{Icons.signout}</span>
+            <LogOut className="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition-transform" />
             Sign Out
           </button>
         </div>
@@ -223,27 +223,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Mobile overlay dimmer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden" onClick={closeMobileMenu} />
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-xs z-30 md:hidden" onClick={closeMobileMenu} />
       )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto relative z-10 pt-[72px] md:pt-0">
-        <div className="min-h-full">
-          <AnimatePresence mode="wait">
-            <PageTransition key={pathname}>
-              {loading ? (
-                <div className="p-8 max-w-7xl mx-auto space-y-8">
-                  <Skeleton height="12rem" className="rounded-sm" />
-                  <div className="grid grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => <Skeleton key={i} height="8rem" className="rounded-sm" />)}
+        <div className="min-h-full flex flex-col justify-between">
+          <div className="p-4 md:p-8">
+            <AnimatePresence mode="wait">
+              <PageTransition key={pathname}>
+                {loading ? (
+                  <div className="max-w-7xl mx-auto space-y-8">
+                    <Skeleton height="12rem" className="rounded-2xl" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {[1, 2, 3].map(i => <Skeleton key={i} height="8rem" className="rounded-2xl" />)}
+                    </div>
+                    <div className="grid gap-6">
+                      {[1, 2].map(i => <Skeleton key={i} height="15rem" className="rounded-2xl" />)}
+                    </div>
                   </div>
-                  <div className="grid gap-6">
-                    {[1, 2].map(i => <Skeleton key={i} height="15rem" className="rounded-sm" />)}
-                  </div>
-                </div>
-              ) : children}
-            </PageTransition>
-          </AnimatePresence>
+                ) : children}
+              </PageTransition>
+            </AnimatePresence>
+          </div>
           {!loading && <Footer />}
         </div>
       </main>

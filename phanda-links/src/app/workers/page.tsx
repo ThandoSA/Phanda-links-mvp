@@ -10,7 +10,7 @@ import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { Worker } from "@/types"
 import Skeleton from "@/components/ui/Skeleton"
-import { Search, MapPin, Star, BadgeCheck, ArrowRight } from "lucide-react"
+import { Search, MapPin, Star, BadgeCheck, ArrowRight, Shield } from "lucide-react"
 
 const CATEGORIES = ["All", "Specialized Plumbing Operations", "Specialized Electrical Contracting", "Landscaping & Site Clearing", "Property Care & Sanitation", "Construction & Site Development", "Systems & IT Support"]
 
@@ -76,23 +76,23 @@ function WorkersContent() {
   const uniqueLocations = ["All", ...new Set(workers.map(w => w.location).filter(Boolean))] as string[]
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-[#F9FAFB] text-black relative selection:bg-[#D4AF37] selection:text-white">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto p-4 md:p-8 pt-28 relative z-10">
+      <main className="max-w-7xl mx-auto p-4 md:p-8 pt-28 relative z-10 pb-20">
         {/* Hero */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.1, ease: "linear" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-16 py-10"
         >
-          <p className="text-[10px] text-gold font-mono uppercase tracking-[0.3em] mb-4">Elite Directory</p>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 uppercase">
-            Find <span className="text-gold">Elite</span> Talent
+          <p className="text-sm text-[#D4AF37] font-bold tracking-[0.2em] mb-4 uppercase">Premium Directory</p>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 text-black">
+            Find <span className="text-[#D4AF37]">Verified</span> Talent
           </h1>
-          <p className="text-gray-500 max-w-lg mx-auto text-base leading-relaxed">
-            Connect with the top 1% of independent professionals, vetted for excellence and reliability.
+          <p className="text-gray-500 max-w-lg mx-auto text-lg leading-relaxed font-medium">
+            Connect with trusted, independent professionals across South Africa.
           </p>
         </motion.div>
 
@@ -100,42 +100,42 @@ function WorkersContent() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.1, ease: "linear" }}
-          className="card-luxury p-6 mb-12 space-y-5"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="glass-card p-6 md:p-8 mb-12 space-y-6"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-gold transition-colors duration-75" />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#D4AF37] transition-colors" />
               <input
                 type="text"
                 placeholder="Search by name or skill..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-luxury pl-11"
+                className="w-full bg-white border border-gray-200 rounded-full py-4 pl-14 pr-6 text-black focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-sm"
               />
             </div>
-            <div className="relative md:w-48">
-               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <div className="relative md:w-64">
+               <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
-                className="input-luxury pl-11 cursor-pointer appearance-none"
+                className="w-full bg-white border border-gray-200 rounded-full py-4 pl-14 pr-6 text-black focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-sm cursor-pointer appearance-none font-bold"
               >
                 {uniqueLocations.map(loc => (
-                  <option key={loc} value={loc} className="bg-black text-white">{loc}</option>
+                  <option key={loc} value={loc} className="bg-white text-black">{loc}</option>
                 ))}
               </select>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-sm text-[9px] font-mono font-black uppercase tracking-wider transition-all duration-75 border ${
+                className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all border cursor-pointer shadow-sm ${
                   selectedCategory === cat
-                    ? "bg-gold border-gold text-black"
-                    : "border-white/10 text-gray-400 hover:border-white/20 hover:text-white"
+                    ? "bg-black border-black text-white"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300 hover:text-black bg-white"
                 }`}
               >
                 {cat}
@@ -146,24 +146,24 @@ function WorkersContent() {
 
         {/* Worker Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1,2,3,4,5,6,7,8].map(i => <Skeleton key={i} height="20rem" className="rounded-sm" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="h-[26rem] skeleton" />)}
           </div>
         ) : filteredWorkers.length === 0 ? (
-          <div className="text-center py-32 card-luxury flex flex-col items-center">
-            <div className="w-20 h-20 bg-white/5 rounded-sm border border-white/10 flex items-center justify-center mb-6">
-              <Search className="w-8 h-8 text-white/20" />
+          <div className="text-center py-32 glass-card flex flex-col items-center">
+            <div className="w-20 h-20 bg-gray-50 border border-gray-100 shadow-sm rounded-full flex items-center justify-center mb-6">
+              <Search className="w-8 h-8 text-gray-300" />
             </div>
-            <p className="text-gray-500 text-xl mb-4">No elite professionals match your criteria.</p>
+            <p className="text-black text-2xl font-black mb-4 tracking-tighter">No professionals match your criteria.</p>
             <button
               onClick={() => { setSearchQuery(""); setSelectedCategory("All"); setSelectedLocation("All") }}
-              className="text-gold font-mono text-xs uppercase tracking-wider hover:underline"
+              className="btn-luxury btn-luxury-outline text-sm font-bold bg-white"
             >
               Clear all filters
             </button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {filteredWorkers.map((worker, idx) => {
               const availability = (worker as any).worker_profiles?.[0]?.availability
               const isAvailable = !availability || availability === "available"
@@ -171,75 +171,77 @@ function WorkersContent() {
               return (
                 <motion.div
                   key={worker.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.1 }}
-                  className="card-luxury p-7 flex flex-col items-center text-center group relative overflow-hidden"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.03 }}
+                  className="glass-card p-0 flex flex-col items-center text-center group relative overflow-hidden transition-all hover:shadow-xl hover:border-[#D4AF37]/30"
                 >
-                  {/* Avatar */}
-                  <div className="relative z-10 w-24 h-24 mb-5 rounded-sm overflow-hidden border border-white/10 group-hover:border-gold transition-colors duration-75">
+                  {/* Avatar Area */}
+                  <div className="relative z-10 w-full aspect-[4/3] overflow-hidden bg-white">
                     <Image
                       src={worker.avatar_url || "/images/default-avatar.svg"}
                       alt={worker.full_name || "Worker"}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover filter grayscale contrast-125 transition-transform duration-75"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    
+                    {/* Overlay Badges */}
+                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10">
+                      <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md backdrop-blur-md ${
+                        isAvailable
+                          ? "bg-emerald-500/90 text-white border border-emerald-400/50"
+                          : "bg-orange-500/90 text-white border border-orange-400/50"
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${isAvailable ? "bg-white animate-pulse" : "bg-white/70"}`} />
+                        {isAvailable ? "Available" : "Busy"}
+                      </div>
+                      {worker.is_verified && (
+                        <span className="bg-white/90 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md backdrop-blur-md border border-white/50">
+                          <Shield className="w-3 h-3 text-emerald-600" /> Vetted
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Availability badge */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1 rounded-sm text-[9px] font-mono font-black uppercase tracking-widest border mb-3 ${
-                    isAvailable
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                      : "bg-orange-500/10 border-orange-500/20 text-orange-400"
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-sm ${isAvailable ? "bg-emerald-400" : "bg-orange-400"}`} />
-                    {isAvailable ? "Available" : "Busy"}
-                  </div>
+                  <div className="p-6 flex flex-col items-center flex-1 w-full bg-white">
+                    {/* Name & Location */}
+                    <h2 className="text-xl font-black text-black mb-1 group-hover:text-[#D4AF37] transition-colors tracking-tight">
+                      {worker.full_name || "Premium User"}
+                    </h2>
+                    <div className="flex items-center gap-1.5 text-gray-500 mb-4">
+                      <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                      <p className="text-xs font-bold uppercase tracking-wider">
+                        {worker.location || "Available Nationwide"}
+                      </p>
+                    </div>
 
-                  {/* Name & Location */}
-                  <h2 className="text-lg font-black text-white mb-1 group-hover:text-gold transition-colors duration-75 leading-tight uppercase">
-                    {worker.full_name || "Premium User"}
-                  </h2>
-                  <div className="flex items-center gap-2 mb-2">
-                    {worker.is_verified && (
-                      <div className="flex items-center gap-1 text-emerald-400 text-[9px] font-mono font-black uppercase tracking-wider border border-emerald-500/20 px-1.5 py-0.5 rounded-sm bg-emerald-500/10">
-                        <BadgeCheck className="w-3 h-3" />
-                        Verified
+                    {/* Rating */}
+                    {(worker as any).rating > 0 && (
+                      <div className="flex items-center gap-1.5 text-[#D4AF37] text-sm font-bold mb-4">
+                        <Star className="w-4 h-4 fill-[#D4AF37]" />
+                        {(worker as any).rating.toFixed(1)}
                       </div>
                     )}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 mb-3">
-                    <MapPin className="w-3 h-3 text-gold" />
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-wider">
-                      {worker.location || "Available Nationwide"}
-                    </p>
-                  </div>
 
-                  {/* Rating */}
-                  {(worker as any).rating > 0 && (
-                    <div className="flex items-center gap-1 text-gold text-xs font-mono font-black mb-3">
-                      <Star className="w-3 h-3 fill-gold" />
-                      {(worker as any).rating.toFixed(1)}
+                    {/* Skill Pills */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
+                      {worker.worker_profiles?.[0]?.skills?.slice(0, 3).map((skill, i) => (
+                        <span key={i} className="bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-xs font-bold border border-gray-100">
+                          {skill}
+                        </span>
+                      ))}
                     </div>
-                  )}
 
-                  {/* Skill Pills */}
-                  <div className="flex flex-wrap justify-center gap-1.5 mb-6">
-                    {worker.worker_profiles?.[0]?.skills?.slice(0, 3).map((skill, i) => (
-                      <span key={i} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-sm text-[8px] font-mono uppercase tracking-wider text-gray-400 group-hover:border-gold/20 group-hover:text-gray-300 transition-colors duration-75">
-                        {skill}
-                      </span>
-                    ))}
+                    <Link href={`/workers/${worker.id}`} className="w-full mt-auto relative z-10">
+                      <button 
+                        className="btn-luxury btn-luxury-primary w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2"
+                      >
+                        View Profile <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </Link>
                   </div>
-
-                  <Link href={`/workers/${worker.id}`} className="w-full mt-auto relative z-10">
-                    <button 
-                      className="btn-luxury btn-luxury-primary w-full py-3 text-xs uppercase tracking-widest flex items-center justify-center gap-2"
-                    >
-                      View Profile <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </Link>
                 </motion.div>
               )
             })}
@@ -254,20 +256,17 @@ function WorkersContent() {
 export default function WorkersPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-black text-white relative">
+      <div className="min-h-screen bg-[#F9FAFB] text-black relative">
         <Navbar />
         <main className="max-w-7xl mx-auto p-4 md:p-8 pt-28 relative z-10">
           <div className="text-center mb-16 py-10">
-            <p className="text-[10px] text-gold font-mono uppercase tracking-[0.3em] mb-4">Elite Directory</p>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 uppercase">
-              Find <span className="text-gold">Elite</span> Talent
+            <p className="text-sm text-[#D4AF37] font-bold tracking-[0.2em] mb-4 uppercase">Premium Directory</p>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-5 text-black">
+              Find <span className="text-[#D4AF37]">Verified</span> Talent
             </h1>
-            <p className="text-gray-500 max-w-lg mx-auto text-base leading-relaxed">
-              Connect with the top 1% of independent professionals, vetted for excellence and reliability.
-            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1,2,3,4].map(i => <div key={i} className="h-80 bg-[#0B0B0C] border border-white/10 rounded-sm animate-pulse" />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1,2,3,4].map(i => <div key={i} className="h-[26rem] skeleton" />)}
           </div>
         </main>
         <Footer />

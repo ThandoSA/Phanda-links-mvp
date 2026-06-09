@@ -3,20 +3,12 @@
 import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
-import { 
-  Gem, 
-  Rocket, 
-  Zap, 
-  ArrowRight, 
-  CheckCircle2,
-  Search,
-  Star
-} from "lucide-react"
+import { Search, Star, MapPin, Briefcase, ChevronRight } from "lucide-react"
 
 const heroImages = [
   "/images/Joburg_.jpg",
@@ -24,23 +16,14 @@ const heroImages = [
   "/images/download (3).jpg"
 ]
 
-const categories = [
-  { name: "Specialized Plumbing Operations", icon: <Zap className="w-5 h-5" /> },
-  { name: "Specialized Electrical Contracting", icon: <Zap className="w-5 h-5" /> },
-  { name: "Property Care & Sanitation", icon: <CheckCircle2 className="w-5 h-5" /> },
-  { name: "Personal Aesthetics & Grooming", icon: <Star className="w-5 h-5" /> },
-  { name: "Construction & Site Development", icon: <Gem className="w-5 h-5" /> },
-  { name: "Landscaping & Site Clearing", icon: <Rocket className="w-5 h-5" /> },
-]
-
-// trust strip removed per design request
-
 export default function Home() {
   const router = useRouter()
   const [index, setIndex] = useState(0)
   const [featuredWorkers, setFeaturedWorkers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState("")
-  const heroRef = useRef(null)
+  
+  const { scrollYProgress } = useScroll()
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
@@ -50,7 +33,7 @@ export default function Home() {
       router.push('/workers')
     }
   }
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroImages.length)
@@ -70,7 +53,8 @@ export default function Home() {
           return {
             ...profile,
             rating: wp?.rating || 0,
-            is_verified: wp?.verified || false
+            is_verified: wp?.verified || false,
+            skills: wp?.skills || []
           }
         })
         const sorted = [...mapped].sort((a: any, b: any) => b.rating - a.rating)
@@ -83,20 +67,20 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="bg-black text-white selection:bg-[#C5A059] selection:text-black">
+    <main className="bg-white text-black selection:bg-[#D4AF37] selection:text-white">
       <Navbar />
 
       {/* 1. HERO SECTION */}
-      <section ref={heroRef} id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Cinematic Background */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.25 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
               className="absolute inset-0"
             >
               <Image
@@ -105,266 +89,308 @@ export default function Home() {
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover img-reveal"
+                className="object-cover"
               />
             </motion.div>
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/60 to-black" />
+          {/* Glass Overlay to make text readable and blend with white theme */}
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-6 max-w-5xl pt-32">
-          <p className="text-[#C5A059] font-mono uppercase tracking-[0.25em] text-[10px] md:text-xs mb-4">
-            This is Kasi connect where talent meets your problem.
-          </p>
-          
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tighter mb-6 uppercase">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="relative z-10 text-center px-6 max-w-5xl pt-32"
+        >
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.0] tracking-tighter mb-6 text-black drop-shadow-sm">
             The Hustle <br />
-            <span className="text-[#C5A059]">Deserves</span> <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#B8860B]">Deserves</span> <br />
             Visibility.
           </h1>
-
-          <p className="text-gray-500 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-            Phanda Links connects talented South African workers with real opportunities, turning the invisible hustle into a digital legacy.
+          
+          <p className="text-lg md:text-xl font-medium text-gray-800 mb-10 max-w-2xl mx-auto drop-shadow-sm">
+            Connecting skilled South Africans with real opportunities.
           </p>
 
-          <div className="w-full max-w-xl mx-auto">
-            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 justify-center items-center w-full">
-              <div className="relative w-full group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-[#C5A059] transition-colors duration-75" />
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="What service do you need today?" 
-                  className="input-luxury w-full pl-11"
-                />
-              </div>
-              <button
-                type="submit"
-                className="btn-luxury btn-luxury-primary w-full sm:w-auto px-8 py-3.5 uppercase tracking-widest text-xs whitespace-nowrap cursor-pointer"
-              >
-                Find a Worker
-              </button>
-            </form>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md mx-auto">
+            <Link href="/signup" className="btn-luxury btn-luxury-primary w-full px-8 py-4 text-sm whitespace-nowrap shadow-lg">
+              Get Started
+            </Link>
+            <Link href="/login" className="btn-luxury btn-luxury-outline bg-white/70 backdrop-blur-md w-full px-8 py-4 text-sm whitespace-nowrap shadow-sm hover:bg-white">
+              Login
+            </Link>
           </div>
-        </div>
-      </section>
-
-      {/* DYNAMIC OPERATIONAL METRICS */}
-      <section className="py-12 border-y border-white/10 bg-[#0B0B0C]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/10">
-            <div className="text-center px-4">
-              <p className="text-[#C5A059] font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight animate-pulse-slow">LIVE</p>
-              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Live Dispatch Active</p>
-            </div>
-            <div className="text-center px-4">
-              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">48+</p>
-              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Verified Crews Active</p>
-            </div>
-            <div className="text-center px-4">
-              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">1.2K</p>
-              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Shifts Completed</p>
-            </div>
-            <div className="text-center px-4">
-              <p className="text-white font-mono text-3xl md:text-4xl font-bold mb-2 tracking-tight">NOW</p>
-              <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">Ready to Deploy</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURED CATEGORIES */}
-      <section className="py-24 px-6 bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-3 uppercase">
-              Explore <span className="text-[#C5A059]">Expertise.</span>
-            </h2>
-            <p className="text-gray-500 text-sm font-medium">Find the best local talent across all major sectors.</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((cat, i) => (
-              <Link 
-                key={i} 
-                href={`/workers?category=${cat.name.toLowerCase()}`}
-                className="card-luxury p-6 text-center group"
-              >
-                <div className="w-10 h-10 rounded-none border border-white/10 flex items-center justify-center text-[#C5A059] mx-auto mb-4 transition-colors group-hover:bg-[#C5A059] group-hover:text-black">
-                  {cat.icon}
-                </div>
-                <h3 className="text-white font-extrabold text-xs mb-1 uppercase tracking-tight">{cat.name}</h3>
-                {/* count removed per client request */}
-              </Link>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 2. WHO WE ARE SECTION */}
-      <section id="who-we-are" className="py-28 px-6 bg-[#050506] border-y border-white/5 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <p className="text-[#C5A059] font-mono text-[9px] font-bold uppercase tracking-widest">Our Identity</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.0] uppercase">
-              A Digital <br />
-              Marketplace for <br />
-              <span className="text-[#C5A059]">Mzansi's Hustlers.</span>
-            </h2>
-            <div className="h-0.5 w-12 bg-[#C5A059]" />
-            <p className="text-gray-500 text-base leading-relaxed font-medium max-w-lg">
-              Phanda Links is more than a platform; it's a movement. We've built a premium digital space where South Africa's most talented workers can showcase their skills with professional dignity.
-            </p>
-            <Link 
-              href="/who-we-are" 
-              className="inline-flex items-center gap-2 text-white font-bold uppercase tracking-widest text-[10px] font-mono group hover:text-[#C5A059] transition-colors duration-75"
-            >
-              Learn Our Story <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-          
-          <div className="relative aspect-square rounded-sm overflow-hidden border border-white/10 group">
-            <Image 
-              src="/images/download (2).jpg" 
-              alt="Worker" 
-              fill 
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover img-reveal transition-transform duration-75"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          </div>
+      <section className="py-32 px-6 bg-white relative">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            className="grid lg:grid-cols-2 gap-16 items-center"
+          >
+            <div className="space-y-8">
+              <span className="status-badge status-pending">Who We Are</span>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1]">
+                A Marketplace Designed for <br/>
+                <span className="text-[#D4AF37]">Excellence.</span>
+              </h2>
+              <p className="text-gray-600 text-lg leading-relaxed font-medium">
+                Phanda Links is a premium marketplace built to help workers showcase their skills professionally while giving clients access to trusted, local talent. We are redefining how South Africa connects.
+              </p>
+              <Link href="/who-we-are" className="inline-flex items-center gap-2 font-bold text-black hover:text-[#D4AF37] transition-colors group">
+                Discover Our Story 
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+              <Image
+                src="/images/download (2).jpg"
+                alt="Professional Worker"
+                fill
+                className="object-cover img-premium"
+              />
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
-      <section className="py-28 px-6 bg-black relative">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-[#C5A059] font-mono text-[9px] font-bold uppercase tracking-widest mb-3">The Process</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase">How It <span className="text-[#C5A059]">Works.</span></h2>
-          </div>
+      {/* 3. WHY WE CREATED PHANDA LINKS */}
+      <section id="why-we-created" className="py-32 px-6 bg-[#F9FAFB] relative overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <span className="status-badge status-accepted mb-6">Our Mission</span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Bridging the Gap to <span className="text-[#D4AF37]">Opportunity.</span></h2>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "Create Profile", desc: "Build your professional digital identity in minutes. Showcase your skills, location, and personality." },
-              { step: "02", title: "Get Found", desc: "Appear in searches by local clients looking for exactly what you offer. No more waiting for referrals." },
-              { step: "03", title: "Get Hired", desc: "Receive bookings, chat securely, and get paid for your excellence. Grow your business on your terms." }
+              {
+                title: "The Invisible Talent",
+                desc: "Many brilliant workers rely entirely on word of mouth. Their skills remain hidden from those who need them most."
+              },
+              {
+                title: "Access is Limited",
+                desc: "Finding trustworthy, local talent is often difficult. Clients struggle to discover vetted professionals outside their immediate circle."
+              },
+              {
+                title: "The Phanda Solution",
+                desc: "We provide the digital infrastructure for visibility, trust, and economic empowerment. A stage for South African excellence."
+              }
             ].map((item, i) => (
-              <div 
+              <motion.div
                 key={i}
-                className="relative p-8 card-luxury group overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: i * 0.2 }}
+                className="glass-card p-10"
               >
-                <div className="absolute top-4 right-4 text-[40px] font-mono font-bold text-white/5 group-hover:text-[#C5A059]/20 transition-colors duration-75">{item.step}</div>
-                <div className="relative z-10">
-                  <h3 className="text-xl font-extrabold text-white mb-4 uppercase tracking-tight">{item.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37] font-bold text-lg mb-6">
+                  {i + 1}
                 </div>
-              </div>
+                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 5. FEATURED WORKERS */}
-      <section className="py-28 bg-black border-t border-white/5 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <div className="space-y-3">
-              <p className="text-[#C5A059] font-mono text-[9px] font-bold uppercase tracking-widest">The Elite</p>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase font-sans">Featured <span className="text-[#C5A059]">Talent.</span></h2>
+      {/* 4. BUILT FOR SOUTH AFRICA */}
+      <section className="py-32 px-6 bg-white">
+        <div className="max-w-6xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative rounded-3xl overflow-hidden py-32 px-8 shadow-2xl"
+          >
+            <div className="absolute inset-0 z-0">
+              <Image src="/images/Joburg_.jpg" alt="South Africa" fill className="object-cover img-premium" />
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
             </div>
-            <Link href="/workers" className="group flex items-center gap-2 text-white font-bold uppercase tracking-widest text-[10px] font-mono border-b border-[#C5A059] pb-1 hover:text-[#C5A059] transition-colors duration-75">
-              View All Professionals
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white">
+                Built for <span className="text-[#D4AF37]">South Africa.</span>
+              </h2>
+              <p className="text-lg text-gray-200 font-medium leading-relaxed">
+                Celebrating tradespeople, domestic workers, artisans, freelancers, township entrepreneurs, creatives, and service providers. Your hustle builds our nation.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 5. HOW IT WORKS */}
+      <section className="py-32 px-6 bg-[#F9FAFB]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Your Journey to <span className="text-[#D4AF37]">Success.</span></h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              {
+                icon: <Briefcase className="w-8 h-8" />,
+                title: "Create Your Profile",
+                desc: "Build a premium digital identity. Showcase your skills, experience, and availability to the world."
+              },
+              {
+                icon: <Search className="w-8 h-8" />,
+                title: "Get Discovered",
+                desc: "Clients search for exactly what you offer. Stand out with our elegant marketplace design."
+              },
+              {
+                icon: <Star className="w-8 h-8" />,
+                title: "Get Hired",
+                desc: "Receive booking requests, communicate securely, and build your reputation with verified reviews."
+              }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+                className="glass-card p-10 text-center group"
+              >
+                <div className="w-20 h-20 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-[#D4AF37] mb-8 group-hover:scale-110 transition-transform duration-300">
+                  {item.icon}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FEATURED WORKERS */}
+      <section className="py-32 px-6 bg-white relative overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="space-y-4">
+              <span className="status-badge status-in_progress">The Elite</span>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Featured <span className="text-[#D4AF37]">Talent.</span></h2>
+            </div>
+            <Link href="/workers" className="inline-flex items-center gap-2 font-bold text-black hover:text-[#D4AF37] transition-colors group pb-2">
+              Browse Directory 
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredWorkers.length === 0 ? (
-               [1,2,3].map(i => <div key={i} className="h-[400px] bg-white/5 rounded-sm animate-pulse" />)
+              // Beautiful Empty State / Loading
+              [1, 2, 3].map(i => (
+                <div key={i} className="h-[450px] skeleton rounded-3xl" />
+              ))
             ) : (
-              featuredWorkers.map((worker) => (
-                <Link key={worker.id} href={`/workers/${worker.id}`}>
-                  <div 
-                    className="group relative h-[420px] rounded-none overflow-hidden border border-white/10 transition-all duration-75 hover:border-[#C5A059] hard-offset-hover"
-                  >
-                    <Image 
-                      src={worker.avatar_url || "/images/default-avatar.svg"} 
-                      alt={worker.full_name} 
-                      fill 
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover img-reveal transition-transform duration-75"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-                    
-                    <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3.5">
-                      <div className="flex justify-between items-center">
-                        <span className="bg-[#C5A059] text-black px-2 py-0.5 rounded-sm text-[8px] font-mono font-bold uppercase tracking-wider">Verified Elite</span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-[#C5A059] fill-[#C5A059]" />
-                          <span className="text-[#C5A059] font-mono text-xs font-bold">{worker.rating || "5.0"}</span>
+              featuredWorkers.map((worker, i) => (
+                <motion.div
+                  key={worker.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <Link href={`/workers/${worker.id}`} className="block h-full">
+                    <div className="glass-card h-full p-6 flex flex-col group">
+                      <div className="relative aspect-square rounded-2xl overflow-hidden mb-6">
+                        <Image
+                          src={worker.avatar_url || "/images/default-avatar.svg"}
+                          alt={worker.full_name}
+                          fill
+                          className="object-cover img-premium"
+                        />
+                        {worker.is_verified && (
+                          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-[#D4AF37] p-2 rounded-full shadow-lg">
+                            <Star className="w-4 h-4 fill-[#D4AF37]" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-grow flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-xl font-bold text-black mb-1 truncate">{worker.full_name}</h3>
+                          <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-4">
+                            <MapPin className="w-4 h-4" />
+                            <span className="truncate">{worker.location || "South Africa"}</span>
+                          </div>
+                          
+                          {worker.skills && worker.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-6">
+                              {worker.skills.slice(0, 2).map((skill: string, idx: number) => (
+                                <span key={idx} className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-full font-medium">
+                                  {skill}
+                                </span>
+                              ))}
+                              {worker.skills.length > 2 && (
+                                <span className="bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded-full font-medium">
+                                  +{worker.skills.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                          <div className="flex items-center gap-1.5 font-medium">
+                            <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
+                            <span>{worker.rating > 0 ? worker.rating.toFixed(1) : "New"}</span>
+                          </div>
+                          <span className="text-[#D4AF37] font-bold text-sm flex items-center group-hover:translate-x-1 transition-transform">
+                            View Profile <ChevronRight className="w-4 h-4 ml-1" />
+                          </span>
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">{worker.full_name}</h3>
-                        <p className="text-[#C5A059] text-[10px] font-mono uppercase tracking-wider">{worker.worker_profiles?.[0]?.skills?.slice(0, 2).join(" • ") || "Elite Professional"}</p>
-                      </div>
-                      <p className="text-gray-500 text-xs font-mono">{worker.location || "South Africa"}</p>
-                      <div className="w-full py-3 bg-white/5 group-hover:bg-[#C5A059] group-hover:text-black rounded-sm text-[10px] font-extrabold uppercase tracking-widest border border-white/10 transition-all duration-75 flex items-center justify-center">
-                        View Profile
-                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))
             )}
           </div>
         </div>
       </section>
 
-      {/* 6. FINAL CTA */}
-      <section className="py-28 relative overflow-hidden bg-black border-t border-white/10">
-        <div className="absolute inset-0 z-0">
-          <Image 
-            src="/images/Joburg_.jpg" 
-            alt="Phanda Links Footer" 
-            fill 
-            sizes="100vw"
-            className="object-cover opacity-10 img-reveal"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black to-transparent" />
-        </div>
-
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="space-y-8">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-[1.0] uppercase">
-              Ready to <br />
-              <span className="text-[#C5A059]">Empower</span> <br />
-              The Hustle?
+      {/* 7. FINAL CTA */}
+      <section className="py-32 px-6 bg-[#D4AF37] relative overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-10"
+          >
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white drop-shadow-sm">
+              Ready to Empower <br /> The Hustle?
             </h2>
-            <p className="text-gray-500 text-base max-w-md mx-auto leading-relaxed">
+            <p className="text-xl text-white/90 font-medium max-w-2xl mx-auto">
               Join the elite community where talent meets opportunity. Whether you're hiring or hustling, your future starts here.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link
-                href="/signup?role=worker"
-                className="btn-luxury btn-luxury-primary px-8 py-4 font-black text-xs uppercase tracking-widest"
-              >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/signup?role=worker" className="btn-luxury bg-black text-white hover:bg-gray-900 px-10 py-5 text-sm font-bold shadow-xl">
                 Become a Worker
               </Link>
-              <Link
-                href="/workers"
-                className="btn-luxury bg-transparent border border-white/10 hover:border-white text-white px-8 py-4 font-black text-xs uppercase tracking-widest"
-              >
+              <Link href="/workers" className="btn-luxury bg-white text-black hover:bg-gray-50 px-10 py-5 text-sm font-bold shadow-xl">
                 Find a Worker
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

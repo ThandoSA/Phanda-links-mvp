@@ -50,44 +50,44 @@ export default function JobsPage() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-7xl mx-auto space-y-10 pt-10">
+      <div className="p-4 md:p-12 max-w-7xl mx-auto space-y-10 pt-10">
         <div className="flex justify-between items-end">
-          <Skeleton width="300px" height="3.5rem" className="rounded-none" />
-          <Skeleton width="400px" height="3.5rem" className="rounded-none" />
+          <div className="h-16 w-64 skeleton" />
+          <div className="h-14 w-96 skeleton" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1,2,3,4,5,6].map(i => <Skeleton key={i} height="22rem" className="rounded-none" />)}
+          {[1,2,3,4,5,6].map(i => <div key={i} className="h-72 skeleton" />)}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-4 md:p-12 max-w-7xl mx-auto space-y-12">
+    <div className="p-4 md:p-10 max-w-7xl mx-auto space-y-12 pb-20">
       {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8"
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
       >
         <div className="space-y-2">
-          <p className="text-gold font-black uppercase tracking-[0.3em] text-[10px]">Marketplace</p>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-            Browse <span className="text-gold">Opportunities.</span>
+          <p className="text-sm text-[#D4AF37] font-bold uppercase tracking-widest">Marketplace</p>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-black">
+            Browse <span className="text-[#D4AF37]">Opportunities.</span>
           </h1>
           <p className="text-gray-500 font-medium">Connecting you to the most prestigious projects in Mzansi.</p>
         </div>
 
         {/* Search & Filter Bar */}
         <div className="w-full lg:w-auto flex flex-col md:flex-row items-center gap-4">
-          <div className="relative w-full md:w-96 group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 transition-colors group-focus-within:text-gold" />
+          <div className="relative w-full md:w-80 group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-focus-within:text-[#D4AF37]" />
             <input
               type="text"
-              placeholder="Search by title, location or keywords..."
+              placeholder="Search jobs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-none py-4 pl-14 pr-6 text-[10px] font-mono font-bold uppercase tracking-widest focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder:text-gray-600"
+              className="w-full bg-gray-50 border border-gray-200 rounded-full py-3.5 pl-12 pr-6 text-sm font-bold text-black focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-inner"
             />
           </div>
           <div className="flex gap-2">
@@ -95,8 +95,8 @@ export default function JobsPage() {
                <button 
                 key={btn}
                 onClick={() => setFilter(btn)}
-                className={`px-6 py-4 rounded-none text-[10px] font-black uppercase tracking-widest border transition-all duration-75 ${
-                  filter === btn ? "bg-gold border-gold text-black" : "bg-transparent border-white/10 text-gray-500 hover:text-white hover:border-white/30"
+                className={`px-5 py-3.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                  filter === btn ? "bg-black text-white" : "bg-white text-gray-600 border border-gray-200 hover:text-black hover:border-gray-300"
                 }`}
                >
                  {btn}
@@ -109,22 +109,24 @@ export default function JobsPage() {
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
-          { label: "Active Jobs", value: openJobs.length, icon: <Briefcase className="w-5 h-5 text-gold" /> },
-          { label: "Avg. Price", value: "R 2,450", icon: <Gem className="w-5 h-5 text-gold" /> },
-          { label: "New Today", value: "14", icon: <Sparkles className="w-5 h-5 text-gold" /> },
-          { label: "Verified Clients", value: "98%", icon: <ShieldCheck className="w-5 h-5 text-gold" /> }
+          { label: "Active Jobs", value: openJobs.length, icon: <Briefcase className="w-6 h-6 text-[#D4AF37]" />, bg: "bg-[#D4AF37]/10" },
+          { label: "Avg. Price", value: "R 2,450", icon: <Gem className="w-6 h-6 text-blue-600" />, bg: "bg-blue-50" },
+          { label: "New Today", value: "14", icon: <Sparkles className="w-6 h-6 text-purple-600" />, bg: "bg-purple-50" },
+          { label: "Verified Clients", value: "98%", icon: <ShieldCheck className="w-6 h-6 text-emerald-600" />, bg: "bg-emerald-50" }
         ].map((stat, i) => (
           <motion.div 
             key={i}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
-            className="glass-luxury p-6 rounded-none border border-white/10 flex items-center gap-4 transition-all duration-75 hover:border-gold"
+            className="glass-card p-6 flex flex-col md:flex-row items-center gap-4 transition-all hover:shadow-md"
           >
-            <div>{stat.icon}</div>
-            <div>
-              <p className="text-white font-mono font-black text-xl leading-none">{stat.value}</p>
-              <p className="text-[10px] font-mono text-gray-500 font-black uppercase tracking-widest mt-1">{stat.label}</p>
+            <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center flex-shrink-0`}>
+              {stat.icon}
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-black font-black text-2xl leading-none">{stat.value}</p>
             </div>
           </motion.div>
         ))}
@@ -136,13 +138,13 @@ export default function JobsPage() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-40 text-center glass-luxury rounded-none border border-white/10 flex flex-col items-center"
+            className="py-32 text-center glass-card flex flex-col items-center"
           >
-            <div className="w-20 h-20 bg-white/5 rounded-none flex items-center justify-center mb-6 border border-white/10">
-              <Search className="w-8 h-8 text-white/20" />
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-gray-100 shadow-sm">
+              <Search className="w-8 h-8 text-gray-300" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">No matching opportunities</h2>
-            <p className="text-gray-500 text-[10px] font-mono font-black tracking-widest uppercase max-w-md mx-auto">Try adjusting your search filters to discover more premium jobs in your area.</p>
+            <h2 className="text-3xl font-black text-black mb-4 tracking-tight">No matching opportunities</h2>
+            <p className="text-gray-500 text-sm font-medium max-w-md mx-auto">Try adjusting your search filters to discover more premium jobs in your area.</p>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -154,54 +156,54 @@ export default function JobsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ delay: i * 0.05 }}
-                className="group relative flex flex-col h-full glass-luxury p-0 rounded-none border border-white/10 hover:border-gold transition-all duration-75 hard-offset-hover overflow-hidden"
+                className="group relative flex flex-col h-full glass-card p-0 hover:border-[#D4AF37]/30 transition-all hover:shadow-xl overflow-hidden"
               >
-                <div className="p-6 flex-1 flex flex-col">
+                <div className="p-6 md:p-8 flex-1 flex flex-col bg-white">
                   {/* Header: Price & Date */}
-                  <div className="flex justify-between items-start mb-8 relative z-10">
-                    <div className="bg-gold/10 border border-gold/30 px-3 py-1 rounded-none">
-                      <span className="text-gold font-mono font-black text-lg">R {Number(job.price || 0).toLocaleString()}</span>
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-4 py-1.5 rounded-full shadow-sm">
+                      <span className="text-[#D4AF37] font-bold text-sm">R {Number(job.price || 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-600">
-                      <Clock className="w-3 h-3 text-gold" />
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
+                    <div className="flex items-center gap-1.5 text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span className="text-xs font-bold">
                         {new Date(job.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                       </span>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 space-y-4 relative z-10">
+                  <div className="flex-1 space-y-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-none bg-gold shadow-[0_0_8px_rgba(197,160,89,0.8)] animate-pulse-slow" />
-                      <span className="text-[10px] text-gold font-mono font-black uppercase tracking-[0.2em]">[AWAITING_BIDS]</span>
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs text-emerald-600 font-bold uppercase tracking-wider">Accepting Bids</span>
                     </div>
-                    <h3 className="text-2xl font-black text-white leading-tight uppercase tracking-tight group-hover:text-gold transition-colors duration-75">{job.title || "Service Request"}</h3>
-                    <p className="text-gray-500 text-sm font-medium line-clamp-4 leading-relaxed font-mono">
+                    <h3 className="text-2xl font-black text-black leading-tight tracking-tight group-hover:text-[#D4AF37] transition-colors">{job.title || "Service Request"}</h3>
+                    <p className="text-gray-600 text-sm font-medium line-clamp-3 leading-relaxed">
                       "{job.description || "NO SPECIFIC DETAILS PROVIDED."}"
                     </p>
                   </div>
 
                   {/* Footer: Client & Location */}
-                  <div className="mt-8 pt-6 border-t border-white/10 space-y-6 relative z-10">
+                  <div className="mt-8 pt-6 border-t border-gray-100 space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-none overflow-hidden border border-white/20 group-hover:border-gold/50 transition-colors duration-75">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
                           <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill className="object-cover" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-white text-[10px] font-mono font-black uppercase tracking-widest truncate">{(job.client as any)?.full_name || "PREMIUM CLIENT"}</p>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-2.5 h-2.5 text-gold fill-gold" />
-                            <span className="text-[10px] text-gray-500 font-bold font-mono">{(job.client as any)?.rating || "5.0"}</span>
+                          <p className="text-black text-sm font-bold truncate">{(job.client as any)?.full_name || "Premium Client"}</p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Star className="w-3 h-3 text-[#D4AF37] fill-[#D4AF37]" />
+                            <span className="text-xs text-gray-500 font-bold">{(job.client as any)?.rating || "5.0"}</span>
                           </div>
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end">
-                        <p className="text-[10px] text-gray-600 font-mono font-black uppercase tracking-widest mb-1">LOC</p>
-                        <div className="flex items-center gap-1 text-white">
-                          <MapPin className="w-3 h-3 text-gold" />
-                          <p className="text-[10px] font-mono font-bold uppercase">{(job.location || "Available").substring(0, 15)}</p>
+                        <p className="text-xs text-gray-400 font-bold mb-0.5">Location</p>
+                        <div className="flex items-center gap-1 text-black">
+                          <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" />
+                          <p className="text-xs font-bold">{(job.location || "Available").substring(0, 15)}</p>
                         </div>
                       </div>
                     </div>
@@ -210,9 +212,9 @@ export default function JobsPage() {
 
                 <button
                   onClick={() => setSelectedJob(job)}
-                  className="w-full bg-white text-black font-black py-4 text-[10px] uppercase tracking-[0.2em] hover:bg-gold hover:text-black transition-colors duration-75 flex items-center justify-center gap-2 border-t border-white/10"
+                  className="w-full bg-gray-50 text-black font-black py-4 text-xs uppercase tracking-wider hover:bg-[#D4AF37] hover:text-white transition-colors flex items-center justify-center gap-2 border-t border-gray-100 group-hover:bg-black group-hover:text-white"
                 >
-                  SUBMIT PROPOSAL <ArrowRight className="w-3 h-3" />
+                  Submit Proposal <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.div>
             ))}

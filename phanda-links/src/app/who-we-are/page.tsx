@@ -10,62 +10,62 @@ import { Shield, Zap, Heart, ArrowRight, Users2, Globe } from "lucide-react"
 export default function WhoWeArePage() {
     const values = [
         {
-            icon: <Users2 className="w-10 h-10" />,
+            icon: <Users2 className="w-8 h-8" />,
             title: "TRUST",
-            desc: "Building verified, reliable connections"
+            desc: "Building verified, reliable connections across South Africa."
         },
         {
-            icon: <Zap className="w-10 h-10" />,
-            title: "SPEED",
-            desc: "Fast responses, quick solutions"
+            icon: <Zap className="w-8 h-8" />,
+            title: "VISIBILITY",
+            desc: "Enabling hidden talent to showcase their work and scale."
         },
         {
-            icon: <Globe className="w-10 h-10" />,
+            icon: <Globe className="w-8 h-8" />,
             title: "COMMUNITY",
-            desc: "Empowering local economies"
+            desc: "Circulating financial opportunities directly back into local economies."
         }
     ]
 
     return (
-        <main className="bg-black min-h-screen selection:bg-gold selection:text-black">
+        <main className="bg-white text-black min-h-screen selection:bg-[#D4AF37] selection:text-black grid-glow">
             <Navbar />
             
             {/* 1. HERO SECTION */}
             <section className="pt-40 pb-20 px-6 relative overflow-hidden">
                 <div className="max-w-6xl mx-auto">
                     <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.1, ease: "linear" }}
+                        transition={{ duration: 0.8 }}
                         className="text-center mb-20"
                     >
-                        <p className="text-gold font-mono uppercase tracking-[0.4em] text-[10px] mb-4">OUR IDENTITY</p>
-                        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1.1] mb-8 uppercase">
+                        <p className="text-[#D4AF37] font-mono uppercase tracking-[0.4em] text-[10px] mb-4 font-extrabold">OUR IDENTITY</p>
+                        <h1 className="text-5xl md:text-7xl font-black text-black tracking-tighter leading-[1.1] mb-8 uppercase">
                             Building a platform where <br />
-                            <span className="text-gold">skills meet opportunity.</span>
+                            <span className="text-[#D4AF37]">skills meet opportunity.</span>
                         </h1>
-                        <p className="text-gray-500 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed">
+                        <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed">
                             Connecting communities and empowering South Africa's workforce through trust, visibility, and professional dignity.
                         </p>
                     </motion.div>
 
                     <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.1, ease: "linear" }}
-                        className="relative h-[400px] md:h-[600px] rounded-sm overflow-hidden border border-white/10 shadow-none group"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 1 }}
+                        className="relative h-[350px] md:h-[500px] rounded-[32px] overflow-hidden border border-black/5 shadow-xl group"
                     >
                         <Image 
                             src="/images/hero.png" 
                             alt="Community Workers" 
                             fill 
-                            className="object-cover object-top filter grayscale contrast-125 transition-transform duration-75"
+                            className="object-cover object-top img-reveal"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
-                            <p className="text-white text-xs font-mono uppercase tracking-[0.3em] opacity-60">Community Connection</p>
-                            <div className="w-16 h-16 rounded-sm bg-gold flex items-center justify-center">
-                                <Heart className="w-8 h-8 text-black" fill="currentColor" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                        <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end z-10">
+                            <p className="text-white text-xs font-mono uppercase tracking-widest opacity-80">Community Connection</p>
+                            <div className="w-12 h-12 rounded-full bg-[#D4AF37] flex items-center justify-center shadow-md">
+                                <Heart className="w-5 h-5 text-black" fill="currentColor" />
                             </div>
                         </div>
                     </motion.div>
@@ -73,19 +73,18 @@ export default function WhoWeArePage() {
             </section>
 
             {/* 2. OUR STORY */}
-            <section className="py-32 px-6 bg-[#050505] border-t border-b border-white/10">
-                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-                    <div className="space-y-10">
+            <section className="py-32 px-6 bg-gray-50 border-y border-black/5">
+                <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+                    <div className="space-y-6">
                         <motion.div
-                            initial={{ opacity: 0, x: -10 }}
+                            initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.1, ease: "linear" }}
                         >
-                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-8 uppercase">
-                                Our <span className="text-gold">Story.</span>
+                            <h2 className="text-4xl md:text-5xl font-black text-black tracking-tighter mb-6 uppercase">
+                                Our <span className="text-[#D4AF37]">Story.</span>
                             </h2>
-                            <div className="space-y-6 text-gray-400 text-lg leading-relaxed font-medium">
+                            <div className="space-y-5 text-gray-600 text-base leading-relaxed font-medium">
                                 <p>
                                     Phanda Links was born from a simple observation: talented, hardworking people across South Africa struggle to find consistent work, while households and businesses need reliable local services.
                                 </p>
@@ -99,35 +98,33 @@ export default function WhoWeArePage() {
                         </motion.div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.1, ease: "linear" }}
-                            className="card-luxury p-10 space-y-6"
+                            className="card-luxury p-8 space-y-6 bg-white border border-black/5"
                         >
-                            <div className="w-14 h-14 rounded-sm bg-white/5 flex items-center justify-center text-gold border border-white/10">
-                                <Shield className="w-6 h-6" />
+                            <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                                <Shield className="w-5 h-5" />
                             </div>
-                            <h3 className="text-2xl font-black text-white uppercase">Our Mission</h3>
-                            <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                            <h3 className="text-xl font-bold text-black uppercase tracking-tight">Our Mission</h3>
+                            <p className="text-gray-500 text-xs leading-relaxed">
                                 To create dignified employment opportunities for South African workers while connecting communities with trusted, reliable services.
                             </p>
                         </motion.div>
 
                         <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.1, ease: "linear" }}
-                            className="card-luxury p-10 space-y-6"
+                            className="card-luxury p-8 space-y-6 bg-white border border-black/5"
                         >
-                            <div className="w-14 h-14 rounded-sm bg-white/5 flex items-center justify-center text-gold border border-white/10">
-                                <Zap className="w-6 h-6" />
+                            <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                                <Zap className="w-5 h-5" />
                             </div>
-                            <h3 className="text-2xl font-black text-white uppercase">Our Vision</h3>
-                            <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                            <h3 className="text-xl font-bold text-black uppercase tracking-tight">Our Vision</h3>
+                            <p className="text-gray-500 text-xs leading-relaxed">
                                 A South Africa where every skilled individual has access to sustainable income, and every household can find trusted help when they need it.
                             </p>
                         </motion.div>
@@ -136,10 +133,10 @@ export default function WhoWeArePage() {
             </section>
 
             {/* 3. OUR VALUES */}
-            <section className="py-32 px-6">
-                <div className="max-w-7xl mx-auto text-center mb-20">
-                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-6 uppercase">
-                        Our <span className="text-gold">Values.</span>
+            <section className="py-32 px-6 bg-white">
+                <div className="max-w-7xl mx-auto text-center mb-16">
+                    <h2 className="text-4xl md:text-5xl font-black text-black tracking-tighter mb-4 uppercase">
+                        Our <span className="text-[#D4AF37]">Values.</span>
                     </h2>
                     <p className="text-gray-500 font-mono text-xs uppercase tracking-wider">The principles that guide every connection we make.</p>
                 </div>
@@ -148,43 +145,56 @@ export default function WhoWeArePage() {
                     {values.map((v, i) => (
                         <motion.div 
                             key={i}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.1, ease: "linear" }}
-                            className="text-center p-12 card-luxury group"
+                            transition={{ delay: i * 0.1 }}
+                            className="text-center p-8 card-luxury group bg-white border border-black/5"
                         >
-                            <div className="flex justify-center mb-8 text-gold group-hover:scale-105 transition-transform duration-75">
-                                {v.icon}
+                            <div className="flex justify-center mb-6 text-[#D4AF37]">
+                                <div className="w-14 h-14 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+                                    {v.icon}
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-black text-white mb-4 uppercase">{v.title}</h3>
-                            <p className="text-gray-500 text-sm font-medium">{v.desc}</p>
+                            <h3 className="text-xl font-bold text-black mb-3 uppercase tracking-tight">{v.title}</h3>
+                            <p className="text-gray-500 text-sm leading-relaxed">{v.desc}</p>
                         </motion.div>
                     ))}
                 </div>
             </section>
 
             {/* 4. JOIN US */}
-            <section className="py-40 px-6 relative overflow-hidden border-t border-white/10">
-                <div className="max-w-4xl mx-auto text-center relative z-10">
-                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-8 leading-[1.1] uppercase">
+            <section className="py-32 px-6 relative overflow-hidden border-t border-black/5 bg-black text-white">
+                <div className="absolute inset-0 z-0">
+                    <Image 
+                        src="/images/Joburg_.jpg" 
+                        alt="Join Phanda Community" 
+                        fill 
+                        className="object-cover opacity-10"
+                        loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+                </div>
+                
+                <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">
+                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[1.1] uppercase">
                         Join Our Growing <br />
-                        <span className="text-gold">Community.</span>
+                        <span className="text-[#D4AF37]">Community.</span>
                     </h2>
-                    <p className="text-gray-400 text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-                        Whether you're looking for work or need a trusted service provider, Phanda Links is here for you.
+                    <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                        Whether you're looking for work or need a trusted service provider, Phanda Links is here to bridge the gap.
                     </p>
                     
-                    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link 
                             href="/workers" 
-                            className="btn-luxury btn-luxury-primary px-10 py-5 text-sm uppercase tracking-widest flex items-center gap-2"
+                            className="btn-luxury btn-luxury-primary bg-[#D4AF37] text-black border-[#D4AF37] hover:bg-white hover:text-black hover:border-white px-8 py-4 text-xs uppercase tracking-wider flex items-center gap-2 font-extrabold"
                         >
                             Find a Worker <ArrowRight className="w-4 h-4" />
                         </Link>
                         <Link 
                             href="/signup?role=worker" 
-                            className="btn-luxury border border-white/10 text-white px-10 py-5 text-sm uppercase tracking-widest hover:bg-white/5"
+                            className="btn-luxury border border-white/20 text-white hover:bg-white/5 px-8 py-4 text-xs uppercase tracking-wider font-extrabold"
                         >
                             Become a Worker
                         </Link>

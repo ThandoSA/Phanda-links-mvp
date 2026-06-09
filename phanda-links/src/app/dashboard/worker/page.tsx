@@ -9,13 +9,16 @@ import { motion } from "framer-motion"
 import Skeleton from "@/components/ui/Skeleton"
 import {
   Star,
-  Briefcase,
-  CheckCircle2,
+  CheckCircle,
   Clock,
-  BarChart3,
+  TrendingUp,
   MessageSquare,
-  ArrowRight,
-  FolderOpen
+  FolderOpen,
+  MapPin,
+  Settings,
+  Share2,
+  Check,
+  X
 } from "lucide-react"
 import StatusBadge from "@/components/ui/StatusBadge"
 import { Job, Worker } from "@/types"
@@ -37,7 +40,7 @@ export default function WorkerDashboard() {
 
       const { data: profileData } = await supabase
         .from("profiles")
-        .select(`id, full_name, location, worker_profiles (skills, rating, jobs_completed, availability)`)
+        .select(`id, full_name, location, avatar_url, worker_profiles (skills, rating, jobs_completed, availability)`)
         .eq("id", user.id)
         .single()
 
@@ -46,8 +49,9 @@ export default function WorkerDashboard() {
 
       const { data: jobsData } = await supabase
         .from("jobs")
-        .select(`id, status, created_at, title, price, client:profiles!jobs_client_id_fkey (full_name)`)
+        .select(`id, status, created_at, title, price, client:profiles!jobs_client_id_fkey (full_name, avatar_url)`)
         .eq("worker_id", user.id)
+        .order("created_at", { ascending: false })
 
       if (!mountedRef.current) return
       setJobs((jobsData as unknown as Job[]) || [])
@@ -66,8 +70,12 @@ export default function WorkerDashboard() {
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("jobs").update({ status }).eq("id", id)
-    if (error) toast.error(error.message)
-    else fetchData()
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success(`Job status updated to ${status}`)
+      fetchData()
+    }
   }
 
   const shareProfile = () => {
@@ -78,118 +86,215 @@ export default function WorkerDashboard() {
   }
 
   if (loading) return (
-    <div className="p-6 space-y-8 bg-black min-h-screen">
-      <Skeleton height="14rem" className="rounded-none" />
+    <div className="space-y-8 max-w-6xl mx-auto pt-6 px-4">
+      <div className="h-48 skeleton" />
       <div className="grid md:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => <Skeleton key={i} height="7rem" className="rounded-none" />)}
+        {[1, 2, 3].map(i => <div key={i} className="h-32 skeleton" />)}
       </div>
       <div className="space-y-4">
-        <Skeleton width="150px" height="2rem" className="rounded-none" />
-        {[1, 2].map(i => <Skeleton key={i} height="12rem" className="rounded-none" />)}
+        <div className="h-8 w-48 skeleton" />
+        {[1, 2].map(i => <div key={i} className="h-40 skeleton" />)}
       </div>
     </div>
   )
 
+  const wp = profile?.worker_profiles?.[0]
+  const rating = wp?.rating || 0
+  const jobsCompletedCount = wp?.jobs_completed || 0
+  const availability = wp?.availability || "available"
+  const isAvailable = availability === "available"
+
   return (
-    <div className="p-6 space-y-8 bg-black min-h-screen">
-      {/* 🔹 HEADER & COMPLIANCE */}
+    <div className="space-y-10 max-w-6xl mx-auto pt-8 px-4 pb-20">
+      
+      {/* HEADER SECTION */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-panel rounded-none p-0 flex flex-col border border-white/10 relative overflow-hidden"
+        className="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center md:items-start justify-between"
       >
-        <div className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 border-b border-white/10">
-          <div className="w-24 h-24 bg-white/5 rounded-none border border-gold overflow-hidden relative flex-shrink-0">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 w-full">
+          <div className="w-28 h-28 rounded-full border border-gray-200 overflow-hidden relative flex-shrink-0 bg-white shadow-md">
             <Image
-              src="/images/default-avatar.svg"
+              src={profile?.avatar_url || "/images/default-avatar.svg"}
               alt="Profile"
               fill
-              sizes="96px"
+              sizes="112px"
               className="object-cover"
             />
           </div>
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-3xl font-black text-white tracking-tight uppercase">{profile?.full_name || "Elite Hustler"}</h1>
-            <p className="text-gray-500 text-[10px] font-mono font-bold uppercase tracking-widest mt-1">LOC: {profile?.location || "DEPLOYABLE SECTOR"}</p>
-            <div className="flex flex-wrap justify-center md:justify-start items-center gap-6 mt-4 text-[10px] font-mono font-black uppercase tracking-[0.2em]">
-              <div className="flex items-center gap-2 text-gold">
-                <Star className="w-3 h-3 fill-gold" />
-                <span>RATING {profile?.worker_profiles?.[0]?.rating || 0}</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/60">
-                <Briefcase className="w-3 h-3" />
-                <span>{profile?.worker_profiles?.[0]?.jobs_completed || 0} SHIFTS</span>
+          <div className="flex-1 text-center md:text-left space-y-4">
+            <div>
+              <h1 className="text-4xl font-black text-black tracking-tighter">{profile?.full_name || "Premium Member"}</h1>
+              <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium justify-center md:justify-start mt-2">
+                <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                {profile?.location || "Available Nationwide"}
               </div>
             </div>
+
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
+              <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 flex items-center gap-1.5 shadow-sm">
+                <CheckCircle className="w-3.5 h-3.5" /> Verified
+              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 shadow-sm ${
+                isAvailable
+                  ? "bg-amber-50 border-amber-200 text-amber-700"
+                  : "bg-gray-100 border-gray-200 text-gray-600"
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${isAvailable ? "bg-amber-500 animate-pulse" : "bg-gray-400"}`} />
+                {availability.charAt(0).toUpperCase() + availability.slice(1)}
+              </span>
+            </div>
+            
+            {wp?.skills && wp.skills.length > 0 && (
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
+                {wp.skills.map((skill: string, sidx: number) => (
+                  <span key={sidx} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium border border-gray-200">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          <Link href="/dashboard/worker/profile" className="btn-luxury border border-white/10 hover:border-gold hover:text-gold px-6 py-3 rounded-none text-[10px] font-mono font-black uppercase tracking-[0.2em] transition-all duration-75">
-            SYS_CONFIG
-          </Link>
         </div>
-        {/* COMPLIANCE TICKER */}
-        <div className="px-6 py-3 bg-[#0B0B0C] flex items-center gap-4 text-[10px] font-mono font-black tracking-widest uppercase">
-           <div className="flex items-center gap-2 text-emerald-400">
-             <div className="w-2 h-2 rounded-none bg-emerald-400 animate-pulse-slow shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-             VERIFICATION: CONFIRMED
-           </div>
-           <span className="text-white/20">|</span>
-           <div className="flex items-center gap-2 text-gold">
-             <div className="w-2 h-2 rounded-none bg-gold animate-pulse-slow shadow-[0_0_8px_rgba(197,160,89,0.8)]" />
-             STATUS: {profile?.worker_profiles?.[0]?.availability || "DEPLOYABLE"}
-           </div>
+
+        {/* Quick Actions */}
+        <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto flex-shrink-0">
+          <button 
+            onClick={shareProfile}
+            className="btn-luxury btn-luxury-outline py-3 px-6 text-sm flex items-center justify-center gap-2 bg-white"
+          >
+            <Share2 className="w-4 h-4" /> Share Profile
+          </button>
+          <Link 
+            href="/dashboard/worker/profile" 
+            className="btn-luxury btn-luxury-primary py-3 px-6 text-sm flex items-center justify-center gap-2"
+          >
+            <Settings className="w-4 h-4" /> Edit Profile
+          </Link>
         </div>
       </motion.div>
 
-      {/* 🔹 STATS */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <StatCard title="Total Jobs" value={jobs.length} icon={<BarChart3 className="w-5 h-5 text-gold" />} />
-        <StatCard title="Accepted" value={jobs.filter(j => j.status === "accepted").length} icon={<CheckCircle2 className="w-5 h-5 text-emerald-400" />} />
-        <StatCard title="Pending" value={jobs.filter(j => j.status === "pending").length} icon={<Clock className="w-5 h-5 text-gold" />} />
+      {/* STATS STRIP */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { 
+            icon: <Star className="w-6 h-6 text-[#D4AF37] fill-[#D4AF37]" />, 
+            label: "Average Rating", 
+            value: rating > 0 ? rating.toFixed(1) : "New",
+            bg: "bg-[#D4AF37]/10"
+          },
+          { 
+            icon: <CheckCircle className="w-6 h-6 text-emerald-600" />, 
+            label: "Jobs Completed", 
+            value: jobsCompletedCount,
+            bg: "bg-emerald-50"
+          },
+          { 
+            icon: <Clock className="w-6 h-6 text-amber-600" />, 
+            label: "Pending Bookings", 
+            value: jobs.filter(j => j.status === "pending").length,
+            bg: "bg-amber-50"
+          }
+        ].map((stat, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + (i * 0.1) }}
+            className="glass-card p-6 flex items-center gap-5"
+          >
+            <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">{stat.label}</p>
+              <p className="text-3xl font-black text-black">{stat.value}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* 🔹 JOB LIST */}
-      <div>
-        <h2 className="text-xl font-black text-white mb-6 tracking-tight uppercase">Job <span className="text-gold">Requests</span></h2>
+      {/* JOB LIST */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-black tracking-tighter">Active Bookings</h2>
+          <Link href="/dashboard/worker/jobs" className="text-sm font-bold text-gray-500 hover:text-black transition-colors">
+            View All Jobs &rarr;
+          </Link>
+        </div>
+        
         {jobs.length === 0 ? (
           <EmptyState 
-            text="No job requests found at this time. Complete or share your profile to attract clients." 
-            actionLabel="Share Profile Link"
-            onActionClick={shareProfile}
+            text="You have no booking requests at this time." 
+            actionLabel="Browse Available Jobs"
+            onActionClick={() => window.location.href = "/dashboard/worker/jobs"}
           />
         ) : (
           <div className="grid gap-6">
             {jobs.map((job, i) => (
               <motion.div
                 key={job.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.1 }}
-                className="glass-panel p-0 rounded-none border border-white/10 transition-all duration-75 hover:border-gold hard-offset-hover flex flex-col relative"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-[#D4AF37]/30 transition-colors"
               >
-                <div className="p-6 pb-20 md:pb-6 flex-1">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="font-bold text-white text-lg uppercase tracking-tight">{job.title || "Premium Service Request"}</h3>
-                    <div className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-1 border border-gold/30 tracking-[0.2em] uppercase whitespace-nowrap hidden sm:block">
-                      [{job.status.toUpperCase()}]
+                <div className="flex-1 space-y-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <h3 className="font-bold text-black text-xl tracking-tight">{job.title || "Premium Service"}</h3>
+                    <StatusBadge status={job.status} />
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                      <Image 
+                        src={job.client?.avatar_url || "/images/default-avatar.svg"} 
+                        alt="Client Avatar" 
+                        fill 
+                        className="object-cover" 
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-black">{job.client?.full_name || "Client"}</p>
+                      <p className="text-xs text-gray-500 font-medium">
+                        {new Date(job.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">CLIENT_ID: <span className="text-white font-bold">{job.client?.full_name || "PREMIUM CLIENT"}</span></p>
-                  {job.price && <p className="text-lg font-black text-gold font-mono tracking-tight">R {job.price.toLocaleString()}</p>}
-                  <p className="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-[0.2em] mt-2">TIMESTAMP: {new Date(job.created_at).toLocaleString()}</p>
                 </div>
                 
-                {/* BOTTOM PINNED ACTION BAR FOR MOBILE ERGONOMICS */}
-                <div className="absolute md:static bottom-0 left-0 right-0 md:border-t border-white/10 flex">
-                  {job.status === "pending" ? (
-                    <>
-                      <button onClick={() => updateStatus(job.id, "accepted")} className="flex-1 bg-gold hover:bg-white text-black py-4 md:py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-75 flex items-center justify-center gap-2">ACCEPT SHIFT</button>
-                      <button onClick={() => updateStatus(job.id, "rejected")} className="flex-1 bg-[#121214] hover:bg-[#1A1A1C] border-l border-white/10 text-white py-4 md:py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-75 flex items-center justify-center gap-2 text-red-400">REJECT</button>
-                    </>
-                  ) : (
-                    <Link href={`/dashboard/messages/${job.id}`} className="w-full bg-[#121214] hover:bg-gold hover:text-black border-t md:border-t-0 border-white/10 text-white py-4 md:py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-75 flex items-center justify-center gap-2">
-                      OPEN COMMUNICATIONS <ArrowRight className="w-3 h-3" />
-                    </Link>
+                {/* Actions & Price */}
+                <div className="flex flex-col md:items-end justify-between gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-gray-100">
+                  {job.price && (
+                    <p className="text-xl font-black text-black">R {job.price.toLocaleString()}</p>
                   )}
+                  
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    {job.status === "pending" ? (
+                      <>
+                        <button 
+                          onClick={() => updateStatus(job.id, "accepted")} 
+                          className="btn-luxury btn-luxury-primary flex-1 md:flex-none px-6 py-2.5 text-xs font-bold"
+                        >
+                          Accept
+                        </button>
+                        <button 
+                          onClick={() => updateStatus(job.id, "rejected")} 
+                          className="btn-luxury bg-white border border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex-1 md:flex-none px-6 py-2.5 text-xs font-bold transition-colors"
+                        >
+                          Decline
+                        </button>
+                      </>
+                    ) : (
+                      <Link 
+                        href={`/dashboard/messages/${job.id}`} 
+                        className="btn-luxury btn-luxury-outline bg-white flex-1 md:flex-none px-6 py-2.5 text-xs font-bold flex items-center justify-center gap-2"
+                      >
+                        <MessageSquare className="w-4 h-4 text-[#D4AF37]" /> Open Chat
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -200,43 +305,25 @@ export default function WorkerDashboard() {
   )
 }
 
-function StatCard({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) {
-  return (
-    <motion.div className="glass-panel p-6 rounded-none border border-white/10 relative overflow-hidden transition-all duration-75 hard-offset-hover hover:border-gold">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-white/5 rounded-none flex items-center justify-center border border-white/10">{icon}</div>
-        <div>
-          <p className="text-[10px] font-mono text-gray-500 font-black uppercase tracking-widest">{title}</p>
-          <p className="text-3xl font-black text-white font-mono mt-0.5">{value}</p>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
-
-function EmptyState({ text, actionLabel, actionHref, onActionClick }: { 
+function EmptyState({ text, actionLabel, onActionClick }: { 
   text: string
   actionLabel?: string
-  actionHref?: string
   onActionClick?: () => void
 }) {
   return (
-    <div className="glass-panel p-16 rounded-none text-center border-2 border-dashed border-white/10 flex flex-col items-center gap-6">
-      <div className="w-20 h-20 bg-white/5 rounded-none border border-white/10 flex items-center justify-center mb-2">
-        <FolderOpen className="w-8 h-8 text-white/20" />
+    <div className="glass-card p-16 text-center flex flex-col items-center gap-6">
+      <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 border border-gray-100">
+        <FolderOpen className="w-8 h-8" />
       </div>
-      <p className="text-white font-black text-xl uppercase tracking-tighter leading-relaxed max-w-md">{text}</p>
+      <p className="text-gray-600 font-medium text-lg max-w-md">{text}</p>
       
       {actionLabel && (
-        actionHref ? (
-          <Link href={actionHref} className="btn-luxury btn-luxury-primary mt-2 px-8 py-4 rounded-none text-[10px] font-black uppercase tracking-[0.2em]">
-            {actionLabel}
-          </Link>
-        ) : (
-          <button onClick={onActionClick} className="btn-luxury btn-luxury-primary mt-2 px-8 py-4 rounded-none text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer">
-            {actionLabel}
-          </button>
-        )
+        <button 
+          onClick={onActionClick} 
+          className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold"
+        >
+          {actionLabel}
+        </button>
       )}
     </div>
   )

@@ -93,73 +93,98 @@ export default function ClientProfileForm() {
 
     if (loading) {
         return (
-            <div className="p-8 max-w-4xl mx-auto flex justify-center items-center h-64 pt-20">
-                <div className="w-10 h-10 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+            <div className="space-y-8 max-w-5xl mx-auto pt-6 px-4">
+                <div className="h-10 w-48 skeleton" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="h-64 skeleton" />
+                    <div className="lg:col-span-2">
+                        <div className="h-72 skeleton" />
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 max-w-5xl mx-auto animate-fade-in-up space-y-12 pb-20 pt-10">
+        <div className="max-w-5xl mx-auto space-y-8 pt-8 px-4 pb-20">
             <header>
-                <p className="text-[10px] text-gold uppercase font-black tracking-[0.3em] mb-2">Member Profile</p>
-                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">Account <span className="text-gold">Settings</span></h1>
-                <p className="text-gray-500 font-medium italic">Manage your premium profile and preferences.</p>
+                <h1 className="text-4xl font-black text-black tracking-tighter">Profile Setup</h1>
+                <p className="text-gray-500 text-sm font-medium mt-1">Manage your personal settings and preferences.</p>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* 📸 AVATAR SECTION */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Avatar Section */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-panel p-6 rounded-md border-t border-white/10 text-center">
-                        <div className="relative w-40 h-40 mx-auto mb-6 rounded-md overflow-hidden border-2 border-gold/50 group cursor-pointer">
+                    <div className="glass-card p-8 text-center">
+                        <div className="relative w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border border-gray-200 group cursor-pointer shadow-sm bg-white">
                             <Image
                                 src={avatarUrl || "/images/default-avatar.svg"}
                                 alt="Avatar"
                                 fill
-                                className="object-cover transition-transform duration-75"
+                                className="object-cover"
                             />
-                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold uppercase tracking-widest gap-2">
-                                <Camera className="w-6 h-6" />
+                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
+                                <Camera className="w-6 h-6 text-white" />
                                 Change Photo
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                             </label>
                         </div>
-                        <h3 className="text-white font-bold mb-2">Profile Image</h3>
-                        <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-relaxed px-4">
-                            A clear photo helps professionals identify you quickly.
-                        </p>
+                        <h3 className="text-black font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>
+                        <p className="text-xs text-gray-500 font-medium mt-1">A clear photo establishes trust.</p>
+                    </div>
+
+                    <div className="glass-card p-6 flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                            <ShieldCheck className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="text-black font-bold text-sm tracking-tight">Account Security</h4>
+                            <p className="text-gray-500 text-xs mt-1">To change your password, contact support.</p>
+                        </div>
                     </div>
                 </div>
 
-                {/* 📝 FORM SECTION */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="glass-panel p-6 rounded-md border-t border-white/10 space-y-6">
+                {/* Form Section */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="glass-card p-8 md:p-10 space-y-8">
                         
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <User className="w-3.5 h-3.5 text-gold" />
-                                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Full Name</label>
-                                </div>
-                                <input
-                                    type="text"
-                                    value={fullName}
-                                    onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold font-medium"
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="relative pt-2">
+                                <input 
+                                    type="text" 
+                                    id="clientFullName" 
+                                    required 
+                                    placeholder=" " 
+                                    className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    value={fullName} 
+                                    onChange={(e) => setFullName(e.target.value)} 
                                 />
+                                <User className="absolute left-0 top-5 w-5 h-5 text-gray-400 peer-focus:text-[#D4AF37] transition-colors" />
+                                <label 
+                                    htmlFor="clientFullName" 
+                                    className="absolute left-8 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-focus:left-0 peer-valid:-top-1.5 peer-valid:text-xs peer-valid:left-0 font-medium"
+                                >
+                                    Full Name
+                                </label>
                             </div>
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <MapPin className="w-3.5 h-3.5 text-gold" />
-                                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Primary Location</label>
-                                </div>
-                                <input
-                                    type="text"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    placeholder="e.g. Sandton, JHB"
-                                    className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold font-medium"
+
+                            <div className="relative pt-2">
+                                <input 
+                                    type="text" 
+                                    id="clientLocation" 
+                                    required 
+                                    placeholder=" " 
+                                    className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    value={location} 
+                                    onChange={(e) => setLocation(e.target.value)} 
                                 />
+                                <MapPin className="absolute left-0 top-5 w-5 h-5 text-gray-400 peer-focus:text-[#D4AF37] transition-colors" />
+                                <label 
+                                    htmlFor="clientLocation" 
+                                    className="absolute left-8 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-focus:left-0 peer-valid:-top-1.5 peer-valid:text-xs peer-valid:left-0 font-medium"
+                                >
+                                    Location
+                                </label>
                             </div>
                         </div>
 
@@ -167,19 +192,14 @@ export default function ClientProfileForm() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="bg-gold text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3"
                             >
-                                {saving ? <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Updating...</> : <><Save className="w-4 h-4" /> Save Settings</>}
+                                {saving ? (
+                                    <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
+                                ) : (
+                                    <><Save className="w-4 h-4" /> Save Changes</>
+                                )}
                             </button>
-                        </div>
-                    </div>
-                    <div className="p-6 border border-white/5 bg-white/[0.02] rounded-md flex items-center gap-6 group">
-                        <div className="w-14 h-14 bg-white/5 rounded-sm flex items-center justify-center flex-shrink-0">
-                            <ShieldCheck className="w-7 h-7 text-white/20 group-hover:text-gold transition-colors" />
-                        </div>
-                        <div>
-                            <h4 className="text-white font-bold text-sm mb-1">Security & Privacy</h4>
-                            <p className="text-gray-500 text-xs font-medium">Manage your login credentials and notification preferences in the <Link href="/dashboard/settings" className="text-gold hover:underline flex items-center gap-1 inline-flex">Security Hub <ArrowRight className="w-2.5 h-2.5" /></Link>.</p>
                         </div>
                     </div>
                 </div>

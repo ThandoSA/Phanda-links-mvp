@@ -55,68 +55,76 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-fade-in">
-            <div className="glass-panel w-full max-w-lg p-6 rounded-md border-t border-white/20 relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <div className="glass-card w-full max-w-lg p-8 md:p-10 relative overflow-hidden bg-white/95 shadow-2xl">
                 <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white mb-1">Send a <span className="text-gold">Quote</span></h2>
-                            <p className="text-gray-400 text-xs font-medium">Job: {jobTitle}</p>
-                        </div>
-                        <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors">
-                            <X className="w-6 h-6" />
-                        </button>
+                    <button onClick={onClose} className="absolute -top-2 -right-2 text-gray-400 hover:text-black transition-colors bg-gray-50 rounded-full p-2">
+                        <X className="w-5 h-5" />
+                    </button>
+                    <div className="mb-8 pr-10">
+                        <h2 className="text-3xl font-black text-black mb-2 tracking-tighter">Submit a <span className="text-[#D4AF37]">Quote</span></h2>
+                        <p className="text-gray-500 text-sm font-bold truncate">Job: {jobTitle}</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gold uppercase tracking-widest">Your Proposal (R)</label>
-                            <input
-                                required
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold"
-                            />
-                            <p className="text-[10px] text-gray-500 italic">Client suggested budget: R {clientPrice}</p>
+                            <div className="relative pt-2">
+                                <input
+                                    required
+                                    type="number"
+                                    id="amount"
+                                    placeholder=" "
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors"
+                                />
+                                <label 
+                                  htmlFor="amount" 
+                                  className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
+                                >
+                                  Your Proposal (R)
+                                </label>
+                            </div>
+                            <p className="text-xs text-gray-500 font-bold bg-gray-50 px-3 py-1.5 rounded-md inline-block border border-gray-100">
+                                Client budget: R {clientPrice}
+                            </p>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gold uppercase tracking-widest">Message to Client</label>
+                        <div className="space-y-2 pt-2">
+                            <label className="text-xs font-bold text-gray-500">Message to Client</label>
                             <textarea
                                 required
                                 rows={4}
                                 placeholder="Explain why you're the best fit for this job..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-white focus:outline-none focus:border-gold"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-black focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] resize-none shadow-sm transition-all"
                             />
                         </div>
 
-                        <div className="pt-4 flex gap-3">
+                        <div className="pt-6 flex gap-4">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-sm font-bold hover:bg-white/10"
+                                className="flex-1 bg-white border border-gray-200 text-gray-700 py-4 rounded-full font-bold hover:bg-gray-50 hover:text-black transition-colors shadow-sm"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-2 bg-gold text-black py-3 rounded-sm font-bold disabled:opacity-50 flex items-center justify-center gap-2 hard-offset-hover"
+                                className="flex-2 btn-luxury btn-luxury-primary py-4 font-bold disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {loading ? (
-                                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <>Submit Quote <Send className="w-4 h-4" /></>
+                                    <>Submit Proposal <Send className="w-4 h-4" /></>
                                 )}
                             </button>
                         </div>
                     </form>
                 </div>
-
-                {/* decorative glow removed per design rules */}
             </div>
         </div>
     )

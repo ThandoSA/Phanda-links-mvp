@@ -6,6 +6,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
+import { Menu, X } from "lucide-react"
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -56,13 +57,17 @@ export default function Navbar() {
     window.location.href = "/"
   }
 
-  const isActive = (href: string) => pathname === href
+  const isActive = (href: string) => {
+    if (href.startsWith("/#")) {
+      return pathname === "/"
+    }
+    return pathname === href
+  }
 
-  // 🔹 Dynamic Navigation Links
   const publicLinks = [
-    { href: "/#home", label: "Home" },
+    { href: "/", label: "Home" },
     { href: "/who-we-are", label: "Who We Are" },
-    { href: "/what-we-do", label: "What We Do" },
+    { href: "/#why-we-created", label: "Why Phanda Links" },
   ]
 
   const workerLinks = [
@@ -87,30 +92,35 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
-          ? "bg-black/70 border-b border-white/10 py-3"
-          : "bg-transparent py-5"
-        }`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-8">
+      <nav className={`fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-50 transition-all duration-300 rounded-full border ${
+        scrolled
+          ? "bg-white/80 border-black/5 shadow-lg shadow-black/3 py-3 backdrop-blur-md"
+          : "bg-white/40 border-black/5 py-4 backdrop-blur-sm"
+      }`}>
+        <div className="flex justify-between items-center px-6 md:px-8">
 
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-9 h-9 overflow-hidden rounded-sm border border-white/10 group-hover:border-[#C5A059] transition-all duration-75">
-              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale transition-transform duration-75" />
+            <div className="relative w-8 h-8 overflow-hidden rounded-full border border-black/5 group-hover:border-[#D4AF37] transition-all">
+              <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover no-grayscale" />
             </div>
-            <span className="font-extrabold text-lg tracking-tighter text-white">
-              Phanda <span className="text-[#C5A059]">Links</span>
+            <span className="font-extrabold text-base tracking-tighter text-black">
+              Phanda <span className="text-[#D4AF37]">Links</span>
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8 text-[11px] font-mono font-bold uppercase tracking-[0.25em]">
+          <div className="hidden md:flex items-center gap-8 text-[11px] font-sans font-bold uppercase tracking-wider">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`relative transition-all duration-75 pb-1 group ${isActive(href) ? "text-[#C5A059]" : "text-gray-400 hover:text-white"}`}
+                className={`relative transition-colors duration-200 pb-1 group ${
+                  isActive(href) ? "text-[#D4AF37]" : "text-gray-600 hover:text-black"
+                }`}
               >
                 {label}
-                <span className={`absolute -bottom-0.5 left-0 w-full h-0.5 bg-[#C5A059] transition-all duration-75 ${isActive(href) ? "opacity-100" : "opacity-0 scale-x-0 group-hover:scale-x-100 group-hover:opacity-100"}`} />
+                <span className={`absolute -bottom-0.5 left-0 w-full h-0.5 bg-[#D4AF37] transition-all duration-200 ${
+                  isActive(href) ? "opacity-100" : "opacity-0 scale-x-0 group-hover:scale-x-100 group-hover:opacity-100"
+                }`} />
               </Link>
             ))}
           </div>
@@ -119,16 +129,16 @@ export default function Navbar() {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="text-[11px] font-mono font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors"
+                className="text-[11px] font-sans font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors cursor-pointer"
               >
                 Logout
               </button>
             ) : (
               <>
-                <Link href="/login" className="text-[11px] font-mono font-bold uppercase tracking-widest text-white hover:text-[#C5A059] transition-colors mr-2">
+                <Link href="/login" className="text-[11px] font-sans font-bold uppercase tracking-wider text-gray-700 hover:text-black transition-colors mr-2">
                   Login
                 </Link>
-                <Link href="/signup" className="btn-luxury btn-luxury-primary px-6 py-2.5 font-extrabold text-[11px] uppercase tracking-widest">
+                <Link href="/signup" className="btn-luxury btn-luxury-primary px-5 py-2 text-[11px] font-bold uppercase tracking-wider">
                   Get Started
                 </Link>
               </>
@@ -137,48 +147,54 @@ export default function Navbar() {
 
           <button
             onClick={() => setMenuOpen(true)}
-            className="md:hidden text-white p-2 flex flex-col gap-1.5"
+            className="md:hidden text-gray-700 hover:text-black p-2"
             aria-label="Open menu"
           >
-            <span className="w-6 h-0.5 bg-white block" />
-            <span className="w-6 h-0.5 bg-[#C5A059] block" />
-            <span className="w-4 h-0.5 bg-white block ml-auto" />
+            <Menu className="w-6 h-6" />
           </button>
         </div>
       </nav>
 
-      {/* Mobile Overlay */}
-      <div className={`fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center transition-all duration-75 ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+      {/* Mobile Drawer */}
+      <div className={`fixed inset-0 bg-white/95 backdrop-blur-lg z-[100] flex flex-col items-center justify-center transition-all duration-300 ${
+        menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}>
         <button
           onClick={() => setMenuOpen(false)}
-          className="absolute top-8 right-8 w-10 h-10 rounded-sm bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-[#C5A059] hover:text-black transition-all text-sm font-bold"
+          className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/5 flex items-center justify-center text-black hover:bg-[#D4AF37] transition-all"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
 
-        <div className={`flex flex-col gap-8 text-center transition-all duration-75 ${menuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}>
+        <div className={`flex flex-col gap-6 text-center transition-all duration-300 ${
+          menuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+        }`}>
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className={`text-2xl font-black uppercase tracking-widest transition-all ${isActive(href) ? "text-[#C5A059]" : "text-white hover:text-[#C5A059]"}`}
+              className={`text-xl font-black uppercase tracking-wide transition-all ${
+                isActive(href) ? "text-[#D4AF37]" : "text-gray-800 hover:text-black"
+              }`}
             >
               {label}
             </Link>
           ))}
-          <div className="h-px w-12 bg-[#C5A059]/30 mx-auto my-2" />
+          <div className="h-px w-12 bg-gray-200 mx-auto my-2" />
           {user ? (
-            <button onClick={() => { setMenuOpen(false); handleLogout() }} className="text-lg font-bold text-red-500 hover:text-red-400">
+            <button onClick={() => { setMenuOpen(false); handleLogout() }} className="text-lg font-bold text-red-500 hover:text-red-600 cursor-pointer">
               Logout
             </button>
           ) : (
-            <>
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-gray-400 hover:text-white uppercase tracking-wider font-mono">Login</Link>
-              <Link href="/signup" onClick={() => setMenuOpen(false)} className="btn-luxury btn-luxury-primary px-10 py-4 font-black text-sm uppercase tracking-widest">
+            <div className="flex flex-col gap-4">
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="text-lg font-bold text-gray-700 hover:text-black uppercase tracking-wider">
+                Login
+              </Link>
+              <Link href="/signup" onClick={() => setMenuOpen(false)} className="btn-luxury btn-luxury-primary px-8 py-3 text-xs uppercase tracking-wider">
                 Get Started
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>

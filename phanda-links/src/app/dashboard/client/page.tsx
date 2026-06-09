@@ -3,10 +3,12 @@
 import { useEffect, useState, useRef } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import StatusBadge from "@/components/ui/StatusBadge"
 import Skeleton from "@/components/ui/Skeleton"
-import { Briefcase, ArrowRight, Search } from "lucide-react"
+import ClientHero from "@/components/dashboard/ClientHero"
+import { Briefcase, ArrowRight, Search, PlusCircle, Bookmark, Compass, Star } from "lucide-react"
 
 type Job = {
   id: string
@@ -14,7 +16,7 @@ type Job = {
   created_at: string
   title?: string
   price?: number
-  worker?: { full_name: string } | null
+  worker?: { full_name: string; avatar_url: string; worker_profiles?: { rating: number; verified: boolean }[] } | null
 }
 
 export default function ClientDashboard() {
@@ -35,11 +37,13 @@ export default function ClientDashboard() {
 
         const { data } = await supabase
           .from("jobs")
-          .select(`id, status, created_at, title, price, worker:profiles!jobs_worker_id_fkey (full_name)`)
+          .select(`id, status, created_at, title, price, worker:profiles!jobs_worker_id_fkey (full_name, avatar_url, worker_profiles (rating, verified))`)
           .eq("client_id", user.id)
+          .order("created_at", { ascending: false })
 
         if (!isMounted.current) return
-        setJobs((data as any) || [])
+        
+        setJobs(data as unknown as Job[] || [])
       } catch (err) {
         console.error("Client dashboard fetch error:", err)
       } finally {
@@ -51,62 +55,149 @@ export default function ClientDashboard() {
   }, [])
 
   if (loading) return (
-    <div className="p-6 space-y-8 bg-black min-h-screen">
-      <Skeleton height="10rem" className="rounded-sm" />
+    <div className="space-y-8 max-w-6xl mx-auto pt-6 px-4">
+      <div className="h-32 skeleton" />
       <div className="space-y-4">
-        <Skeleton width="150px" height="2rem" className="rounded-sm" />
-        {[1,2,3].map(i => <Skeleton key={i} height="8rem" className="rounded-sm" />)}
+        <div className="h-8 w-48 skeleton" />
+        {[1,2,3].map(i => <div key={i} className="h-32 skeleton" />)}
       </div>
     </div>
   )
 
+  const activeStatuses = ['pending', 'accepted', 'en_route', 'in_progress']
+  const nextBooking = jobs.find(j => activeStatuses.includes(j.status)) || null
+
   return (
-    <div className="p-6 space-y-8 bg-black min-h-screen">
+    <div className="space-y-10 max-w-6xl mx-auto pt-8 px-4 pb-20">
+      {/* Dashboard Header */}
       <motion.header 
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-10"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
       >
-        <p className="text-[10px] text-gold uppercase font-black tracking-[0.3em] mb-2">Management Suite</p>
-        <h1 className="text-4xl font-black text-white tracking-tighter">My <span className="text-gold">Jobs</span></h1>
-        <p className="text-gray-500 text-sm font-medium mt-1">Track your premium service requests and active hires.</p>
+        <div>
+          <h1 className="text-4xl font-black text-black tracking-tighter">Hiring Overview</h1>
+          <p className="text-gray-500 text-sm font-medium mt-1">Coordinate your service appointments and active trade projects.</p>
+        </div>
+
+        <div className="flex gap-3">
+          <Link 
+            href="/dashboard/client/post-job" 
+            className="btn-luxury btn-luxury-primary px-6 py-3 text-sm font-bold flex items-center gap-2"
+          >
+            <PlusCircle className="w-4 h-4" /> Post a Job
+          </Link>
+          <Link 
+            href="/workers" 
+            className="btn-luxury btn-luxury-outline px-6 py-3 text-sm font-bold flex items-center gap-2 bg-white"
+          >
+            <Compass className="w-4 h-4" /> Explore Talent
+          </Link>
+        </div>
       </motion.header>
 
-      {jobs.length === 0 ? (
-        <EmptyState text="You haven’t hired any professionals yet." />
-      ) : (
-        <div className="grid gap-6">
-          {jobs.map((job, i) => (
-            <motion.div 
-              key={job.id} 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1, duration: 0.1 }}
-              className="glass-panel p-6 rounded-none border border-white/10 hover:border-gold hard-offset-hover transition-all duration-75"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                    <h3 className="font-bold text-white text-lg mb-1 uppercase tracking-tight">{job.title || "Premium Service Request"}</h3>
-                    <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                        ASSIGNED PROFESSIONAL: <span className="text-white font-bold">{job.worker?.full_name || "SEARCHING..."}</span>
-                    </p>
-                </div>
-                <StatusBadge status={job.status} />
-              </div>
+      {/* Booking Status Tracker (Client Hero) */}
+      <ClientHero job={nextBooking} />
 
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-6 pt-6 border-t border-white/10">
-                <div className="space-y-1">
-                    {job.price && <p className="text-xl font-black text-gold font-mono tracking-tight">R {job.price.toLocaleString()}</p>}
-                    <p className="text-[10px] font-mono text-gray-600 font-bold uppercase tracking-[0.2em]">{new Date(job.created_at).toLocaleString()}</p>
-                </div>
-                <Link href={`/dashboard/messages/${job.id}`} className="btn-luxury bg-white/5 border border-white/10 hover:border-gold hover:bg-gold hover:text-black text-white px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all text-center flex items-center justify-center gap-2">
-                  Open Chat <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </motion.div>
-          ))}
+      {/* Stats Widgets */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="glass-card p-6 flex flex-col justify-center">
+          <p className="text-gray-500 text-sm font-medium">Total Bookings</p>
+          <p className="text-4xl font-black text-black mt-2">{jobs.length}</p>
         </div>
-      )}
+        <div className="glass-card p-6 flex flex-col justify-center">
+          <p className="text-gray-500 text-sm font-medium">In Progress</p>
+          <p className="text-4xl font-black text-[#D4AF37] mt-2">{jobs.filter(j => j.status === "in_progress" || j.status === "en_route").length}</p>
+        </div>
+        <div className="glass-card p-6 flex flex-col justify-center">
+          <p className="text-gray-500 text-sm font-medium">Completed Projects</p>
+          <p className="text-4xl font-black text-emerald-600 mt-2">{jobs.filter(j => j.status === "completed").length}</p>
+        </div>
+      </div>
+
+      {/* Bookings History */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-black text-black tracking-tighter">Booking History</h2>
+          {jobs.length > 0 && (
+            <Link href="/dashboard/client/bookings" className="text-sm font-bold text-gray-500 hover:text-black transition-colors flex items-center gap-1">
+              View History <ArrowRight className="w-4 h-4" />
+            </Link>
+          )}
+        </div>
+
+        {jobs.length === 0 ? (
+          <EmptyState text="You haven’t booked any professional crews yet." />
+        ) : (
+          <div className="grid gap-6">
+            {jobs.map((job, i) => {
+              const wp = job.worker?.worker_profiles?.[0]
+              const rating = wp?.rating || 0
+              const isVerified = wp?.verified || false
+
+              return (
+                <motion.div 
+                  key={job.id} 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-[#D4AF37]/30 transition-colors"
+                >
+                  <div className="space-y-4 flex-1">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <h3 className="font-bold text-black text-xl tracking-tight">{job.title || "Premium Service"}</h3>
+                      <StatusBadge status={job.status} />
+                    </div>
+                    
+                    {job.worker ? (
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-white">
+                          <Image 
+                            src={job.worker.avatar_url || "/images/default-avatar.svg"} 
+                            alt="Worker avatar" 
+                            fill 
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-bold text-black">{job.worker.full_name}</p>
+                            {isVerified && <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold border border-emerald-200">Vetted</span>}
+                          </div>
+                          {rating > 0 && (
+                            <div className="flex items-center gap-1 text-sm text-gray-500 font-medium mt-0.5">
+                              <Star className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" />
+                              {rating.toFixed(1)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-sm text-gray-500 font-medium pl-1">
+                        <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+                        Searching Network for Quotes...
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 flex-shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-gray-100">
+                    <div className="text-left sm:text-right">
+                      <p className="text-gray-500 text-sm font-medium">Estimated Budget</p>
+                      <p className="text-2xl font-black text-black mt-0.5">{job.price ? `R ${job.price.toLocaleString()}` : "Pending"}</p>
+                    </div>
+                    <Link 
+                      href={`/dashboard/messages/${job.id}`} 
+                      className="btn-luxury btn-luxury-outline text-sm font-bold flex items-center justify-center gap-2 px-6 py-3 w-full sm:w-auto bg-white"
+                    >
+                      Open Chat <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
+                    </Link>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -116,22 +207,22 @@ function EmptyState({ text }: { text: string }) {
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-panel p-16 rounded-none border border-white/10 flex flex-col items-center gap-6"
+      className="glass-card p-16 flex flex-col items-center gap-6 text-center"
     >
-      <div className="w-24 h-24 bg-white/5 rounded-none border border-white/10 flex items-center justify-center mb-2">
-        <Briefcase className="w-10 h-10 text-white/30" />
+      <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 border border-gray-100">
+        <Briefcase className="w-8 h-8" />
       </div>
-      <p className="text-white font-black text-xl uppercase tracking-tighter leading-relaxed">
+      <p className="text-gray-600 font-medium text-lg max-w-sm">
         {text}
       </p>
-      <div className="flex flex-wrap gap-4 items-center justify-center text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-4">
-        <span>0 ACTIVE HIRES</span>
-        <span className="w-1 h-1 bg-white/20 rounded-none"></span>
-        <span>SYSTEM AWAITING DEPLOYMENT</span>
+      <div className="flex gap-3">
+        <Link 
+          href="/workers" 
+          className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold flex items-center gap-2"
+        >
+          Browse Talent <Search className="w-4 h-4" />
+        </Link>
       </div>
-      <Link href="/workers" className="btn-luxury btn-luxury-primary px-8 py-4 rounded-none text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">
-        Browse Elite Talent <Search className="w-3 h-3" />
-      </Link>
     </motion.div>
   )
 }
