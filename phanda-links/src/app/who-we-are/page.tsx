@@ -167,7 +167,7 @@ export default function WhoWeArePage() {
             <section className="py-32 px-6 relative overflow-hidden border-t border-black/5 bg-black text-white">
                 <div className="absolute inset-0 z-0">
                     <Image 
-                        src="/images/Joburg_.jpg" 
+                        src="/images/hero-1.svg" 
                         alt="Join Phanda Community" 
                         fill 
                         className="object-cover opacity-10"

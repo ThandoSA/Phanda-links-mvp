@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
 import { Hammer, Briefcase, ArrowRight, ArrowLeft } from "lucide-react"
+import Logo from "@/components/ui/Logo"
 
 export default function Signup() {
   const router = useRouter()
@@ -81,8 +82,8 @@ export default function Signup() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/images/download (3).jpg" 
-            alt="Phanda Links Hustle Story" 
+            src="/images/hero-2.svg" 
+            alt="Phanda Links — Join the marketplace" 
             fill 
             sizes="50vw"
             className="object-cover img-premium"
@@ -92,20 +93,15 @@ export default function Signup() {
         </div>
 
         <div className="relative z-10 w-full max-w-lg space-y-8 mt-auto mb-12">
-          <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg border border-white">
-            <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover" />
-          </div>
+          <Logo size={48} href={null} className="mb-2" />
           <div>
-            <h1 className="text-5xl font-black tracking-tighter mb-4 text-black">
-              Join <span className="text-[#D4AF37]">Phanda Links</span>
-            </h1>
-            <p className="text-gray-800 text-lg font-medium leading-relaxed">
-              Become part of the premium marketplace connecting elite professionals with discerning clients. 
+            <p className="text-gray-800 text-lg font-medium leading-relaxed mt-6">
+              Join a community built for South African hustle culture. Whether you&apos;re finding work or hiring talent, your story starts here.
             </p>
           </div>
           
           <div className="flex flex-col gap-5 border-t border-gray-200 pt-8">
-            {["Access top-tier jobs instantly", "Build your verified reputation", "Get paid securely & on time"].map((item, i) => (
+            {["Create your professional profile", "Connect with real opportunities", "Build trust through visibility"].map((item, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
@@ -136,7 +132,7 @@ export default function Signup() {
               <h2 className="text-4xl font-black tracking-tighter text-black">
                 Create <span className="text-[#D4AF37]">Account</span>
               </h2>
-              <p className="text-gray-500 text-sm font-medium">Join the community of elite professionals</p>
+              <p className="text-gray-500 text-sm font-medium">Join South Africa&apos;s opportunity marketplace</p>
             </div>
 
             <form onSubmit={handleSignup} className="space-y-6">

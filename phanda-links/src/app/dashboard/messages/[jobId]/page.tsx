@@ -197,11 +197,7 @@ export default function ChatPage() {
                 )}
 
                 <div className={`max-w-[75%] md:max-w-md flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                  <div className={`px-5 py-3.5 shadow-sm border ${
-                    isMe
-                      ? "bg-black text-white border-black rounded-2xl rounded-br-sm"
-                      : "bg-white text-black border-gray-200 rounded-2xl rounded-bl-sm"
-                  }`}>
+                  <div className={isMe ? "bubble-sent px-5 py-3.5" : "bubble-received px-5 py-3.5"}>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                   </div>
                   <div className="flex items-center gap-1.5 mt-1 text-gray-400">

@@ -16,6 +16,7 @@ export type WorkerProfile = {
   rating?: number
   jobs_completed?: number
   availability?: 'available' | 'busy'
+  verified?: boolean
 }
 
 export type Job = {

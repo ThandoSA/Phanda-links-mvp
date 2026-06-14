@@ -8,8 +8,9 @@ import Image from "next/image"
 import { AnimatePresence } from "framer-motion"
 import PageTransition from "@/components/ui/PageTransition"
 import Skeleton from "@/components/ui/Skeleton"
-import Footer from "@/components/layout/Footer"
+import Logo from "@/components/ui/Logo"
 import { Menu, X, LogOut } from "lucide-react"
+import OnboardingWizard from "@/components/dashboard/OnboardingWizard"
 
 // SVG icon components
 const Icons = {
@@ -72,19 +73,16 @@ const NavItem = ({ href, icon, children, isActive, onClick }: NavItemProps) => (
   <Link
     href={href}
     onClick={onClick}
-    className={`relative flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 font-bold text-xs uppercase tracking-wider group ${
+    className={`relative flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-300 font-bold text-xs uppercase tracking-wider group ${
       isActive
-        ? "bg-black/5 text-black font-extrabold"
-        : "text-gray-500 hover:text-black hover:bg-black/2"
+        ? "bg-black text-white font-extrabold shadow-md"
+        : "text-gray-500 hover:text-black hover:bg-black/5"
     }`}
   >
-    <span className={`transition-colors duration-200 ${isActive ? "text-[#D4AF37]" : "text-gray-400 group-hover:text-gray-700"}`}>
+    <span className={`transition-colors duration-200 ${isActive ? "text-gold" : "text-gray-400 group-hover:text-gray-700"}`}>
       {icon}
     </span>
     {children}
-    {isActive && (
-      <span className="absolute right-4 w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-    )}
   </Link>
 )
 
@@ -92,6 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [role, setRole] = useState<string | null>(null)
   const [profile, setProfile] = useState<{ full_name?: string; avatar_url?: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -119,6 +118,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const userRole = prof?.role || userData.user.user_metadata?.role || "worker"
         setRole(userRole.toLowerCase())
         setProfile(prof || null)
+        setUserId(userData.user.id)
       } catch (err) {
         console.error("Auth fetch error:", err)
       } finally {
@@ -133,15 +133,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
-    <div className="flex h-screen bg-[#FAFAFC] text-black relative overflow-hidden selection:bg-[#D4AF37] selection:text-black">
+    <div className="flex h-screen bg-surface text-black relative overflow-hidden selection:bg-gold selection:text-black">
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 w-full bg-white/80 border-b border-black/5 p-4 flex justify-between items-center z-50 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={28} height={28} className="rounded-full h-auto" />
-          <h2 className="text-base font-extrabold tracking-wide uppercase">
-            Phanda <span className="text-[#D4AF37]">Links</span>
-          </h2>
-        </div>
+      <div className="md:hidden fixed top-0 left-0 w-full glass-nav border-b border-black/5 p-4 flex justify-between items-center z-50">
+        <Logo size={28} />
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 p-2">
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -150,14 +145,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* SIDEBAR */}
       <aside className={`${
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-black/5 bg-white/70 backdrop-blur-xl`}
+      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-black/5 glass`}
       >
-        {/* Logo */}
-        <div className="hidden md:flex p-6 border-b border-black/5 items-center gap-3">
-          <Image src="/images/logo-icon.jpeg" alt="Phanda Links" width={32} height={32} style={{ width: "auto", height: "auto" }} className="rounded-full" />
-          <h2 className="text-lg font-black tracking-tighter uppercase text-black">
-            Phanda <span className="text-[#D4AF37]">Links</span>
-          </h2>
+        <div className="hidden md:flex p-6 border-b border-black/5">
+          <Logo size={32} />
         </div>
         <div className="md:hidden h-[72px] border-b border-black/5" />
 
@@ -176,7 +167,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
               <div className="min-w-0">
                 <p className="text-black text-xs font-bold uppercase truncate">{profile.full_name || "User"}</p>
-                <p className="text-[9px] text-[#D4AF37] uppercase tracking-widest font-black">{role}</p>
+                <p className="text-[9px] text-gold uppercase tracking-widest font-black">{role}</p>
               </div>
             </div>
           </div>
@@ -213,7 +204,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-t border-black/5 bg-black/[0.01]">
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push("/login") }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] uppercase tracking-wider font-extrabold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group cursor-pointer"
+            className="w-full flex items-center gap-3 px-5 py-3 rounded-full text-[10px] uppercase tracking-wider font-extrabold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group cursor-pointer"
           >
             <LogOut className="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition-transform" />
             Sign Out
@@ -246,9 +237,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </PageTransition>
             </AnimatePresence>
           </div>
-          {!loading && <Footer />}
         </div>
       </main>
+
+      {/* Onboarding Wizard Modal */}
+      {!loading && role && userId && (
+        <OnboardingWizard role={role} userId={userId} />
+      )}
     </div>
   )
 }

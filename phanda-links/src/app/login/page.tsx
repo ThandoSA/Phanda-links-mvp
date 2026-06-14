@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
+import Logo from "@/components/ui/Logo"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -78,8 +79,8 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/images/download (2).jpg" 
-            alt="Phanda Links Hustle Story" 
+            src="/images/hero-3.svg" 
+            alt="Phanda Links — South African opportunity marketplace" 
             fill 
             sizes="50vw"
             className="object-cover img-premium"
@@ -89,20 +90,15 @@ export default function Login() {
         </div>
 
         <div className="relative z-10 w-full max-w-lg space-y-8 mt-auto mb-12">
-          <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg border border-white">
-            <Image src="/images/logo-icon.jpeg" alt="Phanda Links" fill className="object-cover" />
-          </div>
+          <Logo size={48} href={null} className="mb-2" />
           <div>
-            <h1 className="text-5xl font-black tracking-tighter mb-4 text-black">
-              Phanda <span className="text-[#D4AF37]">Links</span>
-            </h1>
-            <p className="text-gray-800 text-lg font-medium leading-relaxed">
-              The premium marketplace connecting elite professionals with discerning clients. Elevate your hustle.
+            <p className="text-gray-800 text-lg font-medium leading-relaxed mt-6">
+              The marketplace where South African hustle meets visibility. Dignity, opportunity, and trust for every worker.
             </p>
           </div>
           
           <div className="flex flex-col gap-5 border-t border-gray-200 pt-8">
-            {["Verified elite professionals", "Real-time job matching", "Secure payments & chat"].map((item, i) => (
+            {["Showcase your skills professionally", "Get discovered by local clients", "Communicate and grow your reputation"].map((item, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">

@@ -1,330 +1,258 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef } from "react"
-import { supabase } from "@/lib/supabaseClient"
-import toast from "react-hot-toast"
-import Image from "next/image"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import Skeleton from "@/components/ui/Skeleton"
-import {
-  Star,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  MessageSquare,
-  FolderOpen,
-  MapPin,
-  Settings,
-  Share2,
-  Check,
-  X
-} from "lucide-react"
-import StatusBadge from "@/components/ui/StatusBadge"
-import { Job, Worker } from "@/types"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/layout/Navbar";
+import { Briefcase, Star, TrendingUp, Calendar, Plus, MapPin } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+
+interface WorkerProfile {
+  id: string;
+  user_id: string;
+  full_name?: string;
+  avatar_url?: string;
+  skills?: string[];
+  bio?: string;
+  verified?: boolean;
+  rating?: number;
+  jobs_completed?: number;
+  availability?: string;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  status: string;
+  amount?: number;
+  created_at?: string;
+}
 
 export default function WorkerDashboard() {
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [profile, setProfile] = useState<Worker | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  const mountedRef = useRef(true)
-
-  const fetchData = async () => {
-    try {
-      const { data: userData, error: authError } = await supabase.auth.getUser()
-      if (!mountedRef.current) return
-
-      const user = userData.user
-      if (authError || !user) return
-
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select(`id, full_name, location, avatar_url, worker_profiles (skills, rating, jobs_completed, availability)`)
-        .eq("id", user.id)
-        .single()
-
-      if (!mountedRef.current) return
-      setProfile(profileData as unknown as Worker)
-
-      const { data: jobsData } = await supabase
-        .from("jobs")
-        .select(`id, status, created_at, title, price, client:profiles!jobs_client_id_fkey (full_name, avatar_url)`)
-        .eq("worker_id", user.id)
-        .order("created_at", { ascending: false })
-
-      if (!mountedRef.current) return
-      setJobs((jobsData as unknown as Job[]) || [])
-    } catch (err) {
-      console.error("Dashboard fetch error:", err)
-    } finally {
-      if (mountedRef.current) setLoading(false)
-    }
-  }
+  const [profile, setProfile] = useState<WorkerProfile | null>(null);
+  const [recentJobs, setRecentJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    mountedRef.current = true
-    fetchData()
-    return () => { mountedRef.current = false }
-  }, [])
+    const fetchDashboardData = async () => {
+      setLoading(true);
 
-  const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("jobs").update({ status }).eq("id", id)
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success(`Job status updated to ${status}`)
-      fetchData()
-    }
-  }
+      const { data: { user } } = await supabase.auth.getUser();
 
-  const shareProfile = () => {
-    if (!profile?.id) return
-    const profileUrl = `${window.location.origin}/workers/${profile.id}`
-    navigator.clipboard.writeText(profileUrl)
-    toast.success("Profile link copied to clipboard!")
-  }
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-  if (loading) return (
-    <div className="space-y-8 max-w-6xl mx-auto pt-6 px-4">
-      <div className="h-48 skeleton" />
-      <div className="grid md:grid-cols-3 gap-6">
-        {[1, 2, 3].map(i => <div key={i} className="h-32 skeleton" />)}
-      </div>
-      <div className="space-y-4">
-        <div className="h-8 w-48 skeleton" />
-        {[1, 2].map(i => <div key={i} className="h-40 skeleton" />)}
-      </div>
-    </div>
-  )
+      // Fetch profile + worker_profiles in one query
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select(`
+          full_name,
+          avatar_url,
+          worker_profiles (
+            skills,
+            bio,
+            verified,
+            rating,
+            jobs_completed,
+            availability
+          )
+        `)
+        .eq('id', user.id)
+        .single();
 
-  const wp = profile?.worker_profiles?.[0]
-  const rating = wp?.rating || 0
-  const jobsCompletedCount = wp?.jobs_completed || 0
-  const availability = wp?.availability || "available"
-  const isAvailable = availability === "available"
+      if (error) {
+        console.error("Error fetching profile:", error);
+      } else if (profileData) {
+        const workerData = profileData.worker_profiles?.[0] || {};
+        setProfile({
+          ...workerData,
+          id: user.id,
+          user_id: user.id,
+          full_name: profileData.full_name,
+          avatar_url: profileData.avatar_url,
+        });
+      }
+
+      // Fetch recent jobs (adjust table/column names if needed)
+      const { data: jobsData } = await supabase
+        .from('jobs')
+        .select('id, title, status, amount, created_at')
+        .eq('worker_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      setRecentJobs(jobsData || []);
+      setLoading(false);
+    };
+
+    fetchDashboardData();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel('worker-dashboard')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'worker_profiles' },
+        () => fetchDashboardData()
+      )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'jobs' },
+        () => fetchDashboardData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const stats = [
+    {
+      label: "Jobs Completed",
+      value: profile?.jobs_completed ?? 0,
+      icon: <Briefcase className="w-8 h-8" />
+    },
+    {
+      label: "Rating",
+      value: profile?.rating ? Number(profile.rating).toFixed(1) : "0.0",
+      icon: <Star className="w-8 h-8" />
+    },
+    {
+      label: "Availability",
+      value: profile?.availability ? profile.availability.charAt(0).toUpperCase() + profile.availability.slice(1) : "Available",
+      icon: <MapPin className="w-8 h-8" />
+    },
+    {
+      label: "This Month",
+      value: "—",
+      icon: <Calendar className="w-8 h-8" />
+    },
+  ];
 
   return (
-    <div className="space-y-10 max-w-6xl mx-auto pt-8 px-4 pb-20">
-      
-      {/* HEADER SECTION */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center md:items-start justify-between"
-      >
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 w-full">
-          <div className="w-28 h-28 rounded-full border border-gray-200 overflow-hidden relative flex-shrink-0 bg-white shadow-md">
-            <Image
-              src={profile?.avatar_url || "/images/default-avatar.svg"}
-              alt="Profile"
-              fill
-              sizes="112px"
-              className="object-cover"
-            />
-          </div>
-          <div className="flex-1 text-center md:text-left space-y-4">
+    <main className="bg-white min-h-screen">
+      <Navbar />
+
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Welcome Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
+          <div className="flex items-center gap-6">
+            <div className="relative w-24 h-24 rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
+              <Image
+                src={profile?.avatar_url || "/images/default-avatar.jpg"}
+                alt={profile?.full_name || "Profile"}
+                fill
+                className="object-cover"
+              />
+              {profile?.verified && (
+                <div className="absolute -bottom-1 -right-1 bg-[#D4AF37] text-black text-xs font-bold px-2.5 py-1 rounded-full">
+                  ✓
+                </div>
+              )}
+            </div>
             <div>
-              <h1 className="text-4xl font-black text-black tracking-tighter">{profile?.full_name || "Premium Member"}</h1>
-              <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium justify-center md:justify-start mt-2">
-                <MapPin className="w-4 h-4 text-[#D4AF37]" />
-                {profile?.location || "Available Nationwide"}
-              </div>
+              <h1 className="text-5xl font-black tracking-tighter">
+                Welcome back, {profile?.full_name?.split(" ")[0] || "Hustler"} 👋
+              </h1>
+              <p className="text-xl text-gray-600 mt-1">Let’s keep building your reputation</p>
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/worker/profile/edit"
+            className="btn-luxury btn-luxury-primary flex items-center gap-3 mt-6 md:mt-0"
+          >
+            <Plus className="w-5 h-5" /> Update Profile
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, i) => (
+            <div key={i} className="glass-card p-8 hover:scale-[1.02] transition-all">
+              <div className="text-[#D4AF37] mb-6">{stat.icon}</div>
+              <div className="text-5xl font-black tracking-tighter">{stat.value}</div>
+              <div className="text-gray-500 mt-2">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-8">
+          {/* Recent Jobs */}
+          <div className="lg:col-span-3 glass-card p-8">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-2xl font-bold">Recent Jobs</h3>
+              <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline text-sm font-medium">
+                View All Jobs →
+              </Link>
             </div>
 
-            <div className="flex flex-wrap justify-center md:justify-start items-center gap-3">
-              <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 flex items-center gap-1.5 shadow-sm">
-                <CheckCircle className="w-3.5 h-3.5" /> Verified
-              </span>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 shadow-sm ${
-                isAvailable
-                  ? "bg-amber-50 border-amber-200 text-amber-700"
-                  : "bg-gray-100 border-gray-200 text-gray-600"
-              }`}>
-                <span className={`w-2 h-2 rounded-full ${isAvailable ? "bg-amber-500 animate-pulse" : "bg-gray-400"}`} />
-                {availability.charAt(0).toUpperCase() + availability.slice(1)}
-              </span>
-            </div>
-            
-            {wp?.skills && wp.skills.length > 0 && (
-              <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-2">
-                {wp.skills.map((skill: string, sidx: number) => (
-                  <span key={sidx} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium border border-gray-200">
-                    {skill}
-                  </span>
+            {loading ? (
+              <div className="py-20 text-center">Loading your activity...</div>
+            ) : recentJobs.length > 0 ? (
+              <div className="space-y-6">
+                {recentJobs.map((job) => (
+                  <div key={job.id} className="flex justify-between items-center border-b pb-6 last:border-none">
+                    <div>
+                      <p className="font-semibold">{job.title}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(job.created_at || "").toLocaleDateString('en-ZA')}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-4 py-1 text-xs font-medium rounded-full 
+                        ${job.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {job.status}
+                      </span>
+                      {job.amount && <p className="font-medium mt-1">R{job.amount}</p>}
+                    </div>
+                  </div>
                 ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 text-gray-500">
+                No jobs yet. Start applying on the{" "}
+                <Link href="/workers" className="text-[#D4AF37] hover:underline">Find Work</Link> page.
               </div>
             )}
           </div>
-        </div>
 
-        {/* Quick Actions */}
-        <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto flex-shrink-0">
-          <button 
-            onClick={shareProfile}
-            className="btn-luxury btn-luxury-outline py-3 px-6 text-sm flex items-center justify-center gap-2 bg-white"
-          >
-            <Share2 className="w-4 h-4" /> Share Profile
-          </button>
-          <Link 
-            href="/dashboard/worker/profile" 
-            className="btn-luxury btn-luxury-primary py-3 px-6 text-sm flex items-center justify-center gap-2"
-          >
-            <Settings className="w-4 h-4" /> Edit Profile
-          </Link>
-        </div>
-      </motion.div>
+          {/* Profile Summary */}
+          <div className="lg:col-span-2 glass-card p-8">
+            <h3 className="text-2xl font-bold mb-6">Your Profile</h3>
 
-      {/* STATS STRIP */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { 
-            icon: <Star className="w-6 h-6 text-[#D4AF37] fill-[#D4AF37]" />, 
-            label: "Average Rating", 
-            value: rating > 0 ? rating.toFixed(1) : "New",
-            bg: "bg-[#D4AF37]/10"
-          },
-          { 
-            icon: <CheckCircle className="w-6 h-6 text-emerald-600" />, 
-            label: "Jobs Completed", 
-            value: jobsCompletedCount,
-            bg: "bg-emerald-50"
-          },
-          { 
-            icon: <Clock className="w-6 h-6 text-amber-600" />, 
-            label: "Pending Bookings", 
-            value: jobs.filter(j => j.status === "pending").length,
-            bg: "bg-amber-50"
-          }
-        ].map((stat, i) => (
-          <motion.div 
-            key={i}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + (i * 0.1) }}
-            className="glass-card p-6 flex items-center gap-5"
-          >
-            <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center`}>
-              {stat.icon}
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm font-medium mb-1">{stat.label}</p>
-              <p className="text-3xl font-black text-black">{stat.value}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            <div className="space-y-6">
+              {profile?.bio && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Bio</p>
+                  <p className="text-gray-700 line-clamp-4">{profile.bio}</p>
+                </div>
+              )}
 
-      {/* JOB LIST */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-black text-black tracking-tighter">Active Bookings</h2>
-          <Link href="/dashboard/worker/jobs" className="text-sm font-bold text-gray-500 hover:text-black transition-colors">
-            View All Jobs &rarr;
-          </Link>
-        </div>
-        
-        {jobs.length === 0 ? (
-          <EmptyState 
-            text="You have no booking requests at this time." 
-            actionLabel="Browse Available Jobs"
-            onActionClick={() => window.location.href = "/dashboard/worker/jobs"}
-          />
-        ) : (
-          <div className="grid gap-6">
-            {jobs.map((job, i) => (
-              <motion.div
-                key={job.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-[#D4AF37]/30 transition-colors"
+              {profile?.skills && profile.skills.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-3">Skills</p>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.skills.slice(0, 6).map((skill, i) => (
+                      <span key={i} className="text-xs bg-gray-100 px-4 py-2 rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Link
+                href="/dashboard/worker/profile/edit"
+                className="btn-luxury w-full mt-6"
               >
-                <div className="flex-1 space-y-4">
-                  <div className="flex flex-wrap items-center gap-4">
-                    <h3 className="font-bold text-black text-xl tracking-tight">{job.title || "Premium Service"}</h3>
-                    <StatusBadge status={job.status} />
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200">
-                      <Image 
-                        src={job.client?.avatar_url || "/images/default-avatar.svg"} 
-                        alt="Client Avatar" 
-                        fill 
-                        className="object-cover" 
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-black">{job.client?.full_name || "Client"}</p>
-                      <p className="text-xs text-gray-500 font-medium">
-                        {new Date(job.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Actions & Price */}
-                <div className="flex flex-col md:items-end justify-between gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-gray-100">
-                  {job.price && (
-                    <p className="text-xl font-black text-black">R {job.price.toLocaleString()}</p>
-                  )}
-                  
-                  <div className="flex items-center gap-2 w-full md:w-auto">
-                    {job.status === "pending" ? (
-                      <>
-                        <button 
-                          onClick={() => updateStatus(job.id, "accepted")} 
-                          className="btn-luxury btn-luxury-primary flex-1 md:flex-none px-6 py-2.5 text-xs font-bold"
-                        >
-                          Accept
-                        </button>
-                        <button 
-                          onClick={() => updateStatus(job.id, "rejected")} 
-                          className="btn-luxury bg-white border border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50 flex-1 md:flex-none px-6 py-2.5 text-xs font-bold transition-colors"
-                        >
-                          Decline
-                        </button>
-                      </>
-                    ) : (
-                      <Link 
-                        href={`/dashboard/messages/${job.id}`} 
-                        className="btn-luxury btn-luxury-outline bg-white flex-1 md:flex-none px-6 py-2.5 text-xs font-bold flex items-center justify-center gap-2"
-                      >
-                        <MessageSquare className="w-4 h-4 text-[#D4AF37]" /> Open Chat
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                Edit Profile & Add Photos
+              </Link>
+            </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
-  )
-}
-
-function EmptyState({ text, actionLabel, onActionClick }: { 
-  text: string
-  actionLabel?: string
-  onActionClick?: () => void
-}) {
-  return (
-    <div className="glass-card p-16 text-center flex flex-col items-center gap-6">
-      <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 border border-gray-100">
-        <FolderOpen className="w-8 h-8" />
-      </div>
-      <p className="text-gray-600 font-medium text-lg max-w-md">{text}</p>
-      
-      {actionLabel && (
-        <button 
-          onClick={onActionClick} 
-          className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold"
-        >
-          {actionLabel}
-        </button>
-      )}
-    </div>
-  )
+    </main>
+  );
 }

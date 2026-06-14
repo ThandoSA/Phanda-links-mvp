@@ -16,8 +16,30 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Phanda Links | Premium Hustle & Elite Services",
-  description: "Connecting premium hustle to real opportunity across Johannesburg and beyond. Experience seamless hiring and trustworthy service.",
+  title: "Phanda Links | The Hustle Deserves Visibility",
+  description: "South Africa's opportunity marketplace. Connecting skilled workers with real clients through dignity, trust, and community.",
+  openGraph: {
+    title: "Phanda Links | The Hustle Deserves Visibility",
+    description: "South Africa's opportunity marketplace. Connecting skilled workers with real clients.",
+    url: "https://phandalinks.com",
+    siteName: "Phanda Links",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Phanda Links - The Hustle Deserves Visibility",
+      },
+    ],
+    locale: "en_ZA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Phanda Links | The Hustle Deserves Visibility",
+    description: "Connecting skilled workers with real clients.",
+    images: ["/images/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({

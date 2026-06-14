@@ -10,6 +10,7 @@ interface ClientHeroJob {
     created_at: string
     title?: string
     price?: number
+    location?: string
     worker?: { full_name: string; avatar_url?: string | null } | null
 }
 

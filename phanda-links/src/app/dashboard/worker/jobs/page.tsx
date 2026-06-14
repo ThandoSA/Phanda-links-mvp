@@ -11,10 +11,6 @@ import Skeleton from "@/components/ui/Skeleton"
 import { 
   Search, 
   Briefcase, 
-  Gem, 
-  Sparkles, 
-  ShieldCheck, 
-  Star, 
   ArrowRight,
   MapPin,
   Clock
@@ -68,7 +64,7 @@ export default function JobsPage() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 glass-card-static p-8"
       >
         <div className="space-y-2">
           <p className="text-sm text-[#D4AF37] font-bold uppercase tracking-widest">Marketplace</p>
@@ -106,31 +102,21 @@ export default function JobsPage() {
         </div>
       </motion.div>
 
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-          { label: "Active Jobs", value: openJobs.length, icon: <Briefcase className="w-6 h-6 text-[#D4AF37]" />, bg: "bg-[#D4AF37]/10" },
-          { label: "Avg. Price", value: "R 2,450", icon: <Gem className="w-6 h-6 text-blue-600" />, bg: "bg-blue-50" },
-          { label: "New Today", value: "14", icon: <Sparkles className="w-6 h-6 text-purple-600" />, bg: "bg-purple-50" },
-          { label: "Verified Clients", value: "98%", icon: <ShieldCheck className="w-6 h-6 text-emerald-600" />, bg: "bg-emerald-50" }
-        ].map((stat, i) => (
-          <motion.div 
-            key={i}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.05 }}
-            className="glass-card p-6 flex flex-col md:flex-row items-center gap-4 transition-all hover:shadow-md"
-          >
-            <div className={`w-14 h-14 rounded-full ${stat.bg} flex items-center justify-center flex-shrink-0`}>
-              {stat.icon}
-            </div>
-            <div className="text-center md:text-left">
-              <p className="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">{stat.label}</p>
-              <p className="text-black font-black text-2xl leading-none">{stat.value}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {openJobs.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card p-6 flex items-center gap-5 max-w-sm"
+        >
+          <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
+            <Briefcase className="w-6 h-6 text-gold" />
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">Open Opportunities</p>
+            <p className="text-black font-black text-3xl leading-none mt-1">{openJobs.length}</p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Jobs Grid */}
       <AnimatePresence mode="popLayout">
@@ -193,10 +179,6 @@ export default function JobsPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-black text-sm font-bold truncate">{(job.client as any)?.full_name || "Premium Client"}</p>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <Star className="w-3 h-3 text-[#D4AF37] fill-[#D4AF37]" />
-                            <span className="text-xs text-gray-500 font-bold">{(job.client as any)?.rating || "5.0"}</span>
-                          </div>
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end">
