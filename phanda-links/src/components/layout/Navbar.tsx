@@ -66,7 +66,7 @@ export default function Navbar() {
   const publicLinks = [
     { href: "/", label: "Home" },
     { href: "/who-we-are", label: "Who We Are" },
-    { href: "/#why-we-created", label: "Why Phanda Links" },
+    { href: "/why-phanda-links", label: "Why Phanda Links" },
   ]
 
   const workerLinks = [

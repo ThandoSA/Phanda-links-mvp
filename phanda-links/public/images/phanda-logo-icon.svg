@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- P shape with curved top and right side -->
+  <path d="M 50 30 L 50 170 M 50 30 Q 50 30 100 30 Q 130 30 130 60 Q 130 90 100 90 L 50 90" stroke="black" stroke-width="16" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Curved connector -->
+  <path d="M 130 90 Q 160 100 160 140 Q 160 170 130 170" stroke="black" stroke-width="16" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Bottom horizontal line (like an "L") -->
+  <line x1="50" y1="170" x2="140" y2="170" stroke="black" stroke-width="16" stroke-linecap="round"/>
+</svg>

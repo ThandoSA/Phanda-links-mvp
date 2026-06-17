@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <text x="10" y="45" font-size="32" font-weight="bold" font-family="Arial, sans-serif">
+    <tspan fill="#1a1a1a">Phanda</tspan>
+    <tspan fill="#d4af37">Links</tspan>
+  </text>
+  <text x="10" y="58" font-size="10" fill="#666" font-family="Arial, sans-serif">Free trial • No card required</text>
+</svg>
