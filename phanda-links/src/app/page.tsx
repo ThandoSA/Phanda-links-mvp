@@ -105,7 +105,13 @@ export default function Home() {
             </p>
           </div>
           <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl">
-            <Image src="/images/download (2).jpg" alt="South African community" fill className="object-cover" />
+            <Image
+              src="/images/download (2).jpg"
+              alt="South African community"
+              fill
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </section>

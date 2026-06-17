@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
 import { Briefcase, Star, TrendingUp, Calendar, Plus, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -131,9 +130,7 @@ export default function WorkerDashboard() {
   ];
 
   return (
-    <main className="bg-white min-h-screen">
-      <Navbar />
-
+    <div className="bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">

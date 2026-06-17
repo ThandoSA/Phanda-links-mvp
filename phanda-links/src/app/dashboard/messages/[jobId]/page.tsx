@@ -154,7 +154,7 @@ export default function ChatPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 flex-shrink-0 bg-white shadow-sm">
-              <Image src={otherParty?.avatar_url || "/images/default-avatar.svg"} alt="User" fill className="object-cover" />
+              <Image src={otherParty?.avatar_url || "/images/default-avatar.svg"} alt="User" fill sizes="48px" className="object-cover" />
             </div>
             <div>
               <h1 className="font-black text-black text-base md:text-lg leading-tight tracking-tight">

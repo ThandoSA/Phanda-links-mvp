@@ -86,7 +86,11 @@ export default function Navbar() {
   ]
 
   const navLinks = user
-    ? (role === "worker" ? workerLinks : clientLinks)
+    ? (role === "worker"
+      ? workerLinks
+      : role === "client"
+        ? clientLinks
+        : publicLinks)
     : publicLinks
 
   return (

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
-import { Hammer, Briefcase, ArrowRight, ArrowLeft } from "lucide-react"
+import { Hammer, Briefcase, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 
 export default function Signup() {
@@ -18,6 +18,7 @@ export default function Signup() {
   const [fullName, setFullName] = useState("")
   const [role, setRole] = useState("worker")
   const [location, setLocation] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return null
@@ -171,8 +172,16 @@ export default function Signup() {
                   <label htmlFor="email" className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium">Email Address</label>
                 </div>
                 <div className="relative pt-2">
-                  <input type="password" id="password" required placeholder=" " className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <input type={showPassword ? "text" : "password"} id="password" required placeholder=" " className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" value={password} onChange={(e) => setPassword(e.target.value)} />
                   <label htmlFor="password" className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-0 top-5 text-gray-400 hover:text-black transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
                 <div className="relative pt-2">
                   <input type="text" id="location" required placeholder=" " className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" value={location} onChange={(e) => setLocation(e.target.value)} />

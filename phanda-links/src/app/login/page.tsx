@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -154,7 +155,7 @@ export default function Login() {
 
               <div className="relative pt-2">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   required
                   placeholder=" "
@@ -168,6 +169,14 @@ export default function Login() {
                 >
                   Password
                 </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-16 top-5 text-gray-400 hover:text-black transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
                 <Link href="#" className="absolute right-0 top-5 text-xs text-gray-400 hover:text-black font-bold transition-colors">
                   Forgot?
                 </Link>

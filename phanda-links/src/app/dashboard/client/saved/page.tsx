@@ -85,7 +85,7 @@ export default function SavedPage() {
             return (
               <div key={worker.id} className={`card-luxury p-6 rounded-md flex flex-col items-center text-center animate-fade-in-up stagger-${Math.min(i+1,6)} border border-white/5 hover:border-gold/30 group`}>
                 <div className="relative w-24 h-24 mb-6 rounded-md overflow-hidden border-2 border-white/10 group-hover:border-gold/50 transition-colors">
-                  <Image src={worker.avatar_url || "/images/default-avatar.svg"} alt={worker.full_name || "Worker"} fill className="object-cover transition-transform duration-75" />
+                  <Image src={worker.avatar_url || "/images/default-avatar.svg"} alt={worker.full_name || "Worker"} fill sizes="96px" className="object-cover transition-transform duration-75" />
                 </div>
 
                 {/* Availability */}

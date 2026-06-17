@@ -175,7 +175,7 @@ export default function JobsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex-shrink-0">
-                          <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill className="object-cover" />
+                          <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill sizes="40px" className="object-cover" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-black text-sm font-bold truncate">{(job.client as any)?.full_name || "Premium Client"}</p>

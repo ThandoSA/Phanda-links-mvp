@@ -91,7 +91,7 @@ export default function BookingsPage() {
             >
               {/* Worker Photo */}
               <div className="relative w-20 h-20 rounded-none overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold transition-colors duration-75">
-                <Image src={job.worker?.avatar_url || "/images/default-avatar.svg"} alt="Worker" fill className="object-cover" />
+                <Image src={job.worker?.avatar_url || "/images/default-avatar.svg"} alt="Worker" fill sizes="80px" className="object-cover" />
               </div>
 
               {/* Job Details */}

@@ -122,7 +122,7 @@ export default function WorkerProfileForm() {
           {/* Avatar Card */}
           <div className="glass-card p-8 text-center">
             <div className="relative w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border border-gray-200 group cursor-pointer shadow-sm bg-white">
-              <Image src={avatarUrl || "/images/default-avatar.svg"} alt="Avatar" fill className="object-cover" />
+              <Image src={avatarUrl || "/images/default-avatar.svg"} alt="Avatar" fill sizes="144px" className="object-cover" />
               <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
                 <Camera className="w-6 h-6 text-white" />
                 Change Photo

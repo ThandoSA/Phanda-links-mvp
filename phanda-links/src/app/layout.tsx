@@ -15,7 +15,10 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Phanda Links | The Hustle Deserves Visibility",
   description: "South Africa's opportunity marketplace. Connecting skilled workers with real clients through dignity, trust, and community.",
   openGraph: {
