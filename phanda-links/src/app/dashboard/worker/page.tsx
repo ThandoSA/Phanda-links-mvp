@@ -250,6 +250,6 @@ export default function WorkerDashboard() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

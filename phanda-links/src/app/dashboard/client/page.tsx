@@ -108,7 +108,7 @@ export default function ClientDashboard() {
           </div>
 
           <Link
-            href="/jobs/new"
+            href="/dashboard/client/post-job"
             className="btn-luxury btn-luxury-primary flex items-center gap-3 mt-6 md:mt-0"
           >
             <Plus className="w-5 h-5" /> Post New Job
@@ -135,7 +135,7 @@ export default function ClientDashboard() {
         <div className="glass-card p-8">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-2xl font-bold">Your Posted Jobs</h3>
-            <Link href="/jobs" className="text-[#D4AF37] hover:underline text-sm font-medium">
+            <Link href="/dashboard/client/post-job" className="text-[#D4AF37] hover:underline text-sm font-medium">
               View All Jobs →
             </Link>
           </div>
@@ -179,7 +179,7 @@ export default function ClientDashboard() {
           ) : (
             <div className="text-center py-20">
               <p className="text-xl text-gray-600 mb-6">You haven't posted any jobs yet</p>
-              <Link href="/jobs/new" className="btn-luxury btn-luxury-primary">
+              <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary">
                 Post Your First Job
               </Link>
             </div>
@@ -196,7 +196,7 @@ export default function ClientDashboard() {
             <p className="text-gray-600 mt-2">Find skilled professionals near you</p>
           </Link>
 
-          <Link href="/dashboard/client/history" className="glass-card p-10 hover:shadow-xl transition-all group">
+          <Link href="/dashboard/client/bookings" className="glass-card p-10 hover:shadow-xl transition-all group">
             <div className="text-[#D4AF37] mb-4">
               <Briefcase className="w-10 h-10" />
             </div>
@@ -205,6 +205,6 @@ export default function ClientDashboard() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -32,20 +32,30 @@ export default function WorkersPage() {
         .from('worker_profiles')
         .select(`
           id,
-          full_name,
+          user_id,
           location,
-          avatar_url,
           rating,
           is_verified,
           skills,
-          profiles!inner(full_name, avatar_url)
+          profiles(id, full_name, avatar_url)
         `)
         .order('rating', { ascending: false });
 
       if (error) {
         console.error("Error fetching workers:", error);
       } else {
-        setWorkers(data || []);
+        // Map profiles data correctly
+        const mappedWorkers = (data || []).map((worker: any) => ({
+          id: worker.id || worker.user_id,
+          user_id: worker.user_id,
+          full_name: worker.profiles?.full_name || "Worker",
+          avatar_url: worker.profiles?.avatar_url,
+          location: worker.location,
+          rating: worker.rating,
+          is_verified: worker.is_verified,
+          skills: worker.skills,
+        }));
+        setWorkers(mappedWorkers);
       }
       setLoading(false);
     };
