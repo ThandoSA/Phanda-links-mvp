@@ -86,8 +86,7 @@ export default function ClientDashboard() {
   }, []);
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
           <div className="flex items-center gap-6">
@@ -188,7 +187,7 @@ export default function ClientDashboard() {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-8 mt-8">
-          <Link href="/workers" className="glass-card p-10 hover:shadow-xl transition-all group">
+          <Link href="/dashboard/workers" className="glass-card p-10 hover:shadow-xl transition-all group">
             <div className="text-[#D4AF37] mb-4">
               <Users className="w-10 h-10" />
             </div>
@@ -204,7 +203,6 @@ export default function ClientDashboard() {
             <p className="text-gray-600 mt-2">View completed and past jobs</p>
           </Link>
         </div>
-      </div>
     </div>
   );
 }

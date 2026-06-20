@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Urbanist, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const urbanist = Urbanist({
@@ -64,6 +65,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Toaster position="top-center" />
+        <Analytics />
         {children}
       </body>
     </html>

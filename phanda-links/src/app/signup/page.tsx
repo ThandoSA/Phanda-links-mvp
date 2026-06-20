@@ -83,13 +83,13 @@ export default function Signup() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/images/hero-2.svg" 
-            alt="Phanda Links — Join the marketplace" 
+            src="/images/Joburg_.jpg" 
+            alt="Johannesburg Skyline" 
             fill 
             sizes="50vw"
-            className="object-cover img-premium"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-white/30 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-white/20" />
           <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent" />
         </div>
 

@@ -54,28 +54,28 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         </div>
 
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+        <div className="relative z-10 text-center px-5 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <h1 className="text-6xl md:text-7xl lg:text-[92px] font-black leading-[1.02] tracking-tighter mb-6">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[92px] font-black leading-[1.02] tracking-tighter mb-5 md:mb-6 text-white">
               Real people.<br />
               <span className="bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#B8860B] bg-clip-text text-transparent">
                 Real work.
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-10">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl mx-auto mb-8 md:mb-10">
               Connecting skilled hands across South Africa with opportunities that matter.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup" className="btn-luxury btn-luxury-primary px-12 py-5 text-lg font-semibold">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2 sm:px-0">
+              <Link href="/signup" className="btn-luxury btn-luxury-primary px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold w-full sm:w-auto">
                 Join as a Worker
               </Link>
-              <Link href="/signup?role=client" className="btn-luxury btn-luxury-outline px-12 py-5 text-lg font-semibold">
+              <Link href="/signup?role=client" className="btn-luxury btn-luxury-outline px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold w-full sm:w-auto">
                 Hire Talent
               </Link>
             </div>
@@ -93,18 +93,20 @@ export default function Home() {
         </div>
       </div>*/}
 
-      {/* WHO WE ARE */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
+      <section className="py-16 md:py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="space-y-6 md:space-y-8 order-2 lg:order-1">
             <span className="px-5 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">Our Story</span>
-            <h2 className="text-5xl md:text-6xl font-black tracking-tighter">Born in the streets of South Africa</h2>
-            <p className="text-lg text-gray-600">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">Born in the streets of South Africa</h2>
+            <p className="text-base md:text-lg text-gray-600">
               We saw too many talented people struggling to find work while families and businesses needed reliable help.
               Phanda Links is our answer — a platform built with respect, dignity, and real South African spirit.
             </p>
+            <Link href="/who-we-are" className="btn-luxury btn-luxury-primary inline-flex px-8 py-3.5 text-sm font-semibold">
+              Our Story →
+            </Link>
           </div>
-          <div className="relative aspect-[16/10] rounded-3xl overflow-hidden shadow-2xl">
+          <div className="relative aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl order-1 lg:order-2">
             <Image
               src="/images/download (2).jpg"
               alt="South African community"
@@ -166,39 +168,40 @@ export default function Home() {
       </section>*/}
 
       {/* HOW IT WORKS */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-6xl mx-auto text-center mb-16">
-          <h2 className="text-5xl font-black tracking-tighter">Simple. Human. Effective.</h2>
+      <section className="py-16 md:py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto text-center mb-12 md:mb-16">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Simple. Human. Effective.</h2>
+          <p className="text-gray-500 mt-4 text-lg">Three steps to your next opportunity.</p>
         </div>
 
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-10">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 md:gap-10">
           {[
-            { icon: <Briefcase className="w-12 h-12" />, title: "Build Your Profile", desc: "Tell your story with pride." },
-            { icon: <Users className="w-12 h-12" />, title: "Get Discovered", desc: "Be found by people who need your skills." },
-            { icon: <Award className="w-12 h-12" />, title: "Grow Together", desc: "Build reputation and lasting relationships." },
+            { icon: <Briefcase className="w-10 h-10" />, title: "Build Your Profile", desc: "Tell your story with pride. Add your skills, experience, and photos so clients can see the real you." },
+            { icon: <Users className="w-10 h-10" />, title: "Get Discovered", desc: "Be found by people who need your skills. Browse open jobs or let opportunities come to you." },
+            { icon: <Award className="w-10 h-10" />, title: "Grow Together", desc: "Build a reputation through honest reviews and lasting relationships that grow your income." },
           ].map((step, i) => (
-            <motion.div key={i} whileInView={{ opacity: 1, y: 0 }} className="text-center glass-card p-10">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-amber-100 to-white rounded-3xl flex items-center justify-center mb-8 text-[#D4AF37]">
+            <motion.div key={i} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} transition={{ delay: i * 0.1 }} className="text-center glass-card p-8 md:p-10">
+              <div className="mx-auto w-16 md:w-20 h-16 md:h-20 bg-gradient-to-br from-amber-100 to-white rounded-2xl md:rounded-3xl flex items-center justify-center mb-6 md:mb-8 text-[#D4AF37]">
                 {step.icon}
               </div>
-              <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
-              <p className="text-gray-600">{step.desc}</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-3">{step.title}</h3>
+              <p className="text-gray-600 text-sm md:text-base leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-32 px-6 bg-gradient-to-br from-[#D4AF37] to-amber-400">
+      <section className="py-24 md:py-32 px-6 bg-gradient-to-br from-[#D4AF37] to-amber-400">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-8">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-black mb-6 md:mb-8">
             Your next opportunity is waiting
           </h2>
-          <p className="text-xl text-black/80 mb-12">Join the growing community of South Africans who believe work should be fair, visible, and respectful.</p>
+          <p className="text-base md:text-xl text-black/80 mb-10 md:mb-12">Join the growing community of South Africans who believe work should be fair, visible, and respectful.</p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/signup?role=worker" className="btn-luxury bg-black text-white px-14 py-6 text-lg font-bold">I’m Ready to Work</Link>
-            <Link href="/signup?role=client" className="btn-luxury bg-white text-black px-14 py-6 text-lg font-bold">I Need Reliable Help</Link>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+            <Link href="/signup?role=worker" className="btn-luxury bg-black text-white px-10 sm:px-14 py-5 sm:py-6 text-base md:text-lg font-bold w-full sm:w-auto">I&apos;m Ready to Work</Link>
+            <Link href="/signup?role=client" className="btn-luxury bg-white text-black px-10 sm:px-14 py-5 sm:py-6 text-base md:text-lg font-bold w-full sm:w-auto">I Need Reliable Help</Link>
           </div>
         </div>
       </section>

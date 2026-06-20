@@ -130,8 +130,7 @@ export default function WorkerDashboard() {
   ];
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
           <div className="flex items-center gap-6">
@@ -210,7 +209,7 @@ export default function WorkerDashboard() {
             ) : (
               <div className="text-center py-16 text-gray-500">
                 No jobs yet. Start applying on the{" "}
-                <Link href="/workers" className="text-[#D4AF37] hover:underline">Find Work</Link> page.
+                <Link href="/dashboard/workers" className="text-[#D4AF37] hover:underline">Find Work</Link> page.
               </div>
             )}
           </div>
@@ -249,7 +248,6 @@ export default function WorkerDashboard() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

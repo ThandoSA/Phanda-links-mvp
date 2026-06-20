@@ -14,6 +14,7 @@ export default function Footer() {
                 { label: "Home", href: "/" },
                 { label: "Find Workers", href: "/workers" },
                 { label: "Who We Are", href: "/who-we-are" },
+                { label: "Why Phanda Links", href: "/why-phanda-links" },
                 { label: "Get Started", href: "/signup" },
             ]
         },
@@ -54,8 +55,8 @@ export default function Footer() {
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-gold/3 blur-[120px] rounded-full pointer-events-none" />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
-                    <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-12 mb-12 md:mb-16">
+                    <div className="col-span-2 lg:col-span-2 space-y-4 md:space-y-6">
                         <Logo size={32} />
                         <p className="text-gray-500 text-sm font-medium leading-relaxed max-w-xs">
                             Connecting South African hustle to real opportunity. Visibility, dignity, and trust for every worker.
@@ -86,7 +87,7 @@ export default function Footer() {
                         </div>
                         <div>
                             <p className="text-[9px] text-gray-400 font-mono uppercase tracking-wider">Email Us</p>
-                            <p className="text-gray-800 text-sm font-bold">support@phanda-links.co.za</p>
+                            <p className="text-gray-800 text-sm font-bold">phandalinks@gmail.com</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 group">
@@ -95,7 +96,7 @@ export default function Footer() {
                         </div>
                         <div>
                             <p className="text-[9px] text-gray-400 font-mono uppercase tracking-wider">Call Us</p>
-                            <p className="text-gray-800 text-sm font-bold">+27 11 000 0000</p>
+                            <p className="text-gray-800 text-sm font-bold">+27 83 207 3857 | +27 61 154 0898</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 group">
@@ -104,7 +105,7 @@ export default function Footer() {
                         </div>
                         <div>
                             <p className="text-[9px] text-gray-400 font-mono uppercase tracking-wider">Visit Us</p>
-                            <p className="text-gray-800 text-sm font-bold">Sandton, Johannesburg, RSA</p>
+                            <p className="text-gray-800 text-sm font-bold">13 Viljoen St, Lorentzville, Johannesburg, 2094</p>
                         </div>
                     </div>
                 </div>
@@ -120,6 +121,6 @@ export default function Footer() {
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer >
     )
 }
