@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/dashboard/layout,_N_T_/dashboard/worker/layout,_N_T_/dashboard/worker/jobs/layout,_N_T_/dashboard/worker/jobs/page,_N_T_/dashboard/worker/jobs"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/dashboard/worker/jobs/__PAGE__",
+    "/dashboard/worker/jobs",
+    "/dashboard/worker",
+    "/dashboard",
+    "/_index",
+    "/_head"
+  ]
+}
