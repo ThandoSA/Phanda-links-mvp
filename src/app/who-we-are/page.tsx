@@ -29,11 +29,11 @@ export default function WhoWeArePage() {
     return (
         <main className="bg-white text-black min-h-screen selection:bg-[#D4AF37] selection:text-black grid-glow">
             <Navbar />
-            
+
             {/* 1. HERO SECTION */}
             <section className="pt-40 pb-20 px-6 relative overflow-hidden">
                 <div className="max-w-6xl mx-auto">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
@@ -49,16 +49,16 @@ export default function WhoWeArePage() {
                         </p>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1 }}
                         className="relative h-[350px] md:h-[500px] rounded-[32px] overflow-hidden border border-black/5 shadow-xl group"
                     >
-                        <Image 
-                            src="/images/hero.png" 
-                            alt="Community Workers" 
-                            fill 
+                        <Image
+                            src="/images/Who.png.jpg"
+                            alt="Community Workers"
+                            fill
                             className="object-cover object-top img-reveal"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
@@ -94,12 +94,12 @@ export default function WhoWeArePage() {
                                 <p>
                                     Today, we're proud to be empowering thousands of workers while providing South Africans with fast, reliable access to trusted local services.
                                 </p>
-                             </div>
+                            </div>
                         </motion.div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -114,7 +114,7 @@ export default function WhoWeArePage() {
                             </p>
                         </motion.div>
 
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -143,7 +143,7 @@ export default function WhoWeArePage() {
 
                 <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
                     {values.map((v, i) => (
-                        <motion.div 
+                        <motion.div
                             key={i}
                             initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -166,16 +166,16 @@ export default function WhoWeArePage() {
             {/* 4. JOIN US */}
             <section className="py-32 px-6 relative overflow-hidden border-t border-black/5 bg-black text-white">
                 <div className="absolute inset-0 z-0">
-                    <Image 
-                        src="/images/hero-1.svg" 
-                        alt="Join Phanda Community" 
-                        fill 
+                    <Image
+                        src="/images/hero-1.svg"
+                        alt="Join Phanda Community"
+                        fill
                         className="object-cover opacity-10"
                         loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
                 </div>
-                
+
                 <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">
                     <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[1.1] uppercase">
                         Join Our Growing <br />
@@ -184,16 +184,16 @@ export default function WhoWeArePage() {
                     <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                         Whether you're looking for work or need a trusted service provider, Phanda Links is here to bridge the gap.
                     </p>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <Link 
-                            href="/workers" 
+                        <Link
+                            href="/workers"
                             className="btn-luxury btn-luxury-primary bg-[#D4AF37] text-black border-[#D4AF37] hover:bg-white hover:text-black hover:border-white px-8 py-4 text-xs uppercase tracking-wider flex items-center gap-2 font-extrabold"
                         >
                             Find a Worker <ArrowRight className="w-4 h-4" />
                         </Link>
-                        <Link 
-                            href="/signup?role=worker" 
+                        <Link
+                            href="/signup?role=worker"
                             className="btn-luxury border border-white/20 text-white hover:bg-white/5 px-8 py-4 text-xs uppercase tracking-wider font-extrabold"
                         >
                             Become a Worker

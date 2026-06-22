@@ -80,7 +80,7 @@ export default function Login() {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
-            src="/images/Joburg_.jpg" 
+            src="/images/South Africa.png.jpg" 
             alt="Johannesburg Skyline" 
             fill 
             sizes="50vw"

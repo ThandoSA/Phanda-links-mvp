@@ -136,7 +136,7 @@ export default function WorkerDashboard() {
           <div className="flex items-center gap-6">
             <div className="relative w-24 h-24 rounded-3xl overflow-hidden border-4 border-white shadow-2xl">
               <Image
-                src={profile?.avatar_url || "/images/default-avatar.jpg"}
+                src={profile?.avatar_url || "/images/default-avatar.svg"}
                 alt={profile?.full_name || "Profile"}
                 fill
                 className="object-cover"

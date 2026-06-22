@@ -115,10 +115,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         if (!isMounted) return
 
-        const userRole = prof?.role || userData.user.user_metadata?.role || "worker"
-        setRole(userRole.toLowerCase())
+        const userRole = (prof?.role || userData.user.user_metadata?.role || "worker").toLowerCase()
+        setRole(userRole)
         setProfile(prof || null)
         setUserId(userData.user.id)
+
+        if (pathname.startsWith("/dashboard/client") && userRole !== "client") {
+          router.replace("/dashboard/worker")
+        } else if (pathname.startsWith("/dashboard/worker") && userRole !== "worker") {
+          router.replace("/dashboard/client")
+        }
       } catch (err) {
         console.error("Auth fetch error:", err)
       } finally {
@@ -127,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     fetchRole()
     return () => { isMounted = false }
-  }, [router])
+  }, [router, pathname])
 
   const isActive = (path: string) => pathname === path
   const closeMobileMenu = () => setMobileMenuOpen(false)

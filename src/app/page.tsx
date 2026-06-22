@@ -9,9 +9,11 @@ import Footer from "@/components/layout/Footer";
 import { Briefcase, Star, Users, MapPin, Award } from "lucide-react";
 
 const heroImages = [
-  "/images/Joburg_.jpg",
-  "/images/download (2).jpg",
-  "/images/download (3).jpg",
+  "/images/cinematic-1.png.jpg",
+  "/images/cinematic-2.png.jpg",
+  "/images/cinematic-3.png.jpg",
+  "/images/cinematic-4.png.jpg",
+  "/images/cinematic-5.png.jpg",
 ];
 
 export default function Home() {
@@ -21,7 +23,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
+    }, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -109,7 +111,7 @@ export default function Home() {
           </div>
           <div className="relative aspect-[16/10] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl order-1 lg:order-2">
             <Image
-              src="/images/download (2).jpg"
+              src="/images/community.png.jpg"
               alt="South African community"
               fill
               quality={85}
@@ -131,19 +133,19 @@ export default function Home() {
                 name: "Sipho Nkosi",
                 role: "Electrician • Johannesburg",
                 quote: "I went from struggling to find jobs to having steady work every week. The platform feels like family.",
-                image: "/images/download (3).jpg"
+                image: "/images/showcase_female.png"
               },
               {
                 name: "Nomsa Khumalo",
                 role: "Domestic Worker • Durban",
                 quote: "Clients now respect my time and skills. I’ve built a good reputation and can support my children better.",
-                image: "/images/Joburg_.jpg"
+                image: "/images/hero.png"
               },
               {
                 name: "Thabo Mthembu",
                 role: "Client • Cape Town",
                 quote: "Found an amazing plumber within 2 days. The reviews and verification made me feel safe.",
-                image: "/images/download (2).jpg"
+                image: "/images/showcase_builder.png"
               },
             ].map((testimonial, i) => (
               <motion.div

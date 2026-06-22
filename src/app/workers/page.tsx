@@ -126,7 +126,7 @@ export default function WorkersPage() {
                 <div className="glass-card overflow-hidden hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                   <div className="relative h-64">
                     <Image
-                      src={worker.avatar_url || "/images/default-avatar.jpg"}
+                      src={worker.avatar_url || "/images/default-avatar.svg"}
                       alt={worker.full_name}
                       fill
                       className="object-cover"

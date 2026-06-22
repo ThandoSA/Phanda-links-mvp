@@ -125,7 +125,7 @@ export default function DashboardWorkersPage() {
               <div className="glass-card overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                 <div className="relative h-56">
                   <Image
-                    src={worker.avatar_url || "/images/default-avatar.jpg"}
+                    src={worker.avatar_url || "/images/default-avatar.svg"}
                     alt={worker.full_name}
                     fill
                     className="object-cover"

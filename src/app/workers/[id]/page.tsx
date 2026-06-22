@@ -127,7 +127,7 @@ export default function WorkerProfile() {
           <div className="lg:col-span-8">
             <div className="relative h-[460px] rounded-3xl overflow-hidden shadow-2xl">
               <Image
-                src={profile.avatar_url || "/images/default-avatar.jpg"}
+                src={profile.avatar_url || "/images/default-avatar.svg"}
                 alt={profile.full_name}
                 fill
                 className="object-cover"

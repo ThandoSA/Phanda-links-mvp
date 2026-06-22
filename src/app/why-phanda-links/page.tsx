@@ -22,7 +22,7 @@ export default function WhyPhandaLinks() {
       {/* Hero */}
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <Image
-          src="/images/Joburg_.jpg"
+          src="/images/Why.png.jpg"
           alt="South African hustle"
           fill
           className="object-cover"
