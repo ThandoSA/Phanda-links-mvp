@@ -107,7 +107,7 @@ export default function ClientDashboard() {
           </div>
 
           <Link
-            href="/dashboard/client/post-job"
+            href="/jobs/new"
             className="btn-luxury btn-luxury-primary flex items-center gap-3 mt-6 md:mt-0"
           >
             <Plus className="w-5 h-5" /> Post New Job
@@ -134,7 +134,7 @@ export default function ClientDashboard() {
         <div className="glass-card p-8">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-2xl font-bold">Your Posted Jobs</h3>
-            <Link href="/dashboard/client/post-job" className="text-[#D4AF37] hover:underline text-sm font-medium">
+            <Link href="/jobs/new" className="text-[#D4AF37] hover:underline text-sm font-medium">
               View All Jobs →
             </Link>
           </div>
@@ -178,7 +178,7 @@ export default function ClientDashboard() {
           ) : (
             <div className="text-center py-20">
               <p className="text-xl text-gray-600 mb-6">You haven't posted any jobs yet</p>
-              <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary">
+              <Link href="/jobs/new" className="btn-luxury btn-luxury-primary">
                 Post Your First Job
               </Link>
             </div>

@@ -45,10 +45,10 @@ export default function PostJobPage() {
                 client_id: userData.user.id,
                 title: formData.title,
                 description: formData.description,
-                price: parseFloat(formData.price),
+                budget: parseFloat(formData.price),
                 location: formData.location,
+                category: formData.category,
                 status: "pending"
-                // Note: 'category' is not in the DB yet, so we skip it to prevent errors
             })
 
             if (error) {
