@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
-import { ArrowRight, ShieldCheck } from "lucide-react"
+import { ArrowRight, ShieldCheck, ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function PostJobPage() {
     const router = useRouter()
@@ -48,7 +49,7 @@ export default function PostJobPage() {
                 budget: parseFloat(formData.price),
                 location: formData.location,
                 category: formData.category,
-                status: "pending"
+                status: "open" // Changed from pending to open so it shows as active
             })
 
             if (error) {
@@ -66,8 +67,12 @@ export default function PostJobPage() {
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 max-w-4xl mx-auto pt-10 pb-20">
-            <header className="mb-12">
+        <div className="max-w-4xl mx-auto pb-12">
+            <Link href="/dashboard/client" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors mb-8">
+                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </Link>
+
+            <header className="mb-10">
                 <p className="text-sm text-[#D4AF37] uppercase font-bold tracking-widest mb-2">Marketplace</p>
                 <h1 className="text-4xl md:text-5xl font-black text-black tracking-tighter mb-4">
                     Post a <span className="text-[#D4AF37]">New Job</span>

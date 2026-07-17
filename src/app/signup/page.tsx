@@ -68,7 +68,7 @@ export default function Signup() {
     if (!data.session) {
       toast.success("Account created! Check your email to confirm.")
       setLoading(false)
-      router.push("/login")
+      router.push("/auth/confirm")
       return
     }
 

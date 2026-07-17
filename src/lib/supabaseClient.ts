@@ -10,4 +10,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 	)
 }
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    flowType: 'pkce',
+  }
+})
