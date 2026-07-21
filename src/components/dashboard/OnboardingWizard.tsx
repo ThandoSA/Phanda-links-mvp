@@ -35,19 +35,25 @@ export default function OnboardingWizard({ role, userId }: Props) {
             setShow(true);
           }
         } else if (role === "worker") {
+          const skipped = localStorage.getItem(`worker_skipped_${userId}`);
+          if (skipped) {
+            setLoading(false);
+            return;
+          }
           const { data, error } = await supabase
             .from("worker_profiles")
             .select("skills, bio")
             .eq("user_id", userId)
-            .single();
+            .limit(1);
 
-          if (!error && data) {
+          if (!error && data && data.length > 0) {
+            const profile = data[0];
             // If they have no skills array or it's empty, show wizard
-            if (!data.skills || data.skills.length === 0) {
+            if (!profile.skills || profile.skills.length === 0) {
               setShow(true);
             }
-          } else if (error && error.code === "PGRST116") {
-             // No row exists yet, show wizard
+          } else {
+             // No row exists yet (or error), show wizard
              setShow(true);
           }
         }
@@ -89,13 +95,26 @@ export default function OnboardingWizard({ role, userId }: Props) {
 
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Check if profile exists
+      const { data: existing } = await supabase
         .from("worker_profiles")
-        .upsert({ 
-          user_id: userId, 
-          skills, 
-          bio 
-        });
+        .select("user_id")
+        .eq("user_id", userId)
+        .limit(1);
+
+      let error;
+      if (existing && existing.length > 0) {
+        const { error: updateError } = await supabase
+          .from("worker_profiles")
+          .update({ skills, bio })
+          .eq("user_id", userId);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("worker_profiles")
+          .insert({ user_id: userId, skills, bio });
+        error = insertError;
+      }
 
       if (error) throw error;
       
@@ -126,6 +145,19 @@ export default function OnboardingWizard({ role, userId }: Props) {
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           className="glass-card bg-white w-full max-w-lg relative z-10 overflow-hidden shadow-2xl rounded-3xl"
         >
+          {/* Close Button */}
+          <button 
+            onClick={() => {
+              if (role === "worker") localStorage.setItem(`worker_skipped_${userId}`, "true");
+              else localStorage.setItem(`client_onboarded_${userId}`, "true");
+              setShow(false);
+            }}
+            className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors z-20"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           {/* Client Welcome Flow */}
           {role === "client" && (
             <div className="p-8 md:p-10 text-center">

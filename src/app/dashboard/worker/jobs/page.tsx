@@ -27,7 +27,7 @@ export default function JobsPage() {
     const fetchOpenJobs = async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select(`id, status, worker_id, client_id, created_at, title, description, price, location, client:profiles!client_id (full_name, avatar_url, rating)`)
+        .select(`id, status, worker_id, client_id, created_at, title, description, price, location, client:profiles!client_id (full_name, avatar_url)`)
         .is("worker_id", null)
         .order("created_at", { ascending: false })
 
