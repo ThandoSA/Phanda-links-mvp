@@ -120,9 +120,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setProfile(prof || null)
         setUserId(userData.user.id)
 
-        if (pathname.startsWith("/dashboard/client") && userRole !== "client") {
+        const isClientRoute = pathname.startsWith("/dashboard/client/") || pathname === "/dashboard/client"
+        const isWorkerRoute = pathname.startsWith("/dashboard/worker/") || pathname === "/dashboard/worker"
+
+        if (isClientRoute && userRole !== "client") {
           router.replace("/dashboard/worker")
-        } else if (pathname.startsWith("/dashboard/worker") && userRole !== "worker") {
+        } else if (isWorkerRoute && userRole !== "worker") {
           router.replace("/dashboard/client")
         }
       } catch (err) {

@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
-import Link from "next/link"
-import { ShieldCheck, User, MapPin, Camera, Save, ArrowRight } from "lucide-react"
+import { ShieldCheck, User, MapPin, Camera, Save } from "lucide-react"
 
 export default function ClientProfileForm() {
+    const router = useRouter()
     const [fullName, setFullName] = useState("")
     const [location, setLocation] = useState("")
     const [avatarUrl, setAvatarUrl] = useState("")
@@ -66,26 +67,36 @@ export default function ClientProfileForm() {
                     .from("worker-images")
                     .upload(filePath, avatarFile, { upsert: true })
 
-                if (uploadError) throw uploadError
+                if (uploadError) {
+                    console.error("Avatar upload error:", uploadError)
+                    toast.error("Failed to upload photo: " + uploadError.message)
+                    setSaving(false)
+                    return
+                }
 
                 const { data } = supabase.storage.from("worker-images").getPublicUrl(filePath)
                 finalAvatarUrl = data.publicUrl
             }
 
-            const { error } = await supabase
+            const { error: updateError } = await supabase
                 .from("profiles")
-                .update({ 
+                .upsert({ 
+                    id: user.id,
                     full_name: fullName, 
                     location: location, 
                     avatar_url: finalAvatarUrl 
                 })
-                .eq("id", user.id)
 
-            if (error) throw error
+            if (updateError) {
+                console.error("Profile update error:", updateError)
+                throw updateError
+            }
 
             toast.success("Profile updated successfully!")
+            router.refresh()
         } catch (error: any) {
-            toast.error(error.message)
+            console.error("Save error:", error)
+            toast.error(error.message || "Failed to save profile")
         } finally {
             setSaving(false)
         }
