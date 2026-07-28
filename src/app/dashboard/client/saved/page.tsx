@@ -72,7 +72,7 @@ export default function SavedPage() {
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">No saved workers yet</h2>
             <p className="text-gray-500 max-w-sm text-sm font-medium">Browse our premium directory and save professionals who impress you.</p>
-            <Link href="/workers" className="mt-4 bg-gold text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2">
+            <Link href="/dashboard/workers" className="mt-4 bg-gold text-black px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2">
               Browse Professionals <Search className="w-3.5 h-3.5" />
             </Link>
           </div>

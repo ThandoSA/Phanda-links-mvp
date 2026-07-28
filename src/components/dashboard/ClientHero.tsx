@@ -26,7 +26,7 @@ export default function ClientHero({ job }: ClientHeroProps) {
                     <h2 className="text-2xl font-black text-black tracking-tight">No Active Appointments</h2>
                     <p className="text-gray-500 text-sm font-medium">Find vetted professionals for your home or business needs today.</p>
                 </div>
-                <Link href="/workers" className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold whitespace-nowrap">
+                <Link href="/dashboard/workers" className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold whitespace-nowrap">
                     Browse Workers
                 </Link>
             </div>

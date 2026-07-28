@@ -15,6 +15,7 @@ interface WorkerProfile {
   rating?: number;
   is_verified?: boolean;
   skills?: string[];
+  availability?: string;
 }
 
 export default function DashboardWorkersPage() {
@@ -35,6 +36,7 @@ export default function DashboardWorkersPage() {
           rating,
           is_verified,
           skills,
+          availability,
           profiles(id, full_name, avatar_url)
         `)
         .order("rating", { ascending: false });
@@ -49,6 +51,7 @@ export default function DashboardWorkersPage() {
           rating: w.rating,
           is_verified: w.is_verified,
           skills: w.skills,
+          availability: w.availability,
         }));
         setWorkers(mapped);
       }
@@ -135,6 +138,15 @@ export default function DashboardWorkersPage() {
                       ✓ Verified
                     </div>
                   )}
+                  {/* Availability Badge */}
+                  <div className={`absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md shadow-sm ${
+                    worker.availability === "busy"
+                      ? "bg-orange-950/85 border-orange-500/30 text-orange-400"
+                      : "bg-emerald-950/85 border-emerald-500/30 text-emerald-400"
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${worker.availability === "busy" ? "bg-orange-400" : "bg-emerald-400 animate-pulse"}`} />
+                    {worker.availability === "busy" ? "Busy" : "Available"}
+                  </div>
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
                   <div className="flex justify-between items-start">

@@ -16,6 +16,7 @@ interface WorkerProfile {
   is_verified?: boolean;
   skills?: string[];
   role?: string;
+  availability?: string;
 }
 
 export default function WorkersPage() {
@@ -37,6 +38,7 @@ export default function WorkersPage() {
           rating,
           is_verified,
           skills,
+          availability,
           profiles(id, full_name, avatar_url)
         `)
         .order('rating', { ascending: false });
@@ -54,6 +56,7 @@ export default function WorkersPage() {
           rating: worker.rating,
           is_verified: worker.is_verified,
           skills: worker.skills,
+          availability: worker.availability,
         }));
         setWorkers(mappedWorkers);
       }
@@ -136,6 +139,15 @@ export default function WorkersPage() {
                         ✓ Verified
                       </div>
                     )}
+                    {/* Availability Badge */}
+                    <div className={`absolute bottom-4 left-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border backdrop-blur-md shadow-sm ${
+                      worker.availability === "busy"
+                        ? "bg-orange-950/85 border-orange-500/30 text-orange-400"
+                        : "bg-emerald-950/85 border-emerald-500/30 text-emerald-400"
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${worker.availability === "busy" ? "bg-orange-400" : "bg-emerald-400 animate-pulse"}`} />
+                      {worker.availability === "busy" ? "Busy" : "Available"}
+                    </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col">

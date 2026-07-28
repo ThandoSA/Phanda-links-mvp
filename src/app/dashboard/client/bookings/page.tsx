@@ -79,7 +79,7 @@ export default function BookingsPage() {
             </div>
             <h3 className="text-2xl font-black text-white tracking-tight uppercase">No bookings found</h3>
             <p className="text-gray-500 text-[10px] font-mono font-bold uppercase tracking-widest max-w-xs mx-auto">Your booking history is currently empty for this filter.</p>
-            <Link href="/workers" className="mt-4 bg-gold text-black px-10 py-4 rounded-none font-black text-[10px] uppercase tracking-widest hover-lift flex items-center gap-2">
+            <Link href="/dashboard/workers" className="mt-4 bg-gold text-black px-10 py-4 rounded-none font-black text-[10px] uppercase tracking-widest hover-lift flex items-center gap-2">
               Browse Workers <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
