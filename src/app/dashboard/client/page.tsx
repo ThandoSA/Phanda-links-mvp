@@ -11,7 +11,7 @@ interface PostedJob {
   id: string;
   title: string;
   status: string;
-  budget?: number;
+  price?: number;
   applicants_count?: number;
   created_at?: string;
 }
@@ -83,7 +83,7 @@ export default function ClientDashboard() {
           id,
           title,
           status,
-          budget,
+          price,
           created_at,
           applicants_count:job_applications(count)
         `)
@@ -208,9 +208,9 @@ export default function ClientDashboard() {
                     {job.status}
                   </span>
 
-                  {job.budget && (
+                  {job.price && (
                     <div className="text-right">
-                      <p className="font-bold text-black text-sm">R{job.budget}</p>
+                      <p className="font-bold text-black text-sm">R{job.price}</p>
                       <p className="text-xs text-gray-400">Budget</p>
                     </div>
                   )}

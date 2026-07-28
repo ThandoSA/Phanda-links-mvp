@@ -74,16 +74,16 @@ export default function ClientHero({ job }: ClientHeroProps) {
                     </div>
 
                     {/* Tracking Timeline */}
-                    <div className="relative pt-2 pb-6 px-2">
+                    <div className="relative pt-2 pb-4 px-2">
                         <div className="flex justify-between relative z-10">
                             {statusSteps.map((step, idx) => (
-                                <div key={step} className="flex flex-col items-center gap-2 relative">
+                                <div key={step} className="flex flex-col items-center gap-2 w-0 flex-1">
                                     <div className={`w-4 h-4 rounded-full border-2 ${
                                         idx <= currentStepIndex 
                                             ? 'bg-[#D4AF37] border-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.4)]' 
                                             : 'bg-white border-gray-300'
-                                    } transition-all duration-300 z-10`} />
-                                    <span className={`text-[10px] uppercase font-bold tracking-wider absolute top-6 ${
+                                    } transition-all duration-300 z-10 flex-shrink-0`} />
+                                    <span className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-center whitespace-nowrap ${
                                         idx <= currentStepIndex ? 'text-black' : 'text-gray-400'
                                     }`}>
                                         {step.replace('_', ' ')}

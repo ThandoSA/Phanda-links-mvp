@@ -46,7 +46,7 @@ export default function PostJobPage() {
                 client_id: userData.user.id,
                 title: formData.title,
                 description: formData.description,
-                budget: parseFloat(formData.price),
+                price: parseFloat(formData.price),
                 location: formData.location,
                 category: formData.category,
                 status: "open" // Changed from pending to open so it shows as active
