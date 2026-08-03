@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Briefcase, Users, Clock, Star } from "lucide-react";
+import { Plus, Briefcase, Users, Clock, Star, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal";
 
 interface PostedJob {
   id: string;
@@ -61,6 +62,7 @@ export default function ClientDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [postedJobs, setPostedJobs] = useState<PostedJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quoteModal, setQuoteModal] = useState<{ jobId: string; jobTitle: string } | null>(null);
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -199,7 +201,7 @@ export default function ClientDashboard() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className={`px-4 py-1.5 text-xs font-bold rounded-full ${
                     job.status === "open" ? "bg-emerald-100 text-emerald-700"
                     : job.status === "completed" ? "bg-gray-100 text-gray-600"
@@ -219,6 +221,15 @@ export default function ClientDashboard() {
                     <p className="font-bold text-black text-sm">{job.applicants_count || 0}</p>
                     <p className="text-xs text-gray-400">Applicants</p>
                   </div>
+
+                  {(job.status === "open" || job.status === "pending") && (
+                    <button
+                      onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
+                      className="flex items-center gap-1.5 px-4 py-1.5 bg-[#D4AF37] hover:bg-[#b8962e] text-black text-xs font-bold rounded-full transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" /> View Quotes
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -260,6 +271,22 @@ export default function ClientDashboard() {
           </Link>
         </motion.div>
       </motion.div>
+
+      {/* Quote Review Modal */}
+      {quoteModal && (
+        <QuoteReviewModal
+          jobId={quoteModal.jobId}
+          jobTitle={quoteModal.jobTitle}
+          onClose={() => setQuoteModal(null)}
+          onAccepted={() => {
+            setQuoteModal(null);
+            // refresh jobs list
+            setPostedJobs(prev =>
+              prev.map(j => j.id === quoteModal.jobId ? { ...j, status: "accepted" } : j)
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

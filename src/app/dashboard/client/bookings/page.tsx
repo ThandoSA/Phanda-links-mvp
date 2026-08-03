@@ -7,12 +7,14 @@ import Link from "next/link"
 import toast from "react-hot-toast"
 import { Job } from "@/types"
 import StatusBadge from "@/components/ui/StatusBadge"
-import { Star, MapPin, ClipboardList, MessageSquare, ArrowRight, Calendar, User } from "lucide-react"
+import { Star, MapPin, ClipboardList, MessageSquare, ArrowRight, Calendar, User, FileText } from "lucide-react"
+import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal"
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all")
+  const [quoteModal, setQuoteModal] = useState<{ jobId: string; jobTitle: string } | null>(null)
 
   const fetchBookings = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
@@ -135,17 +137,42 @@ export default function BookingsPage() {
                   <p className="text-[10px] text-gray-600 font-black uppercase tracking-[0.2em] mb-1">Total Amount</p>
                   <p className="text-3xl font-black text-white font-mono tracking-tight">R {job.price || "---"}</p>
                 </div>
-                <Link
-                  href={`/dashboard/messages/${job.id}`}
-                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold hover:text-black hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
-                >
-                  View Details <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                <div className="flex flex-col gap-2">
+                  {job.status === "open" && (
+                    <button
+                      onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
+                      className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-gold text-black text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75 hover:bg-[#b8962e]"
+                    >
+                      <FileText className="w-3.5 h-3.5" /> View Quotes
+                    </button>
+                  )}
+                  <Link
+                    href={`/dashboard/messages/${job.id}`}
+                    className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold hover:text-black hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
+                  >
+                    View Details <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Quote Review Modal */}
+      {quoteModal && (
+        <QuoteReviewModal
+          jobId={quoteModal.jobId}
+          jobTitle={quoteModal.jobTitle}
+          onClose={() => setQuoteModal(null)}
+          onAccepted={() => {
+            setQuoteModal(null)
+            setBookings(prev =>
+              prev.map(j => j.id === quoteModal.jobId ? { ...j, status: "accepted" } : j)
+            )
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -21,7 +21,7 @@ export type WorkerProfile = {
 
 export type Job = {
   id: string
-  status: 'pending' | 'accepted' | 'en_route' | 'in_progress' | 'completed' | 'rejected'
+  status: 'open' | 'pending' | 'accepted' | 'en_route' | 'in_progress' | 'completed' | 'rejected' | 'cancelled'
   created_at: string
   updated_at?: string
   worker_id: string
