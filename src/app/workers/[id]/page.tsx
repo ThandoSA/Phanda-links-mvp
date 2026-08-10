@@ -76,12 +76,26 @@ export default function WorkerProfile() {
     fetchWorkerProfile();
   }, [workerId]);
 
-  const handleHire = () => {
-    toast.success("Hire flow coming soon! (We can build this next)");
+  const handleHire = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Please log in to hire a worker.");
+      router.push("/login");
+      return;
+    }
+    // Navigate to post-job page pre-filled with this worker's id
+    router.push(`/dashboard/client/post-job?worker_id=${workerId}`);
   };
 
-  const handleMessage = () => {
-    toast.success("Messaging feature coming soon!");
+  const handleMessage = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Please log in to send a message.");
+      router.push("/login");
+      return;
+    }
+    // Open the messages hub — the worker thread will be created on first send
+    router.push(`/dashboard/messages?worker_id=${workerId}`);
   };
 
   if (loading) {

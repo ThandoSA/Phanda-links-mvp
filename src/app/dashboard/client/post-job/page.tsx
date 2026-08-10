@@ -1,15 +1,19 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
-import { ArrowRight, ShieldCheck, ArrowLeft } from "lucide-react"
+import { ArrowRight, ShieldCheck, ArrowLeft, UserCheck } from "lucide-react"
 import Link from "next/link"
 
-export default function PostJobPage() {
+function PostJobForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const preselectedWorkerId = searchParams.get("worker_id") || ""
+
     const [loading, setLoading] = useState(false)
+    const [workerName, setWorkerName] = useState<string | null>(null)
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -17,6 +21,16 @@ export default function PostJobPage() {
         location: "",
         category: "General"
     })
+
+    useEffect(() => {
+        if (!preselectedWorkerId) return
+        supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", preselectedWorkerId)
+            .single()
+            .then(({ data }) => setWorkerName(data?.full_name || null))
+    }, [preselectedWorkerId])
 
     const categories = [
         "General Operations", "Specialized Plumbing Operations", "Specialized Electrical Contracting",
@@ -49,7 +63,8 @@ export default function PostJobPage() {
                 price: parseFloat(formData.price),
                 location: formData.location,
                 category: formData.category,
-                status: "open" // Changed from pending to open so it shows as active
+                status: preselectedWorkerId ? "accepted" : "open",
+                ...(preselectedWorkerId ? { worker_id: preselectedWorkerId } : {}),
             })
 
             if (error) {
@@ -71,6 +86,15 @@ export default function PostJobPage() {
             <Link href="/dashboard/client" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors mb-8">
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Link>
+
+            {workerName && (
+                <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                    <UserCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <p className="text-sm font-bold text-emerald-700">
+                        This job will be sent directly to <span className="underline">{workerName}</span> — they will be assigned on submission.
+                    </p>
+                </div>
+            )}
 
             <header className="mb-10">
                 <p className="text-sm text-[#D4AF37] uppercase font-bold tracking-widest mb-2">Marketplace</p>
@@ -185,5 +209,13 @@ export default function PostJobPage() {
                 </div>
             </form>
         </div>
+    )
+}
+
+export default function PostJobPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full" /></div>}>
+            <PostJobForm />
+        </Suspense>
     )
 }
