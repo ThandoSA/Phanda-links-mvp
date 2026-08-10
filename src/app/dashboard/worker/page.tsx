@@ -179,17 +179,17 @@ export default function WorkerDashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
 
       {/* ── Welcome Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 glass-card p-8"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl"
       >
         <div className="flex items-center gap-5">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white shadow-xl flex-shrink-0">
+          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
             <Image
               src={profile?.avatar_url || "/images/default-avatar.svg"}
               alt={profile?.full_name || "Profile"}
@@ -201,10 +201,10 @@ export default function WorkerDashboard() {
             )}
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-black leading-tight">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white leading-tight">
               {loading ? "Loading..." : greeting}
             </h1>
-            <p className="text-gray-500 font-medium mt-1">{loading ? "" : tagline}</p>
+            <p className="text-gray-400 font-medium mt-1">{loading ? "" : tagline}</p>
           </div>
         </div>
 
@@ -224,10 +224,10 @@ export default function WorkerDashboard() {
         className="grid grid-cols-2 md:grid-cols-4 gap-5"
       >
         {stats.map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="glass-card p-7 hover:scale-[1.02] transition-transform">
+          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform">
             <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
-            <div className="text-4xl font-black tracking-tighter text-black">{stat.value}</div>
-            <div className="text-gray-500 text-sm mt-1.5 font-medium">{stat.label}</div>
+            <div className="text-4xl font-black tracking-tighter text-white">{stat.value}</div>
+            <div className="text-gray-400 text-sm mt-1.5 font-medium">{stat.label}</div>
           </motion.div>
         ))}
       </motion.div>
@@ -244,7 +244,7 @@ export default function WorkerDashboard() {
               <Zap className="w-4 h-4 text-[#D4AF37]" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-black tracking-tight">Top Picks for Your Skills</h2>
+              <h2 className="text-xl font-black text-white tracking-tight">Top Picks for Your Skills</h2>
               <p className="text-xs text-gray-400 font-medium">
                 {profile?.skills?.length
                   ? `Matched to: ${profile.skills.slice(0, 3).join(", ")}${profile.skills.length > 3 ? "..." : ""}`
@@ -275,20 +275,20 @@ export default function WorkerDashboard() {
               <motion.div
                 key={job.id}
                 variants={itemVariants}
-                className="glass-card p-6 flex flex-col gap-3 hover:border-[#D4AF37]/40 hover:shadow-lg transition-all group cursor-pointer"
+                className="card-luxury rounded-2xl p-6 flex flex-col gap-3 border border-white/5 hover:border-[#D4AF37]/50 hover:shadow-xl transition-all group cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-black text-black text-base leading-tight group-hover:text-[#D4AF37] transition-colors line-clamp-2 flex-1">
+                  <h3 className="font-black text-white text-base leading-tight group-hover:text-[#D4AF37] transition-colors line-clamp-2 flex-1">
                     {job.title || "Service Request"}
                   </h3>
                   <span className="bg-[#D4AF37]/10 text-[#D4AF37] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap border border-[#D4AF37]/20 flex-shrink-0">
                     R {Number(job.price || 0).toLocaleString()}
                   </span>
                 </div>
-                <p className="text-gray-500 text-sm line-clamp-2 font-medium flex-1">
+                <p className="text-gray-400 text-sm line-clamp-2 font-medium flex-1">
                   {job.description || "No description provided."}
                 </p>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
                   <div className="flex items-center gap-1 text-gray-400 text-xs font-bold">
                     <MapPin className="w-3 h-3" />
                     {(job.location || "Anywhere").substring(0, 18)}
@@ -302,7 +302,7 @@ export default function WorkerDashboard() {
             ))}
           </motion.div>
         ) : (
-          <div className="glass-card p-10 text-center text-gray-500 font-medium">
+          <div className="card-luxury rounded-2xl p-10 text-center text-gray-400 font-medium">
             No open jobs match your skills right now.{" "}
             <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline">Browse all jobs →</Link>
           </div>
@@ -312,9 +312,9 @@ export default function WorkerDashboard() {
       {/* ── Bottom Row ── */}
       <div className="grid lg:grid-cols-5 gap-8">
         {/* Recent Activity */}
-        <div className="lg:col-span-3 glass-card p-8">
+        <div className="lg:col-span-3 card-luxury p-8 rounded-2xl">
           <div className="flex justify-between items-center mb-7">
-            <h3 className="text-xl font-black text-black">Recent Activity</h3>
+            <h3 className="text-xl font-black text-white">Recent Activity</h3>
             <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline text-sm font-bold">
               View All →
             </Link>
@@ -327,9 +327,9 @@ export default function WorkerDashboard() {
           ) : recentJobs.length > 0 ? (
             <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-5">
               {recentJobs.map((job) => (
-                <motion.div key={job.id} variants={itemVariants} className="flex justify-between items-center border-b border-gray-100 pb-5 last:border-none">
+                <motion.div key={job.id} variants={itemVariants} className="flex justify-between items-center border-b border-white/5 pb-5 last:border-none">
                   <div>
-                    <p className="font-bold text-black">{job.title}</p>
+                    <p className="font-bold text-white">{job.title}</p>
                     <p className="text-xs text-gray-400 font-medium mt-0.5">
                       {new Date(job.created_at || "").toLocaleDateString("en-ZA")}
                     </p>
@@ -340,13 +340,13 @@ export default function WorkerDashboard() {
                     }`}>
                       {job.status}
                     </span>
-                    {job.price && <p className="text-sm font-bold text-black mt-1">R{job.price}</p>}
+                    {job.price && <p className="text-sm font-bold text-white mt-1">R{job.price}</p>}
                   </div>
                 </motion.div>
               ))}
             </motion.div>
           ) : (
-            <div className="text-center py-14 text-gray-500 font-medium">
+            <div className="text-center py-14 text-gray-400 font-medium">
               No jobs yet.{" "}
               <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline">Start applying</Link>
             </div>
@@ -354,13 +354,13 @@ export default function WorkerDashboard() {
         </div>
 
         {/* Profile Summary */}
-        <div className="lg:col-span-2 glass-card p-8 flex flex-col">
-          <h3 className="text-xl font-black text-black mb-6">Your Profile</h3>
+        <div className="lg:col-span-2 card-luxury p-8 rounded-2xl flex flex-col">
+          <h3 className="text-xl font-black text-white mb-6">Your Profile</h3>
           <div className="space-y-5 flex-1">
             {profile?.bio && (
               <div>
                 <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1.5">Bio</p>
-                <p className="text-gray-700 text-sm line-clamp-4 leading-relaxed">{profile.bio}</p>
+                <p className="text-gray-300 text-sm line-clamp-4 leading-relaxed">{profile.bio}</p>
               </div>
             )}
             {profile?.skills && profile.skills.length > 0 && (
