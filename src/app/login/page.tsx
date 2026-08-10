@@ -21,7 +21,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       })
       if (error) {
@@ -177,7 +177,7 @@ export default function Login() {
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-                <Link href="#" className="absolute right-0 top-5 text-xs text-gray-400 hover:text-black font-bold transition-colors">
+                <Link href="/forgot-password" className="absolute right-0 top-5 text-xs text-gray-400 hover:text-black font-bold transition-colors">
                   Forgot?
                 </Link>
               </div>
