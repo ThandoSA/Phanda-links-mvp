@@ -7,22 +7,27 @@ import Link from "next/link"
 import toast from "react-hot-toast"
 import { Job } from "@/types"
 import StatusBadge from "@/components/ui/StatusBadge"
-import { Star, MapPin, ClipboardList, MessageSquare, ArrowRight, Calendar, User, FileText } from "lucide-react"
+import { Star, MapPin, ClipboardList, ArrowRight, Calendar, User, FileText, CreditCard } from "lucide-react"
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal"
-
+import PaymentConfirmModal from "@/components/dashboard/PaymentConfirmModal"
+import ReviewModal from "@/components/dashboard/ReviewModal"
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all")
   const [quoteModal, setQuoteModal] = useState<{ jobId: string; jobTitle: string } | null>(null)
+  const [payModal, setPayModal] = useState<{ jobId: string; jobTitle: string; amount: number; workerName: string } | null>(null)
+  const [reviewModal, setReviewModal] = useState<{ jobId: string; jobTitle: string; revieweeId: string; revieweeName: string } | null>(null)
 
   const fetchBookings = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
     if (!userData.user) return
+    setUserId(userData.user.id)
 
     const { data, error } = await supabase
       .from("jobs")
-      .select(`id, status, created_at, title, description, price, location, worker:profiles!worker_id (full_name, avatar_url, rating)`)
+      .select(`id, status, created_at, title, description, price, location, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url, rating)`)
       .eq("client_id", userData.user.id)
       .order("created_at", { ascending: false })
 
@@ -34,7 +39,7 @@ export default function BookingsPage() {
   useEffect(() => { fetchBookings() }, [fetchBookings])
 
   const filteredBookings = bookings.filter(job => {
-    if (filter === "active") return ["pending", "accepted", "en_route", "in_progress"].includes(job.status)
+    if (filter === "active") return ["open", "pending", "accepted", "en_route", "in_progress"].includes(job.status)
     if (filter === "completed") return job.status === "completed"
     return true
   })
@@ -138,12 +143,41 @@ export default function BookingsPage() {
                   <p className="text-3xl font-black text-white font-mono tracking-tight">R {job.price || "---"}</p>
                 </div>
                 <div className="flex flex-col gap-2">
+                  {/* Open job — view quotes */}
                   {job.status === "open" && (
                     <button
                       onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
                       className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-gold text-black text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75 hover:bg-[#b8962e]"
                     >
                       <FileText className="w-3.5 h-3.5" /> View Quotes
+                    </button>
+                  )}
+                  {/* Completed — confirm payment */}
+                  {job.status === "completed" && (
+                    <button
+                      onClick={() => setPayModal({
+                        jobId: job.id,
+                        jobTitle: job.title,
+                        amount: job.price || 0,
+                        workerName: job.worker?.full_name || "Worker",
+                      })}
+                      className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
+                    >
+                      <CreditCard className="w-3.5 h-3.5" /> Confirm &amp; Pay
+                    </button>
+                  )}
+                  {/* Leave review — only after accepted or completed */}
+                  {["completed", "accepted", "in_progress"].includes(job.status) && job.worker_id && (
+                    <button
+                      onClick={() => setReviewModal({
+                        jobId: job.id,
+                        jobTitle: job.title,
+                        revieweeId: job.worker_id,
+                        revieweeName: job.worker?.full_name || "Worker",
+                      })}
+                      className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold/10 hover:text-gold hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
+                    >
+                      <Star className="w-3.5 h-3.5" /> Leave Review
                     </button>
                   )}
                   <Link
@@ -171,6 +205,35 @@ export default function BookingsPage() {
               prev.map(j => j.id === quoteModal.jobId ? { ...j, status: "accepted" } : j)
             )
           }}
+        />
+      )}
+
+      {/* Payment Confirm Modal */}
+      {payModal && (
+        <PaymentConfirmModal
+          jobId={payModal.jobId}
+          jobTitle={payModal.jobTitle}
+          amount={payModal.amount}
+          workerName={payModal.workerName}
+          onClose={() => setPayModal(null)}
+          onConfirmed={() => {
+            setPayModal(null)
+            fetchBookings()
+          }}
+        />
+      )}
+
+      {/* Review Modal */}
+      {reviewModal && userId && (
+        <ReviewModal
+          jobId={reviewModal.jobId}
+          jobTitle={reviewModal.jobTitle}
+          revieweeId={reviewModal.revieweeId}
+          revieweeName={reviewModal.revieweeName}
+          reviewerId={userId}
+          role="client"
+          onClose={() => setReviewModal(null)}
+          onSubmitted={() => setReviewModal(null)}
         />
       )}
     </div>

@@ -74,6 +74,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
     setAcceptingId(quote.id)
     try {
       // 1. Assign worker and update job status to accepted
+      const { data: { user } } = await supabase.auth.getUser()
       const { error: jobError } = await supabase
         .from("jobs")
         .update({
@@ -85,13 +86,24 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
 
       if (jobError) throw jobError
 
-      // 2. Mark this quote as approved
+      // 2. Mark this quote as approved, reject others
       const { error: quoteError } = await supabase
         .from("quotes")
         .update({ status: "approved" })
         .eq("id", quote.id)
 
       if (quoteError) console.error("Quote status update error:", quoteError)
+
+      // 3. Send a system notification message into the job thread
+      if (user) {
+        await supabase.from("messages").insert({
+          job_id:    jobId,
+          sender_id: user.id,
+          content:   `✅ Your quote of R${quote.amount.toLocaleString()} has been accepted! Please head to "My Active Jobs" to update your job status as you work.`,
+        }).then(({ error }) => {
+          if (error) console.warn("Notification message failed (non-critical):", error.message)
+        })
+      }
 
       toast.success("Quote accepted! Redirecting to messaging...")
 

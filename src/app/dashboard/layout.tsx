@@ -198,6 +198,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker" icon={Icons.dashboard} isActive={isActive("/dashboard/worker")}>Dashboard</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/jobs" icon={Icons.jobs} isActive={isActive("/dashboard/worker/jobs")}>Browse Jobs</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/active-jobs" icon={Icons.bookings} isActive={isActive("/dashboard/worker/active-jobs")}>My Active Jobs</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")}>Messages</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/profile" icon={Icons.profile} isActive={isActive("/dashboard/worker/profile")}>Profile</NavItem></div>
               </>
