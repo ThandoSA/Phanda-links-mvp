@@ -62,6 +62,7 @@ function PostJobForm() {
                 description: formData.description,
                 price: parseFloat(formData.price),
                 location: formData.location,
+                category: formData.category,
                 status: preselectedWorkerId ? "accepted" : "open",
                 ...(preselectedWorkerId ? { worker_id: preselectedWorkerId } : {}),
             })

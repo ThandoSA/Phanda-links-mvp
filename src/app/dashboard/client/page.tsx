@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Briefcase, Users, Clock, Star, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal";
 
 interface PostedJob {
@@ -79,24 +80,22 @@ export default function ClientDashboard() {
 
       setProfile(profileData);
 
-      const { data: jobsData } = await supabase
+      const { data: jobsData, error: jobsError } = await supabase
         .from("jobs")
-        .select(`
-          id,
-          title,
-          status,
-          price,
-          created_at,
-          applicants_count:job_applications(count)
-        `)
+        .select("id, title, status, price, created_at, location")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false })
         .limit(6);
 
-      const formattedJobs = jobsData?.map((job: any) => ({
+      if (jobsError) {
+        console.error("Client dashboard jobs fetch error:", jobsError);
+        toast.error("Could not load your posted jobs. Refresh to try again.");
+      }
+
+      const formattedJobs = (jobsData || []).map((job: any) => ({
         ...job,
-        applicants_count: job.applicants_count?.[0]?.count || 0,
-      })) || [];
+        applicants_count: 0,
+      }));
 
       setPostedJobs(formattedJobs);
       setLoading(false);
