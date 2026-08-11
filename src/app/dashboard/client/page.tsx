@@ -118,14 +118,14 @@ export default function ClientDashboard() {
   const activeJobsCount = postedJobs.filter(j => j.status === "open" || j.status === "pending").length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white bg-[#05080f] rounded-[2rem] shadow-2xl ring-1 ring-white/10">
 
       {/* ── Welcome Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl bg-[#111823] border border-white/10"
       >
         <div className="flex items-center gap-5">
           <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
@@ -165,7 +165,7 @@ export default function ClientDashboard() {
           { label: "Total Applicants", value: postedJobs.reduce((a, j) => a + (j.applicants_count || 0), 0), icon: <Users className="w-7 h-7" /> },
           { label: "Avg Rating", value: "4.9", icon: <Star className="w-7 h-7" /> },
         ].map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform">
+          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
             <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
             <div className="text-4xl font-black tracking-tighter text-white">{stat.value}</div>
             <div className="text-gray-400 text-sm mt-1.5 font-medium">{stat.label}</div>
@@ -174,7 +174,7 @@ export default function ClientDashboard() {
       </motion.div>
 
       {/* ── Posted Jobs ── */}
-      <div className="card-luxury p-8 rounded-2xl">
+      <div className="card-luxury p-8 rounded-2xl bg-[#0d1120] border border-white/10">
         <div className="flex justify-between items-center mb-7">
           <h3 className="text-xl font-black text-white">Your Posted Jobs</h3>
           <Link href="/dashboard/client/bookings" className="text-[#D4AF37] hover:underline text-sm font-bold">
@@ -192,7 +192,7 @@ export default function ClientDashboard() {
               <motion.div
                 key={job.id}
                 variants={itemVariants}
-                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3"
+                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3 bg-[#0b1120] p-5 rounded-3xl"
               >
                 <div className="flex-1">
                   <p className="font-bold text-white text-base">{job.title}</p>
@@ -252,7 +252,7 @@ export default function ClientDashboard() {
         className="grid md:grid-cols-2 gap-6"
       >
         <motion.div variants={itemVariants}>
-          <Link href="/dashboard/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/5 hover:border-[#D4AF37]/50">
+          <Link href="/dashboard/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
             <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Users className="w-7 h-7 text-[#D4AF37]" />
             </div>
@@ -262,7 +262,7 @@ export default function ClientDashboard() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Link href="/dashboard/client/bookings" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/5 hover:border-[#D4AF37]/50">
+          <Link href="/dashboard/client/bookings" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
             <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Briefcase className="w-7 h-7 text-[#D4AF37]" />
             </div>
