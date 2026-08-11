@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
@@ -9,7 +9,7 @@ import Image from "next/image"
 import { Hammer, Briefcase, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 
-export default function Signup() {
+function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextPath = searchParams.get("next") || "/dashboard"
@@ -249,5 +249,13 @@ export default function Signup() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin" /></div>}>
+      <SignupForm />
+    </Suspense>
   )
 }
