@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabaseClient"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
@@ -11,6 +11,8 @@ import Logo from "@/components/ui/Logo"
 
 export default function Signup() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = searchParams.get("next") || "/dashboard"
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
@@ -28,7 +30,7 @@ export default function Signup() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
         }
       })
       if (error) {
@@ -71,9 +73,24 @@ export default function Signup() {
       router.push("/auth/confirm")
       return
     }
+    // If Supabase returned a session, post tokens to server to set cookies
+    if (data.session) {
+      try {
+        await fetch('/api/auth/set-cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+          }),
+        })
+      } catch (err) {
+        console.error('Failed to set server session cookie:', err)
+      }
+    }
 
     toast.success("Account created successfully!")
-    router.push(`/dashboard/${role}`)
+    router.push(nextPath || `/dashboard/${role}`)
     setLoading(false)
   }
 

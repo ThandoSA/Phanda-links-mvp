@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
@@ -15,13 +15,15 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = searchParams.get("next") || "/dashboard"
 
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
         }
       })
       if (error) {
@@ -64,7 +66,22 @@ export default function Login() {
 
         toast.success("Welcome back!")
         const role = prof?.role?.toLowerCase() || "worker"
-        router.push(`/dashboard/${role}`)
+        if (data.session) {
+          try {
+            await fetch('/api/auth/set-cookie', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token,
+              }),
+            })
+          } catch (err) {
+            console.error('Failed to set server session cookie:', err)
+          }
+        }
+
+        router.push(nextPath || `/dashboard/${role}`)
       }
     } catch (err) {
       console.error("Unexpected login error:", err)

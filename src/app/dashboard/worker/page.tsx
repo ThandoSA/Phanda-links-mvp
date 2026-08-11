@@ -167,6 +167,16 @@ export default function WorkerDashboard() {
   const firstName = profile?.full_name?.split(" ")[0] || "";
   const { greeting, tagline } = getGreeting(firstName);
 
+  const profileCompletionItems = [
+    { key: "bio", label: "Profile bio", done: !!profile?.bio?.trim() },
+    { key: "skills", label: "Skills listed", done: !!profile?.skills?.length },
+    { key: "availability", label: "Availability set", done: !!profile?.availability },
+    { key: "avatar", label: "Profile photo", done: !!profile?.avatar_url && profile.avatar_url !== "/images/default-avatar.svg" },
+  ];
+
+  const completedCount = profileCompletionItems.filter((item) => item.done).length;
+  const missingItems = profileCompletionItems.filter((item) => !item.done);
+
   const stats = [
     { label: "Jobs Completed", value: profile?.jobs_completed ?? 0, icon: <Briefcase className="w-7 h-7" /> },
     { label: "Rating", value: profile?.rating ? Number(profile.rating).toFixed(1) : "0.0", icon: <Star className="w-7 h-7" /> },
@@ -186,34 +196,65 @@ export default function WorkerDashboard() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl"
+        className="space-y-6"
       >
-        <div className="flex items-center gap-5">
-          <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
-            <Image
-              src={profile?.avatar_url || "/images/default-avatar.svg"}
-              alt={profile?.full_name || "Profile"}
-              fill
-              className="object-cover"
-            />
-            {profile?.verified && (
-              <div className="absolute -bottom-1 -right-1 bg-[#D4AF37] text-black text-xs font-bold px-2 py-0.5 rounded-full shadow">✓</div>
-            )}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl">
+          <div className="flex items-center gap-5">
+            <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
+              <Image
+                src={profile?.avatar_url || "/images/default-avatar.svg"}
+                alt={profile?.full_name || "Profile"}
+                fill
+                className="object-cover"
+              />
+              {profile?.verified && (
+                <div className="absolute -bottom-1 -right-1 bg-[#D4AF37] text-black text-xs font-bold px-2 py-0.5 rounded-full shadow">✓</div>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white leading-tight">
+                {loading ? "Loading..." : greeting}
+              </h1>
+              <p className="text-gray-400 font-medium mt-1">{loading ? "" : tagline}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white leading-tight">
-              {loading ? "Loading..." : greeting}
-            </h1>
-            <p className="text-gray-400 font-medium mt-1">{loading ? "" : tagline}</p>
+
+          <div className="flex flex-col gap-3 text-right md:text-left md:self-start">
+            <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your progress</p>
+            <div className="h-3 rounded-full bg-white/10 overflow-hidden border border-white/10 w-full md:w-72">
+              <div className="h-full bg-[#D4AF37] transition-all" style={{ width: `${(completedCount / profileCompletionItems.length) * 100}%` }} />
+            </div>
+            <p className="text-xs text-gray-400">{completedCount}/{profileCompletionItems.length} steps complete</p>
           </div>
         </div>
 
-        <Link
-          href="/dashboard/worker/profile/edit"
-          className="btn-luxury btn-luxury-primary flex items-center gap-2 self-start md:self-auto"
-        >
-          <Plus className="w-4 h-4" /> Update Profile
-        </Link>
+        {missingItems.length > 0 && (
+          <div className="card-luxury p-6 rounded-2xl border border-[#D4AF37]/20 bg-[#111316]">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black mb-2">Complete your profile</p>
+                <h2 className="text-2xl font-black text-white">Fill these items to get better matches</h2>
+                <p className="text-gray-400 mt-2 text-sm">A stronger profile helps clients find you faster and improves your job recommendations.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+                {missingItems.map((item) => (
+                  <div key={item.key} className="rounded-2xl border border-white/10 p-4 bg-black/40">
+                    <p className="text-xs text-gray-400 uppercase tracking-[0.2em] font-bold mb-2">{item.label}</p>
+                    <p className="text-sm font-semibold text-white">Pending</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 flex flex-col sm:flex-row gap-3">
+              <Link href="/dashboard/worker/profile" className="btn-luxury btn-luxury-primary px-6 py-3 text-sm">
+                Complete Profile
+              </Link>
+              <Link href="/dashboard/worker/jobs" className="btn-luxury btn-luxury-outline px-6 py-3 text-sm text-white border-white/10">
+                Browse Jobs
+              </Link>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       {/* ── Stats ── */}
@@ -379,9 +420,6 @@ export default function WorkerDashboard() {
               <p className="text-sm text-gray-400 font-medium">Complete your profile to attract more clients.</p>
             )}
           </div>
-          <Link href="/dashboard/worker/profile/edit" className="btn-luxury w-full mt-6 text-center block">
-            Edit Profile & Add Photos
-          </Link>
         </div>
       </div>
     </div>

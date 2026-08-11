@@ -19,11 +19,12 @@ export default function DashboardRouter() {
         return
       }
 
-      let { data: profile, error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single()
+      let profile = data
 
       if (error || !profile) {
         console.log("Profile not found, checking metadata...")

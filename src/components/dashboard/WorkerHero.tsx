@@ -57,13 +57,7 @@ export default function WorkerHero({ profile, earnings }: WorkerHeroProps) {
 
           {/* CTA buttons */}
           <div className="flex gap-3 w-full lg:w-auto flex-shrink-0">
-            <Link
-              href="/dashboard/worker/profile"
-              className="flex-1 lg:flex-none bg-white/5 border border-white/10 hover:border-gold/50 hover:text-gold text-white px-5 py-3 rounded-sm font-bold text-center text-sm"
-            >
-              Edit Profile
-            </Link>
-            <Link
+              <Link
               href="/dashboard/worker/earnings"
               className="btn-luxury flex-1 lg:flex-none bg-gold text-black px-5 py-3 rounded-sm font-black text-center text-sm hard-offset-hover"
             >
