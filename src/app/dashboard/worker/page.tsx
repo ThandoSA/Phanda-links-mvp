@@ -189,7 +189,7 @@ export default function WorkerDashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white bg-[#05080f] rounded-[2rem] shadow-2xl ring-1 ring-white/10">
 
       {/* ── Welcome Header ── */}
       <motion.div
@@ -198,7 +198,7 @@ export default function WorkerDashboard() {
         transition={{ duration: 0.45 }}
         className="space-y-6"
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
           <div className="flex items-center gap-5">
             <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
               <Image
@@ -221,10 +221,10 @@ export default function WorkerDashboard() {
 
           <div className="flex flex-col gap-3 text-right md:text-left md:self-start">
             <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your progress</p>
-            <div className="h-3 rounded-full bg-white/10 overflow-hidden border border-white/10 w-full md:w-72">
+            <div className="h-3 rounded-full bg-black/20 overflow-hidden border border-white/10 w-full md:w-72">
               <div className="h-full bg-[#D4AF37] transition-all" style={{ width: `${(completedCount / profileCompletionItems.length) * 100}%` }} />
             </div>
-            <p className="text-xs text-gray-400">{completedCount}/{profileCompletionItems.length} steps complete</p>
+            <p className="text-xs text-gray-300">{completedCount}/{profileCompletionItems.length} steps complete</p>
           </div>
         </div>
 
@@ -265,7 +265,7 @@ export default function WorkerDashboard() {
         className="grid grid-cols-2 md:grid-cols-4 gap-5"
       >
         {stats.map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform">
+          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111316] border border-white/10">
             <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
             <div className="text-4xl font-black tracking-tighter text-white">{stat.value}</div>
             <div className="text-gray-400 text-sm mt-1.5 font-medium">{stat.label}</div>
@@ -316,7 +316,7 @@ export default function WorkerDashboard() {
               <motion.div
                 key={job.id}
                 variants={itemVariants}
-                className="card-luxury rounded-2xl p-6 flex flex-col gap-3 border border-white/5 hover:border-[#D4AF37]/50 hover:shadow-xl transition-all group cursor-pointer"
+                className="card-luxury rounded-2xl p-6 flex flex-col gap-3 border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50 hover:shadow-xl transition-all group cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-black text-white text-base leading-tight group-hover:text-[#D4AF37] transition-colors line-clamp-2 flex-1">
@@ -330,11 +330,11 @@ export default function WorkerDashboard() {
                   {job.description || "No description provided."}
                 </p>
                 <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                  <div className="flex items-center gap-1 text-gray-400 text-xs font-bold">
+                  <div className="flex items-center gap-1 text-gray-300 text-xs font-bold">
                     <MapPin className="w-3 h-3" />
                     {(job.location || "Anywhere").substring(0, 18)}
                   </div>
-                  <div className="flex items-center gap-1 text-gray-400 text-xs font-bold">
+                  <div className="flex items-center gap-1 text-gray-300 text-xs font-bold">
                     <Clock className="w-3 h-3" />
                     {new Date(job.created_at).toLocaleDateString("en-ZA", { month: "short", day: "numeric" })}
                   </div>
@@ -343,7 +343,7 @@ export default function WorkerDashboard() {
             ))}
           </motion.div>
         ) : (
-          <div className="card-luxury rounded-2xl p-10 text-center text-gray-400 font-medium">
+          <div className="card-luxury rounded-2xl p-10 text-center text-gray-400 font-medium bg-[#0f1320] border border-white/10">
             No open jobs match your skills right now.{" "}
             <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline">Browse all jobs →</Link>
           </div>
@@ -353,7 +353,7 @@ export default function WorkerDashboard() {
       {/* ── Bottom Row ── */}
       <div className="grid lg:grid-cols-5 gap-8">
         {/* Recent Activity */}
-        <div className="lg:col-span-3 card-luxury p-8 rounded-2xl">
+        <div className="lg:col-span-3 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
           <div className="flex justify-between items-center mb-7">
             <h3 className="text-xl font-black text-white">Recent Activity</h3>
             <Link href="/dashboard/worker/jobs" className="text-[#D4AF37] hover:underline text-sm font-bold">
@@ -377,7 +377,7 @@ export default function WorkerDashboard() {
                   </div>
                   <div className="text-right">
                     <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                      job.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                      job.status === "completed" ? "bg-emerald-900/50 text-emerald-200" : "bg-amber-900/50 text-amber-200"
                     }`}>
                       {job.status}
                     </span>
@@ -395,7 +395,7 @@ export default function WorkerDashboard() {
         </div>
 
         {/* Profile Summary */}
-        <div className="lg:col-span-2 card-luxury p-8 rounded-2xl flex flex-col">
+        <div className="lg:col-span-2 card-luxury p-8 rounded-2xl flex flex-col bg-[#111316] border border-white/10">
           <h3 className="text-xl font-black text-white mb-6">Your Profile</h3>
           <div className="space-y-5 flex-1">
             {profile?.bio && (

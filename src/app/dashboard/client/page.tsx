@@ -202,9 +202,9 @@ export default function ClientDashboard() {
 
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className={`px-4 py-1.5 text-xs font-bold rounded-full ${
-                    job.status === "open" ? "bg-emerald-100 text-emerald-700"
-                    : job.status === "completed" ? "bg-gray-100 text-gray-600"
-                    : "bg-amber-100 text-amber-700"
+                    job.status === "open" ? "bg-emerald-900/50 text-emerald-200"
+                    : job.status === "completed" ? "bg-gray-800 text-gray-200"
+                    : "bg-amber-900/50 text-amber-200"
                   }`}>
                     {job.status}
                   </span>
@@ -252,7 +252,7 @@ export default function ClientDashboard() {
       >
         <motion.div variants={itemVariants}>
           <Link href="/dashboard/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
-            <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Users className="w-7 h-7 text-[#D4AF37]" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Browse Workers</h3>
@@ -262,7 +262,7 @@ export default function ClientDashboard() {
 
         <motion.div variants={itemVariants}>
           <Link href="/dashboard/client/bookings" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
-            <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Briefcase className="w-7 h-7 text-[#D4AF37]" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">Job History</h3>
