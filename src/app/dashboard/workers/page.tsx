@@ -5,18 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, MapPin, Star, Loader2, Heart } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { fetchListedWorkers, type ListedWorker } from "@/lib/marketplace";
 import toast from "react-hot-toast";
 
-interface WorkerProfile {
-  id: string;
+interface WorkerProfile extends ListedWorker {
   user_id?: string;
-  full_name: string;
-  location?: string;
-  avatar_url?: string;
-  rating?: number;
-  is_verified?: boolean;
-  skills?: string[];
-  availability?: string;
 }
 
 export default function DashboardWorkersPage() {
@@ -35,33 +28,17 @@ export default function DashboardWorkersPage() {
       setCurrentUserId(user?.id || null);
 
       const [workersRes, savedRes] = await Promise.all([
-        supabase
-          .from("worker_profiles")
-          .select(`
-            id,
-            user_id,
-            location,
-            rating,
-            is_verified,
-            skills,
-            availability,
-            profiles(id, full_name, avatar_url)
-          `)
-          .order("rating", { ascending: false }),
+        fetchListedWorkers(supabase),
         user ? supabase.from("saved_workers").select("worker_id").eq("client_id", user.id) : Promise.resolve({ data: [] })
       ]);
 
-      if (workersRes.data) {
-        const mapped = workersRes.data.map((w: any) => ({
-          id: w.id || w.user_id,
-          user_id: w.user_id,
-          full_name: w.profiles?.full_name || "Worker",
-          avatar_url: w.profiles?.avatar_url,
-          location: w.location,
-          rating: w.rating,
-          is_verified: w.is_verified,
-          skills: w.skills,
-          availability: w.availability,
+      if (workersRes.error) {
+        console.error("Error fetching workers:", workersRes.error);
+        toast.error("Could not load workers. Please refresh.");
+      } else if (workersRes.workers) {
+        const mapped = workersRes.workers.map((w) => ({
+          ...w,
+          user_id: w.id,
         }));
         setWorkers(mapped);
       }

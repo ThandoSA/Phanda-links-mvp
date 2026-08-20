@@ -2,10 +2,11 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { ArrowRight, ShieldCheck, ArrowLeft, UserCheck } from "lucide-react"
-import Link from "next/link"
+import { ensureUserProfile } from "@/lib/marketplace"
 
 function PostJobForm() {
     const router = useRouter()
@@ -52,6 +53,14 @@ function PostJobForm() {
             const { data: userData } = await supabase.auth.getUser()
             if (!userData.user) {
                 toast.error("You must be logged in to post a job")
+                setLoading(false)
+                return
+            }
+
+            const { error: profileError } = await ensureUserProfile(supabase, userData.user, "client")
+            if (profileError) {
+                console.error("Profile ensure error:", profileError)
+                toast.error("Could not verify your profile: " + profileError.message)
                 setLoading(false)
                 return
             }

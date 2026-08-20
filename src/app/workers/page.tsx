@@ -5,22 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import { Search, MapPin, Star, Filter, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient"; // adjust path if needed
-
-interface WorkerProfile {
-  id: string;
-  full_name: string;
-  location?: string;
-  avatar_url?: string;
-  rating?: number;
-  is_verified?: boolean;
-  skills?: string[];
-  role?: string;
-  availability?: string;
-}
+import { supabase } from "@/lib/supabaseClient";
+import { fetchListedWorkers, type ListedWorker } from "@/lib/marketplace";
 
 export default function WorkersPage() {
-  const [workers, setWorkers] = useState<WorkerProfile[]>([]);
+  const [workers, setWorkers] = useState<ListedWorker[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLocation, setFilterLocation] = useState("");
@@ -29,36 +18,11 @@ export default function WorkersPage() {
   useEffect(() => {
     const fetchWorkers = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('worker_profiles')
-        .select(`
-          id,
-          user_id,
-          location,
-          rating,
-          is_verified,
-          skills,
-          availability,
-          profiles(id, full_name, avatar_url)
-        `)
-        .order('rating', { ascending: false });
-
+      const { workers: listed, error } = await fetchListedWorkers(supabase);
       if (error) {
         console.error("Error fetching workers:", error);
       } else {
-        // Map profiles data correctly
-        const mappedWorkers = (data || []).map((worker: any) => ({
-          id: worker.id || worker.user_id,
-          user_id: worker.user_id,
-          full_name: worker.profiles?.full_name || "Worker",
-          avatar_url: worker.profiles?.avatar_url,
-          location: worker.location,
-          rating: worker.rating,
-          is_verified: worker.is_verified,
-          skills: worker.skills,
-          availability: worker.availability,
-        }));
-        setWorkers(mappedWorkers);
+        setWorkers(listed);
       }
       setLoading(false);
     };
@@ -154,7 +118,7 @@ export default function WorkersPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-2xl">{worker.full_name}</h3>
-                        <p className="text-[#D4AF37]">{worker.role || "Skilled Professional"}</p>
+                        <p className="text-[#D4AF37]">Skilled Professional</p>
                       </div>
                       {worker.rating && (
                         <div className="flex items-center gap-1 text-lg font-medium">

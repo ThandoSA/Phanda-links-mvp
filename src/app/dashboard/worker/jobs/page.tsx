@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Job } from "@/types"
 import QuoteModal from "@/components/dashboard/QuoteModal"
 import Skeleton from "@/components/ui/Skeleton"
+import { fetchOpenJobs } from "@/lib/marketplace"
 import { 
   Search, 
   Briefcase, 
@@ -24,18 +25,18 @@ export default function JobsPage() {
   const [filter, setFilter] = useState("All")
 
   useEffect(() => {
-    const fetchOpenJobs = async () => {
-      const { data, error } = await supabase
-        .from("jobs")
-        .select(`id, status, worker_id, client_id, created_at, title, description, price, location, client:profiles!client_id (full_name, avatar_url)`)
-        .is("worker_id", null)
-        .order("created_at", { ascending: false })
+    const loadOpenJobs = async () => {
+      const { data, error } = await fetchOpenJobs(supabase)
 
-      if (error) toast.error("Failed to load open jobs")
-      else setOpenJobs((data as unknown as Job[]) || [])
+      if (error) {
+        console.error("Open jobs fetch error:", error)
+        toast.error("Failed to load open jobs: " + error.message)
+      } else {
+        setOpenJobs((data as unknown as Job[]) || [])
+      }
       setLoading(false)
     }
-    fetchOpenJobs()
+    loadOpenJobs()
   }, [])
 
   const filteredJobs = [...openJobs].filter(job => {
