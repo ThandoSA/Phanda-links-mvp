@@ -117,48 +117,47 @@ export default function ClientProfileForm() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pt-8 px-4 pb-20">
+        <div className="max-w-5xl mx-auto space-y-8 pt-8 px-4 pb-20 text-white">
             <header>
-                <h1 className="text-4xl font-black text-black tracking-tighter">Profile Setup</h1>
-                <p className="text-gray-500 text-sm font-medium mt-1">Manage your personal settings and preferences.</p>
+                <h1 className="text-4xl font-black text-white tracking-tighter">
+                    Profile <span className="text-[#D4AF37]">Setup</span>
+                </h1>
+                <p className="text-gray-400 text-sm font-medium mt-1">Manage your personal settings and preferences.</p>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Avatar Section */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card p-8 text-center">
-                        <div className="relative w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border border-gray-200 group cursor-pointer shadow-sm bg-white">
+                    <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0b0b0b]/90 p-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+                        <div className="relative w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border border-[#D4AF37]/30 group cursor-pointer shadow-[0_0_30px_rgba(212,175,55,0.15)] bg-[#111111]">
                             <Image
                                 src={avatarUrl || "/images/default-avatar.svg"}
                                 alt="Avatar"
                                 fill
                                 className="object-cover"
                             />
-                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
-                                <Camera className="w-6 h-6 text-white" />
+                            <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
+                                <Camera className="w-6 h-6 text-[#D4AF37]" />
                                 Change Photo
                                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                             </label>
                         </div>
-                        <h3 className="text-black font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>
-                        <p className="text-xs text-gray-500 font-medium mt-1">A clear photo establishes trust.</p>
+                        <h3 className="text-white font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>
+                        <p className="text-xs text-gray-400 font-medium mt-1">A clear photo establishes trust.</p>
                     </div>
 
-                    <div className="glass-card p-6 flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                    <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0b0b0b]/90 p-6 flex items-start gap-4 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+                        <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] flex-shrink-0">
                             <ShieldCheck className="w-6 h-6" />
                         </div>
                         <div>
-                            <h4 className="text-black font-bold text-sm tracking-tight">Account Security</h4>
-                            <p className="text-gray-500 text-xs mt-1">To change your password, contact support.</p>
+                            <h4 className="text-white font-bold text-sm tracking-tight">Account Security</h4>
+                            <p className="text-gray-400 text-xs mt-1">To change your password, contact support.</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Form Section */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="glass-card p-8 md:p-10 space-y-8">
-                        
+                    <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0a0a0a] p-8 md:p-10 space-y-8 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="relative pt-2">
                                 <input 
@@ -166,7 +165,7 @@ export default function ClientProfileForm() {
                                     id="clientFullName" 
                                     required 
                                     placeholder=" " 
-                                    className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
                                     value={fullName} 
                                     onChange={(e) => setFullName(e.target.value)} 
                                 />
@@ -185,7 +184,7 @@ export default function ClientProfileForm() {
                                     id="clientLocation" 
                                     required 
                                     placeholder=" " 
-                                    className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
                                     value={location} 
                                     onChange={(e) => setLocation(e.target.value)} 
                                 />
@@ -203,10 +202,10 @@ export default function ClientProfileForm() {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3"
+                                className="btn-luxury bg-[#D4AF37] text-black hover:bg-[#F3E5AB] hover:text-black border border-[#D4AF37] px-8 py-3.5 text-sm font-bold disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3"
                             >
                                 {saving ? (
-                                    <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
+                                    <><div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> Saving...</>
                                 ) : (
                                     <><Save className="w-4 h-4" /> Save Changes</>
                                 )}

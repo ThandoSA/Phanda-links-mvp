@@ -7,6 +7,7 @@ import Image from "next/image"
 import toast from "react-hot-toast"
 import { Message, Job } from "@/types"
 import { ArrowLeft, Send, MessageSquare, ShieldCheck, Clock } from "lucide-react"
+import { markConversationRead } from "@/lib/chatUnread"
 
 export default function ChatPage() {
   const params = useParams()
@@ -40,6 +41,11 @@ export default function ChatPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  useEffect(() => {
+    if (!jobId || !userId) return
+    markConversationRead(jobId)
+  }, [jobId, userId])
+
   // Realtime subscription
   useEffect(() => {
     if (!jobId) return
@@ -51,7 +57,6 @@ export default function ChatPage() {
             const exists = prev.some(m => m.id === newMsg.id)
             if (exists) return prev
             
-            // Check if there is a matching temporary optimistic message
             const tempIndex = prev.findIndex(m => 
               m.id.startsWith("temp-") && 
               m.content === newMsg.content && 
@@ -64,10 +69,14 @@ export default function ChatPage() {
             
             return [...prev, newMsg]
           })
+
+          if (payload.new.sender_id !== userId) {
+            markConversationRead(jobId)
+          }
         }
       ).subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [jobId])
+  }, [jobId, userId])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages])
 

@@ -11,6 +11,7 @@ import Skeleton from "@/components/ui/Skeleton"
 import Logo from "@/components/ui/Logo"
 import { Menu, X, LogOut } from "lucide-react"
 import OnboardingWizard from "@/components/dashboard/OnboardingWizard"
+import { CHAT_UNREAD_CHANGED_EVENT, countUnreadMessages } from "@/lib/chatUnread"
 
 // SVG icon components
 const Icons = {
@@ -67,9 +68,10 @@ type NavItemProps = {
   children: React.ReactNode
   isActive: boolean
   onClick?: () => void
+  showUnreadDot?: boolean
 }
 
-const NavItem = ({ href, icon, children, isActive, onClick }: NavItemProps) => (
+const NavItem = ({ href, icon, children, isActive, onClick, showUnreadDot = false }: NavItemProps) => (
   <Link
     href={href}
     onClick={onClick}
@@ -79,8 +81,11 @@ const NavItem = ({ href, icon, children, isActive, onClick }: NavItemProps) => (
         : "text-gray-500 hover:text-black hover:bg-black/5"
     }`}
   >
-    <span className={`transition-colors duration-200 ${isActive ? "text-gold" : "text-gray-400 group-hover:text-gray-700"}`}>
+    <span className={`relative transition-colors duration-200 ${isActive ? "text-gold" : "text-gray-400 group-hover:text-gray-700"}`}>
       {icon}
+      {showUnreadDot && (
+        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.9)]" aria-label="Unread messages" />
+      )}
     </span>
     {children}
   </Link>
@@ -91,6 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [profile, setProfile] = useState<{ full_name?: string; avatar_url?: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
+  const [unreadCount, setUnreadCount] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -137,6 +143,53 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     fetchRole()
     return () => { isMounted = false }
   }, [router, pathname])
+
+  useEffect(() => {
+    if (!userId) return
+
+    let isMounted = true
+
+    const refreshUnreadCount = async () => {
+      const { data: jobsData } = await supabase
+        .from("jobs")
+        .select("id")
+        .or(`client_id.eq.${userId},worker_id.eq.${userId}`)
+
+      if (!isMounted) return
+
+      const jobIds = jobsData?.map((job) => job.id) || []
+
+      if (jobIds.length === 0) {
+        setUnreadCount(0)
+        return
+      }
+
+      const { data: messagesData } = await supabase
+        .from("messages")
+        .select("job_id, sender_id, created_at")
+        .in("job_id", jobIds)
+        .order("created_at", { ascending: false })
+
+      if (!isMounted) return
+      setUnreadCount(countUnreadMessages(messagesData || [], userId))
+    }
+
+    refreshUnreadCount()
+
+    const channel = supabase.channel(`dashboard-unread-${userId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, refreshUnreadCount)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, refreshUnreadCount)
+      .subscribe()
+
+    const handleReadStateChange = () => refreshUnreadCount()
+    window.addEventListener(CHAT_UNREAD_CHANGED_EVENT, handleReadStateChange)
+
+    return () => {
+      isMounted = false
+      supabase.removeChannel(channel)
+      window.removeEventListener(CHAT_UNREAD_CHANGED_EVENT, handleReadStateChange)
+    }
+  }, [userId])
 
   const isActive = (path: string) => {
     if (path === "/dashboard/client" || path === "/dashboard/worker") {
@@ -199,7 +252,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker" icon={Icons.dashboard} isActive={isActive("/dashboard/worker")}>Dashboard</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/jobs" icon={Icons.jobs} isActive={isActive("/dashboard/worker/jobs")}>Browse Jobs</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/active-jobs" icon={Icons.bookings} isActive={isActive("/dashboard/worker/active-jobs")}>My Active Jobs</NavItem></div>
-                <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")}>Messages</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")} showUnreadDot={unreadCount > 0}>Messages</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/profile" icon={Icons.profile} isActive={isActive("/dashboard/worker/profile")}>Profile</NavItem></div>
               </>
             ) : (
@@ -208,7 +261,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/saved" icon={Icons.saved} isActive={isActive("/dashboard/client/saved")}>Saved</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/workers" icon={Icons.browse} isActive={isActive("/dashboard/workers")}>Browse Workers</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/post-job" icon={Icons.jobs} isActive={isActive("/dashboard/client/post-job")}>Post Job</NavItem></div>
-                <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")}>Messages</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")} showUnreadDot={unreadCount > 0}>Messages</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/profile" icon={Icons.profile} isActive={isActive("/dashboard/client/profile")}>Profile</NavItem></div>
               </>
             )}

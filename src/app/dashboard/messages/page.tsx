@@ -10,9 +10,15 @@ import StatusBadge from "@/components/ui/StatusBadge"
 import EmptyState from "@/components/ui/EmptyState"
 import { MessageSquare, ArrowRight, Search } from "lucide-react"
 import { motion } from "framer-motion"
+import { CHAT_UNREAD_CHANGED_EVENT, isMessageUnread } from "@/lib/chatUnread"
+
+interface InboxChat extends Job {
+    last_message_at?: string | null
+    unread?: boolean
+}
 
 export default function MessagesInboxPage() {
-    const [chats, setChats] = useState<Job[]>([])
+    const [chats, setChats] = useState<InboxChat[]>([])
     const [loading, setLoading] = useState(true)
     const [userId, setUserId] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
@@ -20,20 +26,76 @@ export default function MessagesInboxPage() {
     const fetchChats = useCallback(async () => {
         const { data: userData } = await supabase.auth.getUser()
         if (!userData.user) { window.location.href = "/login"; return }
-        setUserId(userData.user.id)
+        const currentUserId = userData.user.id
+        setUserId(currentUserId)
 
         const { data, error } = await supabase
             .from("jobs")
             .select(`id, title, status, updated_at, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)`)
-            .or(`client_id.eq.${userData.user.id},worker_id.eq.${userData.user.id}`)
+            .or(`client_id.eq.${currentUserId},worker_id.eq.${currentUserId}`)
             .order("updated_at", { ascending: false })
 
-        if (error) toast.error("Failed to load messages.")
-        else setChats(data as unknown as Job[] || [])
+        if (error) {
+            toast.error("Failed to load messages.")
+            setLoading(false)
+            return
+        }
+
+        const jobs = (data as unknown as Job[]) || []
+        const jobIds = jobs.map((job) => job.id)
+
+        const { data: messagesData } = jobIds.length
+            ? await supabase
+                .from("messages")
+                .select("job_id, sender_id, created_at")
+                .in("job_id", jobIds)
+                .order("created_at", { ascending: false })
+            : { data: [] }
+
+        const latestMessagesMap = new Map<string, { sender_id: string; created_at: string }>()
+        ;(messagesData || []).forEach((message) => {
+            const existing = latestMessagesMap.get(message.job_id)
+            if (!existing || new Date(message.created_at).getTime() > new Date(existing.created_at).getTime()) {
+                latestMessagesMap.set(message.job_id, message)
+            }
+        })
+
+        const chatsWithUnread = jobs.map((job) => {
+            const message = latestMessagesMap.get(job.id)
+            const latestMessageAt = message?.created_at || job.updated_at || null
+            return {
+                ...job,
+                last_message_at: latestMessageAt,
+                unread: isMessageUnread(job.id, latestMessageAt, currentUserId, message?.sender_id || null),
+            }
+        })
+
+        setChats(chatsWithUnread.sort((a, b) => {
+            const aTime = new Date(a.last_message_at || a.updated_at || 0).getTime()
+            const bTime = new Date(b.last_message_at || b.updated_at || 0).getTime()
+            return bTime - aTime
+        }))
         setLoading(false)
     }, [])
 
     useEffect(() => { fetchChats() }, [fetchChats])
+
+    useEffect(() => {
+        if (!userId) return
+
+        const channel = supabase.channel(`messages-inbox-${userId}`)
+            .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => fetchChats())
+            .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, () => fetchChats())
+            .subscribe()
+
+        const handleUnreadChange = () => fetchChats()
+        window.addEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChange)
+
+        return () => {
+            supabase.removeChannel(channel)
+            window.removeEventListener(CHAT_UNREAD_CHANGED_EVENT, handleUnreadChange)
+        }
+    }, [fetchChats, userId])
 
     const filteredChats = chats.filter(chat => {
         const isMeWorker = chat.worker_id === userId
@@ -112,9 +174,14 @@ export default function MessagesInboxPage() {
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-center gap-3 mb-1">
-                                        <h3 className="font-bold text-black group-hover:text-gold transition-colors truncate">
-                                            {otherParty?.full_name || "User"}
-                                        </h3>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <h3 className="font-bold text-black group-hover:text-gold transition-colors truncate">
+                                                {otherParty?.full_name || "User"}
+                                            </h3>
+                                            {chat.unread && (
+                                                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.8)] flex-shrink-0" aria-label="Unread messages" />
+                                            )}
+                                        </div>
                                         <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
                                             {new Date(chat.updated_at || "").toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                                         </span>

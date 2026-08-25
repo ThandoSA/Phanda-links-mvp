@@ -92,8 +92,9 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen bg-white text-black overflow-hidden relative">
-      {/* Left — Brand Storytelling Panel */}
+    <div className="flex min-h-screen bg-[#050505] text-white overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.18),_transparent_32%),linear-gradient(135deg,#050505_0%,#0d0d0d_45%,#050505_100%)]" />
+
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-16 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image 
@@ -103,54 +104,52 @@ function LoginForm() {
             sizes="50vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-white/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent" />
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/10" />
         </div>
 
         <div className="relative z-10 w-full max-w-lg space-y-8 mt-auto mb-12">
           <Logo size={48} href={null} className="mb-2" />
           <div>
-            <p className="text-gray-800 text-lg font-medium leading-relaxed mt-6">
+            <p className="text-white/90 text-lg font-medium leading-relaxed mt-6">
               The marketplace where South African hustle meets visibility. Dignity, opportunity, and trust for every worker.
             </p>
           </div>
-          
-          <div className="flex flex-col gap-5 border-t border-gray-200 pt-8">
+
+          <div className="flex flex-col gap-5 border-t border-white/10 pt-8">
             {["Showcase your skills professionally", "Get discovered by local clients", "Communicate and grow your reputation"].map((item, i) => (
               <div key={i} className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 shadow-[0_0_20px_rgba(212,175,55,0.25)] flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-[#D4AF37]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="text-sm font-bold text-gray-800">{item}</span>
+                <span className="text-sm font-bold text-white/85">{item}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Right — Form Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 relative z-10 bg-[#F9FAFB]">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 relative z-10">
         <div className="w-full max-w-md absolute top-8 left-8 md:left-auto md:max-w-none">
           <Link 
             href="/" 
-            className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-white/60 hover:text-[#D4AF37] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
         </div>
 
         <div className="w-full max-w-md space-y-8">
-          <div className="glass-card p-8 md:p-12">
+          <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0b0b0b]/85 p-8 md:p-12 shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl">
             <div className="space-y-2 mb-10 text-center sm:text-left">
-              <h2 className="text-4xl font-black tracking-tighter text-black">
+              <h2 className="text-4xl font-black tracking-tighter text-white">
                 Welcome <span className="text-[#D4AF37]">Back</span>
               </h2>
-              <p className="text-gray-500 text-sm font-medium">Sign in to your premium account</p>
+              <p className="text-gray-400 text-sm font-medium">Sign in to your premium account</p>
             </div>
 
-            {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="relative">
                 <input
@@ -158,7 +157,7 @@ function LoginForm() {
                   id="email"
                   required
                   placeholder=" "
-                  className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="peer w-full bg-transparent border-b-2 border-white/10 py-3 text-white placeholder-transparent focus:outline-none focus:border-[#D4AF37] transition-colors"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -176,7 +175,7 @@ function LoginForm() {
                   id="password"
                   required
                   placeholder=" "
-                  className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="peer w-full bg-transparent border-b-2 border-white/10 py-3 text-white placeholder-transparent focus:outline-none focus:border-[#D4AF37] transition-colors"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -189,12 +188,12 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-16 top-5 text-gray-400 hover:text-black transition-colors"
+                  className="absolute right-16 top-5 text-gray-400 hover:text-[#D4AF37] transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-                <Link href="/forgot-password" className="absolute right-0 top-5 text-xs text-gray-400 hover:text-black font-bold transition-colors">
+                <Link href="/forgot-password" className="absolute right-0 top-5 text-xs text-gray-400 hover:text-[#D4AF37] font-bold transition-colors">
                   Forgot?
                 </Link>
               </div>
@@ -202,24 +201,24 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-luxury btn-luxury-primary w-full py-4 text-sm mt-8 disabled:opacity-50 flex items-center justify-center gap-3"
+                className="btn-luxury bg-[#D4AF37] text-black hover:bg-[#F3E5AB] hover:text-black border border-[#D4AF37] w-full py-4 text-sm mt-8 disabled:opacity-50 flex items-center justify-center gap-3"
               >
                 {loading ? (
-                  <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Signing in...</>
+                  <><div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Signing in...</>
                 ) : "Sign In"}
               </button>
             </form>
 
             <div className="relative flex py-6 items-center">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="flex-shrink mx-4 text-gray-400 text-xs font-bold uppercase tracking-wider">or continue with</span>
-              <div className="flex-grow border-t border-gray-200"></div>
+              <div className="flex-grow border-t border-white/10"></div>
+              <span className="flex-shrink mx-4 text-gray-500 text-xs font-bold uppercase tracking-wider">or continue with</span>
+              <div className="flex-grow border-t border-white/10"></div>
             </div>
 
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="btn-luxury btn-luxury-outline w-full py-4 text-sm flex items-center justify-center gap-3 bg-white"
+              className="btn-luxury border border-[#D4AF37]/40 bg-black/40 text-white hover:bg-[#111111] w-full py-4 text-sm flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -230,9 +229,9 @@ function LoginForm() {
               Google
             </button>
 
-            <p className="text-center text-gray-500 text-sm font-medium mt-8">
+            <p className="text-center text-gray-400 text-sm font-medium mt-8">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-black font-bold hover:text-[#D4AF37] transition-colors">
+              <Link href="/signup" className="text-[#D4AF37] font-bold hover:text-[#F3E5AB] transition-colors">
                 Create one
               </Link>
             </p>

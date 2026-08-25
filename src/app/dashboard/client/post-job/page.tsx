@@ -80,6 +80,24 @@ function PostJobForm() {
                 console.error("Job post error:", error)
                 toast.error("Failed to post job: " + error.message)
             } else {
+                if (preselectedWorkerId) {
+                    try {
+                        await fetch("/api/notifications/job-request", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                workerId: preselectedWorkerId,
+                                clientName: userData.user.user_metadata?.full_name || "A client",
+                                jobTitle: formData.title,
+                                amount: parseFloat(formData.price),
+                                jobUrl: `${window.location.origin}/dashboard/worker/active-jobs`,
+                            }),
+                        })
+                    } catch (notificationError) {
+                        console.warn("Job notification failed:", notificationError)
+                    }
+                }
+
                 toast.success("Job request published successfully!")
                 router.push("/dashboard/client")
             }
