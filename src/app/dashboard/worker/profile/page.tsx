@@ -112,8 +112,11 @@ export default function WorkerProfileForm() {
   return (
     <div className="max-w-5xl mx-auto space-y-8 pt-8 px-4 pb-20">
       <header>
-        <h1 className="text-4xl font-black text-black tracking-tighter">Profile Setup</h1>
-        <p className="text-gray-500 text-sm font-medium mt-1">Refine your professional trade presence on the Phanda network.</p>
+        <p className="text-xs font-black uppercase tracking-[0.28em] text-[#D4AF37]">Worker profile</p>
+        <h1 className="mt-3 text-4xl font-black text-black tracking-tighter">Profile Setup</h1>
+        <p className="mt-2 max-w-2xl text-base text-gray-600 leading-7 font-medium">
+          Share your trade experience, availability, and portfolio so clients can trust you at a glance.
+        </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -130,16 +133,16 @@ export default function WorkerProfileForm() {
               </label>
             </div>
             <h3 className="text-black font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>
-            <p className="text-xs text-gray-500 font-medium mt-1">A clear photo establishes trust.</p>
+            <p className="text-sm text-gray-600 font-medium mt-2 leading-6">A clear profile photo helps clients feel confident before they contact you.</p>
           </div>
 
           {/* Stats details */}
           <div className="glass-card p-8 space-y-6">
-            <h3 className="text-black font-black text-lg tracking-tight border-b border-gray-100 pb-4">Trust Summary</h3>
+            <h3 className="text-black font-black text-lg tracking-tight border-b border-gray-200 pb-4">Trust Summary</h3>
             
             <div className="space-y-5">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 font-bold">Verification</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-sm text-gray-600 font-bold">Verification</span>
                 {isVerified ? (
                   <span className="flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                     <BadgeCheck className="w-4 h-4" /> Verified
@@ -149,15 +152,15 @@ export default function WorkerProfileForm() {
                 )}
               </div>
               
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 font-bold">Rating</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-sm text-gray-600 font-bold">Rating</span>
                 <span className="flex items-center gap-1.5 text-sm text-black font-bold">
                   {rating > 0 ? rating.toFixed(1) : "New"} <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" />
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500 font-bold">Jobs Done</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-sm text-gray-600 font-bold">Jobs Done</span>
                 <div className="flex items-center gap-1.5 text-sm text-black font-bold">
                   {jobsCompleted} <Briefcase className="w-4 h-4 text-[#D4AF37]" />
                 </div>
@@ -172,7 +175,7 @@ export default function WorkerProfileForm() {
             </div>
             <div>
               <h4 className="text-black font-bold text-sm tracking-tight">Account Security</h4>
-              <p className="text-gray-500 text-xs mt-1">To change your password, contact support.</p>
+              <p className="text-gray-600 text-sm mt-1 leading-6">To change your password, please contact support.</p>
             </div>
           </div>
         </div>
@@ -180,6 +183,10 @@ export default function WorkerProfileForm() {
         {/* Right Column Form */}
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-3xl p-8 md:p-10 space-y-8 bg-black text-white shadow-2xl">
+            <div className="space-y-2">
+              <h2 className="text-xl font-black tracking-tight text-white">Professional details</h2>
+              <p className="text-sm text-gray-300 leading-6">Keep your bio, skills, and availability clear so clients can make a quick decision.</p>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="relative pt-2">
@@ -188,7 +195,7 @@ export default function WorkerProfileForm() {
                   id="fullName" 
                   required 
                   placeholder=" " 
-                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-base text-white placeholder:text-transparent focus:outline-none focus:border-[#D4AF37] transition-colors" 
                   value={fullName} 
                   onChange={e => setFullName(e.target.value)} 
                 />
@@ -207,7 +214,7 @@ export default function WorkerProfileForm() {
                   id="location" 
                   required 
                   placeholder=" " 
-                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-base text-white placeholder:text-transparent focus:outline-none focus:border-[#D4AF37] transition-colors" 
                   value={location} 
                   onChange={e => setLocation(e.target.value)} 
                 />
@@ -227,7 +234,7 @@ export default function WorkerProfileForm() {
                 type="text"
                 id="skills"
                 placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="peer w-full bg-transparent border-b-2 border-white/20 py-3 text-base text-white placeholder:text-transparent focus:outline-none focus:border-[#D4AF37] transition-colors"
                 value={skills}
                 onChange={e => setSkills(e.target.value)}
               />
@@ -235,7 +242,7 @@ export default function WorkerProfileForm() {
                 htmlFor="skills" 
                 className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
               >
-                Core Skills (Comma Separated, e.g. Plumber, Electrician)
+                Core Skills (e.g. Plumbing, Electrical, Roofing)
               </label>
               
               {skillsArray.length > 0 && (
@@ -251,19 +258,19 @@ export default function WorkerProfileForm() {
 
             {/* Bio */}
             <div className="space-y-2 pt-4">
-              <label className="text-xs font-bold text-gray-500">Professional Bio</label>
+              <label className="text-sm font-bold text-gray-200">Professional Bio</label>
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 rows={5}
-                placeholder="Describe your trade background and specialization..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all resize-none placeholder-gray-500"
+                placeholder="Describe your trade background, experience, and the kind of work you do best..."
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-base text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all resize-none placeholder:text-gray-500"
               />
             </div>
 
             {/* Availability */}
-            <div className="space-y-4 pt-4 border-t border-gray-100">
-              <label className="text-xs font-bold text-gray-500">Availability Status</label>
+            <div className="space-y-4 pt-4 border-t border-white/10">
+              <label className="text-sm font-bold text-gray-200">Availability Status</label>
               <div className="flex bg-white/5 p-1.5 rounded-full shadow-inner gap-2 max-w-sm border border-white/10">
                 {[
                   { val: "available", label: "Available", activeClass: "bg-[#D4AF37] text-black shadow-sm border-[#D4AF37]" },
@@ -286,7 +293,7 @@ export default function WorkerProfileForm() {
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 font-medium ml-2">Setting status to "Busy" temporarily hides you from the public directory.</p>
+              <p className="text-sm text-gray-300 leading-6">Setting status to “Busy” will temporarily hide you from the public directory while you’re occupied.</p>
             </div>
 
             <div className="pt-6 flex justify-end">

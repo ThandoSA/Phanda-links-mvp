@@ -119,10 +119,13 @@ export default function ClientProfileForm() {
     return (
         <div className="max-w-5xl mx-auto space-y-8 pt-8 px-4 pb-20 text-white">
             <header>
-                <h1 className="text-4xl font-black text-white tracking-tighter">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-[#D4AF37]">Your profile</p>
+                <h1 className="mt-3 text-4xl font-black text-white tracking-tighter">
                     Profile <span className="text-[#D4AF37]">Setup</span>
                 </h1>
-                <p className="text-gray-400 text-sm font-medium mt-1">Manage your personal settings and preferences.</p>
+                <p className="mt-2 max-w-2xl text-base text-gray-300 leading-7 font-medium">
+                    Update your personal details so clients can recognise your brand and contact you with confidence.
+                </p>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -142,7 +145,7 @@ export default function ClientProfileForm() {
                             </label>
                         </div>
                         <h3 className="text-white font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>
-                        <p className="text-xs text-gray-400 font-medium mt-1">A clear photo establishes trust.</p>
+                        <p className="text-sm text-gray-300 font-medium mt-2 leading-6">A clear profile photo helps build trust with clients and partners.</p>
                     </div>
 
                     <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0b0b0b]/90 p-6 flex items-start gap-4 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
@@ -151,13 +154,18 @@ export default function ClientProfileForm() {
                         </div>
                         <div>
                             <h4 className="text-white font-bold text-sm tracking-tight">Account Security</h4>
-                            <p className="text-gray-400 text-xs mt-1">To change your password, contact support.</p>
+                            <p className="text-gray-300 text-sm mt-1 leading-6">To change your password, please get in touch with support.</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
                     <div className="rounded-[2rem] border border-[#D4AF37]/20 bg-[#0a0a0a] p-8 md:p-10 space-y-8 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
+                        <div className="space-y-2">
+                            <h2 className="text-xl font-black tracking-tight text-white">Profile details</h2>
+                            <p className="text-sm text-gray-400 leading-6">Use your real name and location so people know who they are dealing with.</p>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="relative pt-2">
                                 <input 
@@ -165,7 +173,7 @@ export default function ClientProfileForm() {
                                     id="clientFullName" 
                                     required 
                                     placeholder=" " 
-                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-base text-white placeholder:text-transparent focus:outline-none focus:border-[#D4AF37] transition-colors" 
                                     value={fullName} 
                                     onChange={(e) => setFullName(e.target.value)} 
                                 />
@@ -184,7 +192,7 @@ export default function ClientProfileForm() {
                                     id="clientLocation" 
                                     required 
                                     placeholder=" " 
-                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                                    className="peer w-full bg-transparent border-b-2 border-white/10 py-3 pl-8 text-base text-white placeholder:text-transparent focus:outline-none focus:border-[#D4AF37] transition-colors" 
                                     value={location} 
                                     onChange={(e) => setLocation(e.target.value)} 
                                 />
