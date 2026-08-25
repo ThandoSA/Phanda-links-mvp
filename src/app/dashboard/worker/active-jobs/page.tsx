@@ -22,6 +22,7 @@ interface ActiveJob extends Job {
 }
 
 const STATUS_STEPS: Record<string, { next: Job["status"]; label: string; icon: React.ReactNode; color: string }> = {
+  pending:     { next: "accepted",    label: "Accept Request", icon: <CheckCircle className="w-4 h-4" />, color: "bg-emerald-500 hover:bg-emerald-600" },
   accepted:    { next: "en_route",    label: "I'm On My Way",  icon: <Navigation className="w-4 h-4" />, color: "bg-blue-500 hover:bg-blue-600" },
   en_route:    { next: "in_progress", label: "Job Started",    icon: <Play className="w-4 h-4" />,       color: "bg-amber-500 hover:bg-amber-600" },
   in_progress: { next: "completed",   label: "Mark Complete",  icon: <CheckCircle className="w-4 h-4" />, color: "bg-emerald-500 hover:bg-emerald-600" },
@@ -47,7 +48,7 @@ export default function ActiveJobsPage() {
         client:profiles!client_id (full_name, avatar_url)
       `)
       .eq("worker_id", userData.user.id)
-      .in("status", ["accepted", "en_route", "in_progress", "completed"])
+      .in("status", ["pending", "accepted", "en_route", "in_progress", "completed"])
       .order("updated_at", { ascending: false })
 
     if (error) toast.error("Failed to load active jobs")
@@ -91,6 +92,7 @@ export default function ActiveJobsPage() {
   }
 
   const statusLabel: Record<string, { label: string; color: string }> = {
+    pending:     { label: "Pending Request",         color: "text-red-600" },
     accepted:    { label: "Assigned — Not Started", color: "text-blue-600" },
     en_route:    { label: "En Route",               color: "text-amber-600" },
     in_progress: { label: "In Progress",             color: "text-purple-600" },
@@ -217,7 +219,7 @@ export default function ActiveJobsPage() {
                       {/* Pipeline progress bar */}
                       <div className="relative">
                         <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">
-                          {["Accepted", "En Route", "In Progress", "Complete"].map(s => (
+                          {["Pending", "Accepted", "En Route", "In Progress", "Complete"].map(s => (
                             <span key={s}>{s}</span>
                           ))}
                         </div>
@@ -225,9 +227,10 @@ export default function ActiveJobsPage() {
                           <div
                             className="h-full bg-[#D4AF37] rounded-full transition-all duration-700"
                             style={{
-                              width: job.status === "accepted" ? "25%"
-                                : job.status === "en_route" ? "50%"
-                                : job.status === "in_progress" ? "75%"
+                              width: job.status === "pending" ? "15%"
+                                : job.status === "accepted" ? "35%"
+                                : job.status === "en_route" ? "60%"
+                                : job.status === "in_progress" ? "85%"
                                 : "100%"
                             }}
                           />

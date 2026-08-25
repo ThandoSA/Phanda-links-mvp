@@ -72,7 +72,7 @@ function PostJobForm() {
                 price: parseFloat(formData.price),
                 location: formData.location,
                 category: formData.category,
-                status: preselectedWorkerId ? "accepted" : "open",
+                status: preselectedWorkerId ? "pending" : "open",
                 ...(preselectedWorkerId ? { worker_id: preselectedWorkerId } : {}),
             })
 
@@ -91,29 +91,29 @@ function PostJobForm() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto pb-12 text-white">
-            <Link href="/dashboard/client" className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors mb-8">
+        <div className="max-w-4xl mx-auto pb-12">
+            <Link href="/dashboard/client" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors mb-8">
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Link>
 
             {workerName && (
-                <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-emerald-950/40 border border-emerald-500/30 rounded-2xl">
-                    <UserCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                    <p className="text-sm font-bold text-emerald-300">
+                <div className="mb-6 flex items-center gap-3 px-5 py-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-left">
+                    <UserCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <p className="text-sm font-bold text-emerald-800">
                         This job will be sent directly to <span className="underline">{workerName}</span> — they will be assigned on submission.
                     </p>
                 </div>
             )}
 
-            <header className="mb-10">
+            <header className="mb-10 text-left">
                 <p className="text-sm text-[#D4AF37] uppercase font-bold tracking-widest mb-2">Marketplace</p>
-                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
+                <h1 className="text-4xl md:text-5xl font-black text-black tracking-tighter mb-4">
                     Post a <span className="text-[#D4AF37]">New Job</span>
                 </h1>
-                <p className="text-gray-400 font-medium text-lg">Describe your project requirements to attract elite professionals.</p>
+                <p className="text-gray-500 font-medium text-lg">Describe your project requirements to attract elite professionals.</p>
             </header>
 
-            <form onSubmit={handleSubmit} className="card-luxury rounded-2xl p-8 md:p-10 relative overflow-hidden bg-black/40 border border-white/5 shadow-xl">
+            <form onSubmit={handleSubmit} className="rounded-3xl p-8 md:p-10 relative overflow-hidden bg-black text-white shadow-2xl text-left">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Title */}
                     <div className="relative pt-2 md:col-span-2">
@@ -128,7 +128,7 @@ function PostJobForm() {
                         />
                         <label 
                           htmlFor="title" 
-                          className="absolute left-0 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
+                          className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
                         >
                           Project Title (e.g. Bathroom Renovation)
                         </label>
@@ -159,7 +159,7 @@ function PostJobForm() {
                         />
                         <label 
                           htmlFor="price" 
-                          className="absolute left-0 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
+                          className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
                         >
                           Estimated Budget (R)
                         </label>
@@ -178,7 +178,7 @@ function PostJobForm() {
                         />
                         <label 
                           htmlFor="location" 
-                          className="absolute left-0 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
+                          className="absolute left-0 top-5 text-gray-400 text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-5 peer-focus:-top-1.5 peer-focus:text-xs peer-focus:text-[#D4AF37] peer-valid:-top-1.5 peer-valid:text-xs font-medium"
                         >
                           Job Location (e.g. Bryanston, Johannesburg)
                         </label>
@@ -194,7 +194,7 @@ function PostJobForm() {
                         placeholder="Provide a comprehensive description of the task, specific requirements, and any deadlines..."
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] resize-none shadow-sm transition-all placeholder-gray-600"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] resize-none shadow-sm transition-all placeholder-gray-500"
                     />
                 </div>
 
@@ -203,17 +203,17 @@ function PostJobForm() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="btn-luxury btn-luxury-primary w-full py-4 text-sm font-bold flex items-center justify-center gap-3 disabled:opacity-50"
+                        className="btn-luxury bg-white text-black hover:bg-gray-100 hover:scale-105 w-full py-4 text-sm font-bold flex items-center justify-center gap-3 disabled:opacity-50"
                     >
                         {loading ? (
-                            <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Publishing...</>
+                            <><div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> Publishing...</>
                         ) : (
                             <>Publish Job Post <ArrowRight className="w-5 h-5" /></>
                         )}
                     </button>
                     <div className="flex items-center gap-2 mt-4 text-xs font-bold text-gray-400 bg-white/5 px-4 py-2 rounded-full border border-white/10">
                         <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
-                        Request will be broadcast to our vetted network.
+                        Request will be sent securely.
                     </div>
                 </div>
             </form>

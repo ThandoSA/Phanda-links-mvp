@@ -179,7 +179,7 @@ export default function WorkerProfileForm() {
 
         {/* Right Column Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-card p-8 md:p-10 space-y-8">
+          <div className="rounded-3xl p-8 md:p-10 space-y-8 bg-black text-white shadow-2xl">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="relative pt-2">
@@ -188,7 +188,7 @@ export default function WorkerProfileForm() {
                   id="fullName" 
                   required 
                   placeholder=" " 
-                  className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
                   value={fullName} 
                   onChange={e => setFullName(e.target.value)} 
                 />
@@ -207,7 +207,7 @@ export default function WorkerProfileForm() {
                   id="location" 
                   required 
                   placeholder=" " 
-                  className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 pl-8 text-black focus:outline-none focus:border-[#D4AF37] transition-colors" 
+                  className="peer w-full bg-transparent border-b-2 border-white/20 py-3 pl-8 text-white focus:outline-none focus:border-[#D4AF37] transition-colors" 
                   value={location} 
                   onChange={e => setLocation(e.target.value)} 
                 />
@@ -227,7 +227,7 @@ export default function WorkerProfileForm() {
                 type="text"
                 id="skills"
                 placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-gray-200 py-3 text-black focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="peer w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
                 value={skills}
                 onChange={e => setSkills(e.target.value)}
               />
@@ -241,7 +241,7 @@ export default function WorkerProfileForm() {
               {skillsArray.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-4">
                   {skillsArray.map((skill, i) => (
-                    <span key={i} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium border border-gray-200">
+                    <span key={i} className="bg-white/10 text-white px-3 py-1 rounded-full text-xs font-medium border border-white/20">
                       {skill}
                     </span>
                   ))}
@@ -257,30 +257,30 @@ export default function WorkerProfileForm() {
                 onChange={e => setBio(e.target.value)}
                 rows={5}
                 placeholder="Describe your trade background and specialization..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl p-4 text-black focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all resize-none placeholder-gray-500"
               />
             </div>
 
             {/* Availability */}
             <div className="space-y-4 pt-4 border-t border-gray-100">
               <label className="text-xs font-bold text-gray-500">Availability Status</label>
-              <div className="flex bg-gray-100 p-1.5 rounded-full shadow-inner gap-2 max-w-sm">
+              <div className="flex bg-white/5 p-1.5 rounded-full shadow-inner gap-2 max-w-sm border border-white/10">
                 {[
-                  { val: "available", label: "Available", activeClass: "bg-white text-emerald-600 shadow-sm border-emerald-100" },
-                  { val: "busy", label: "Busy", activeClass: "bg-white text-gray-700 shadow-sm border-gray-200" },
+                  { val: "available", label: "Available", activeClass: "bg-[#D4AF37] text-black shadow-sm border-[#D4AF37]" },
+                  { val: "busy", label: "Busy", activeClass: "bg-white/20 text-white shadow-sm border-white/20" },
                 ].map(({ val, label, activeClass }) => (
                   <button
                     key={val}
                     type="button"
                     onClick={() => setAvailability(val as "available" | "busy")}
                     className={`flex-1 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-all border border-transparent ${
-                      availability === val ? activeClass : "bg-transparent text-gray-500 hover:text-gray-800"
+                      availability === val ? activeClass : "bg-transparent text-gray-400 hover:text-white"
                     }`}
                   >
                     <span className={`w-2 h-2 rounded-full ${
                       availability === val 
-                        ? (val === "available" ? "bg-emerald-500 animate-pulse" : "bg-gray-400") 
-                        : "bg-gray-300"
+                        ? (val === "available" ? "bg-black animate-pulse" : "bg-gray-200") 
+                        : "bg-gray-600"
                     }`} />
                     {label}
                   </button>
@@ -293,10 +293,10 @@ export default function WorkerProfileForm() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="btn-luxury btn-luxury-primary px-8 py-3.5 text-sm font-bold disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3"
+                className="btn-luxury bg-white text-black hover:bg-gray-100 hover:scale-105 px-8 py-3.5 text-sm font-bold disabled:opacity-50 min-w-[200px] flex items-center justify-center gap-3"
               >
                 {saving ? (
-                  <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
+                  <><div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> Saving...</>
                 ) : <>Save Changes</>}
               </button>
             </div>
