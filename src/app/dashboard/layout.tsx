@@ -75,13 +75,13 @@ const NavItem = ({ href, icon, children, isActive, onClick, showUnreadDot = fals
   <Link
     href={href}
     onClick={onClick}
-    className={`relative flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-300 font-bold text-xs uppercase tracking-wider group ${
+    className={`relative flex items-center gap-3 px-5 py-3 rounded-full transition-all duration-300 font-bold text-xs uppercase tracking-wider group border ${
       isActive
-        ? "bg-black text-white font-extrabold shadow-md"
-        : "text-gray-500 hover:text-black hover:bg-black/5"
+        ? "bg-[#111111] text-white font-extrabold shadow-[0_12px_30px_rgba(0,0,0,0.35)] border-[#D4AF37]/25"
+        : "text-gray-300 hover:text-white hover:bg-white/5 border-transparent"
     }`}
   >
-    <span className={`relative transition-colors duration-200 ${isActive ? "text-gold" : "text-gray-400 group-hover:text-gray-700"}`}>
+    <span className={`relative transition-colors duration-200 ${isActive ? "text-[#D4AF37]" : "text-gray-400 group-hover:text-[#D4AF37]"}`}>
       {icon}
       {showUnreadDot && (
         <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.9)]" aria-label="Unread messages" />
@@ -200,11 +200,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
   return (
-    <div className="flex h-screen bg-surface text-black relative overflow-hidden selection:bg-gold selection:text-black">
+    <div className="flex h-screen bg-[#050505] text-white relative overflow-hidden selection:bg-[#D4AF37] selection:text-black">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,175,55,0.12),_transparent_28%),linear-gradient(135deg,#050505_0%,#090909_28%,#050505_100%)]" />
+
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 w-full glass-nav border-b border-black/5 p-4 flex justify-between items-center z-50">
+      <div className="md:hidden fixed top-0 left-0 w-full border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl p-4 flex justify-between items-center z-50">
         <Logo size={28} />
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 p-2">
+        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-200 p-2">
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
@@ -212,18 +214,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* SIDEBAR */}
       <aside className={`${
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-black/5 glass`}
+      } fixed md:static top-0 left-0 w-72 h-full flex flex-col z-40 transition-transform duration-300 ease-out border-r border-white/10 bg-[#0b0b0b]/85 backdrop-blur-xl`}
       >
-        <div className="hidden md:flex p-6 border-b border-black/5">
+        <div className="hidden md:flex p-6 border-b border-white/10">
           <Logo size={32} />
         </div>
-        <div className="md:hidden h-[72px] border-b border-black/5" />
+        <div className="md:hidden h-[72px] border-b border-white/10" />
 
         {/* User Mini Profile */}
         {!loading && profile && (
-          <div className="px-5 py-5 border-b border-black/5 bg-black/[0.01]">
+          <div className="px-5 py-5 border-b border-white/10 bg-white/[0.02]">
             <div className="flex items-center gap-3">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-black/5 flex-shrink-0">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#D4AF37]/20 flex-shrink-0">
                 <Image
                   src={profile.avatar_url || "/images/default-avatar.svg"}
                   alt="You"
@@ -233,8 +235,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-black text-xs font-bold uppercase truncate">{profile.full_name || "User"}</p>
-                <p className="text-[9px] text-gold uppercase tracking-widest font-black">{role}</p>
+                <p className="text-white text-xs font-bold uppercase truncate">{profile.full_name || "User"}</p>
+                <p className="text-[9px] text-[#D4AF37] uppercase tracking-widest font-black">{role}</p>
               </div>
             </div>
           </div>
@@ -269,10 +271,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Sign Out */}
-        <div className="p-4 border-t border-black/5 bg-black/[0.01]">
+        <div className="p-4 border-t border-white/10 bg-white/[0.02]">
           <button
             onClick={async () => { await supabase.auth.signOut(); router.push("/login") }}
-            className="w-full flex items-center gap-3 px-5 py-3 rounded-full text-[10px] uppercase tracking-wider font-extrabold text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group cursor-pointer"
+            className="w-full flex items-center gap-3 px-5 py-3 rounded-full text-[10px] uppercase tracking-wider font-extrabold text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-all duration-200 group cursor-pointer border border-red-500/10"
           >
             <LogOut className="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition-transform" />
             Sign Out
@@ -287,7 +289,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto relative z-10 pt-[72px] md:pt-0">
-        <div className="min-h-full flex flex-col justify-between">
+        <div className="min-h-full flex flex-col justify-between bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.08),_transparent_25%)]">
           <div className="p-4 md:p-8">
             <AnimatePresence mode="wait">
               <PageTransition key={pathname}>
