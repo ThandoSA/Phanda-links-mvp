@@ -19,6 +19,18 @@ type PortfolioItem = {
   image_url: string
 }
 
+type PortfolioQueryRow = PortfolioItem & {
+  worker_id: string
+}
+
+type WorkerMeta = {
+  user_id: string
+  skills: unknown
+  rating: number | null
+  availability: string | null
+  verified: boolean | null
+}
+
 type WorkerReviewRow = {
   id: string
   full_name: string
@@ -82,16 +94,16 @@ export default function AdminVerificationPage() {
               .select("id, worker_id, title, description, image_url")
               .in("worker_id", workerIds)
               .order("created_at", { ascending: false })
-          : Promise.resolve({ data: [] as any[] }),
+              : Promise.resolve({ data: [] as PortfolioQueryRow[] }),
         workerIds.length
           ? supabase
               .from("worker_profiles")
               .select("user_id, skills, rating, availability, verified")
               .in("user_id", workerIds)
-          : Promise.resolve({ data: [] as any[] }),
+              : Promise.resolve({ data: [] as WorkerMeta[] }),
       ])
 
-      const metaByWorker = new Map<string, any>()
+            const metaByWorker = new Map<string, WorkerMeta>()
       ;(workerMetaRes.data ?? []).forEach((row) => metaByWorker.set(row.user_id, row))
 
       const portfoliosByWorker = new Map<string, PortfolioItem[]>()
@@ -107,8 +119,17 @@ export default function AdminVerificationPage() {
       })
 
       const nextWorkers: WorkerReviewRow[] = (profiles ?? []).map((profile) => {
-        const meta = metaByWorker.get(profile.id) || {}
+        const meta = metaByWorker.get(profile.id) ?? {
+          user_id: profile.id,
+          skills: [],
+          rating: null,
+          availability: "available",
+          verified: false,
+        }
         const portfolio = portfoliosByWorker.get(profile.id) || []
+        const skills = Array.isArray(meta.skills)
+          ? meta.skills.filter((skill): skill is string => typeof skill === "string")
+          : []
 
         return {
           id: profile.id,
@@ -118,7 +139,7 @@ export default function AdminVerificationPage() {
           is_verified: Boolean(profile.is_verified || meta.verified),
           rating: meta.rating ?? null,
           availability: meta.availability ?? "available",
-          skills: Array.isArray(meta.skills) ? meta.skills : [],
+          skills,
           portfolio,
         }
       })
@@ -160,9 +181,9 @@ export default function AdminVerificationPage() {
       )
 
       toast.success(nextValue ? "Worker marked as verified." : "Verification removed.")
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || "Failed to update verification status.")
+      toast.error(error instanceof Error ? error.message : "Failed to update verification status.")
     }
   }
 
