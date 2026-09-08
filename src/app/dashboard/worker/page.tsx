@@ -134,6 +134,7 @@ export default function WorkerDashboard() {
         const { data: picks } = await supabase
           .from("jobs")
           .select("id, title, description, price, location, created_at")
+          .eq("status", "open")
           .is("worker_id", null)
           .or(skillFilters)
           .order("created_at", { ascending: false })
@@ -144,6 +145,7 @@ export default function WorkerDashboard() {
         const { data: fallback } = await supabase
           .from("jobs")
           .select("id, title, description, price, location, created_at")
+          .eq("status", "open")
           .is("worker_id", null)
           .order("created_at", { ascending: false })
           .limit(3);
