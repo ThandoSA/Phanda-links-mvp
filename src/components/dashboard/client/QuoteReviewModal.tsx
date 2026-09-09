@@ -75,7 +75,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
     try {
       // 1. Assign worker and update job status to accepted
       const { data: { user } } = await supabase.auth.getUser()
-      const { error: jobError } = await supabase
+      const { data: updatedJob, error: jobError } = await supabase
         .from("jobs")
         .update({
           worker_id: quote.worker_id,
@@ -83,8 +83,15 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
           price: quote.amount
         })
         .eq("id", jobId)
+        .eq("client_id", user?.id ?? "")
+        .eq("status", "open")
+        .select("id")
+        .maybeSingle()
 
       if (jobError) throw jobError
+      if (!updatedJob) {
+        throw new Error("This job is no longer open or you do not own it.")
+      }
 
       // 2. Mark this quote as approved, reject others
       const { error: quoteError } = await supabase
@@ -92,7 +99,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
         .update({ status: "approved" })
         .eq("id", quote.id)
 
-      if (quoteError) console.error("Quote status update error:", quoteError)
+      if (quoteError) throw quoteError
 
       // 3. Send a system notification message into the job thread
       if (user) {
@@ -112,8 +119,8 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
 
       // Redirect to direct job messaging
       router.push(`/dashboard/messages/${jobId}`)
-    } catch (err: any) {
-      toast.error(err.message || "Failed to accept quote")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to accept quote")
     } finally {
       setAcceptingId(null)
     }

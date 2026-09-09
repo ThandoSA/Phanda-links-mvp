@@ -58,7 +58,9 @@ ON jobs FOR INSERT WITH CHECK (auth.uid() = client_id);
 -- Workers can update jobs they are assigned to (e.g., to mark en_route)
 DROP POLICY IF EXISTS "Clients and assigned workers can update jobs" ON jobs;
 CREATE POLICY "Clients and assigned workers can update jobs" 
-ON jobs FOR UPDATE USING (auth.uid() = client_id OR auth.uid() = worker_id);
+ON jobs FOR UPDATE
+USING (auth.uid() = client_id OR auth.uid() = worker_id)
+WITH CHECK (auth.uid() = client_id OR auth.uid() = worker_id);
 
 -- 5. Reviews Table Policies
 -- Anyone can read reviews
