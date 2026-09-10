@@ -65,7 +65,7 @@ function PostJobForm() {
                 return
             }
 
-            const { error } = await supabase.from("jobs").insert({
+            const { data: createdJob, error } = await supabase.from("jobs").insert({
                 client_id: userData.user.id,
                 title: formData.title,
                 description: formData.description,
@@ -74,7 +74,7 @@ function PostJobForm() {
                 category: formData.category,
                 status: preselectedWorkerId ? "pending" : "open",
                 ...(preselectedWorkerId ? { worker_id: preselectedWorkerId } : {}),
-            })
+            }).select("id").single()
 
             if (error) {
                 console.error("Job post error:", error)
@@ -86,11 +86,8 @@ function PostJobForm() {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
+                                jobId: createdJob?.id,
                                 workerId: preselectedWorkerId,
-                                clientName: userData.user.user_metadata?.full_name || "A client",
-                                jobTitle: formData.title,
-                                amount: parseFloat(formData.price),
-                                jobUrl: `${window.location.origin}/dashboard/worker/active-jobs`,
                             }),
                         })
                     } catch (notificationError) {

@@ -73,44 +73,25 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
   const handleAcceptQuote = async (quote: Quote) => {
     setAcceptingId(quote.id)
     try {
-      // 1. Assign worker and update job status to accepted
+      // 1. Accept the quote and reject competing quotes atomically in Postgres.
       const { data: { user } } = await supabase.auth.getUser()
-      const { data: updatedJob, error: jobError } = await supabase
-        .from("jobs")
-        .update({
-          worker_id: quote.worker_id,
-          status: "accepted",
-          price: quote.amount
-        })
-        .eq("id", jobId)
-        .eq("client_id", user?.id ?? "")
-        .eq("status", "open")
-        .select("id")
-        .maybeSingle()
+      if (!user) throw new Error("Your session has expired. Please sign in again.")
 
-      if (jobError) throw jobError
-      if (!updatedJob) {
-        throw new Error("This job is no longer open or you do not own it.")
-      }
+      const { error: acceptanceError } = await supabase.rpc("accept_quote", {
+        p_job_id: jobId,
+        p_quote_id: quote.id,
+      })
 
-      // 2. Mark this quote as approved, reject others
-      const { error: quoteError } = await supabase
-        .from("quotes")
-        .update({ status: "approved" })
-        .eq("id", quote.id)
+      if (acceptanceError) throw acceptanceError
 
-      if (quoteError) throw quoteError
-
-      // 3. Send a system notification message into the job thread
-      if (user) {
-        await supabase.from("messages").insert({
-          job_id:    jobId,
-          sender_id: user.id,
-          content:   `✅ Your quote of R${quote.amount.toLocaleString()} has been accepted! Please head to "My Active Jobs" to update your job status as you work.`,
-        }).then(({ error }) => {
-          if (error) console.warn("Notification message failed (non-critical):", error.message)
-        })
-      }
+      // 2. Send a system notification message into the job thread.
+      await supabase.from("messages").insert({
+        job_id: jobId,
+        sender_id: user.id,
+        content: `Your quote of R${quote.amount.toLocaleString()} has been accepted. Please open My Active Jobs to update your job status.`,
+      }).then(({ error }) => {
+        if (error) console.warn("Notification message failed (non-critical):", error.message)
+      })
 
       toast.success("Quote accepted! Redirecting to messaging...")
 

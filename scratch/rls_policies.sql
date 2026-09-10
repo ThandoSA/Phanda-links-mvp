@@ -70,8 +70,17 @@ ON reviews FOR SELECT USING (true);
 
 -- Clients can only insert reviews for jobs they created
 DROP POLICY IF EXISTS "Clients can create reviews." ON reviews;
-CREATE POLICY "Clients can create reviews." 
-ON reviews FOR INSERT WITH CHECK (auth.uid() = reviewer_id);
+DROP POLICY IF EXISTS "Participants can create reviews" ON reviews;
+CREATE POLICY "Participants can create reviews"
+ON reviews FOR INSERT WITH CHECK (
+  auth.uid() = reviewer_id
+  AND EXISTS (
+    SELECT 1 FROM jobs
+    WHERE jobs.id = reviews.job_id
+      AND (jobs.client_id = auth.uid() OR jobs.worker_id = auth.uid())
+      AND reviews.reviewee_id IN (jobs.client_id, jobs.worker_id)
+  )
+);
 
 -- Users can only update/delete their own reviews
 DROP POLICY IF EXISTS "Users can update own reviews." ON reviews;
@@ -94,15 +103,19 @@ ON quotes FOR SELECT USING (
 -- Workers can insert their own quotes
 DROP POLICY IF EXISTS "Workers can create quotes" ON quotes;
 CREATE POLICY "Workers can create quotes" 
-ON quotes FOR INSERT WITH CHECK (auth.uid() = worker_id);
-
--- Workers can update their own quotes, clients can update (e.g. to accept/reject) quotes for their jobs
-DROP POLICY IF EXISTS "Workers and clients can update quotes" ON quotes;
-CREATE POLICY "Workers and clients can update quotes" 
-ON quotes FOR UPDATE USING (
-  auth.uid() = worker_id OR 
-  EXISTS (SELECT 1 FROM jobs WHERE jobs.id = quotes.job_id AND jobs.client_id = auth.uid())
+ON quotes FOR INSERT WITH CHECK (
+  auth.uid() = worker_id
+  AND EXISTS (SELECT 1 FROM profiles WHERE profiles.id = auth.uid() AND profiles.role = 'worker')
+  AND EXISTS (
+    SELECT 1 FROM jobs
+    WHERE jobs.id = quotes.job_id
+      AND jobs.status = 'open'
+      AND jobs.worker_id IS NULL
+  )
 );
+
+-- Quote acceptance is performed by the accept_quote RPC migration.
+DROP POLICY IF EXISTS "Workers and clients can update quotes" ON quotes;
 
 -- 7. Messages Table Policies
 -- Users can read messages if they are the sender or if they are a participant in the job
@@ -113,10 +126,18 @@ ON messages FOR SELECT USING (
   EXISTS (SELECT 1 FROM jobs WHERE jobs.id = messages.job_id AND (jobs.client_id = auth.uid() OR jobs.worker_id = auth.uid()))
 );
 
--- Users can insert messages if they are the sender
+-- Users can insert messages only when participating in the job
 DROP POLICY IF EXISTS "Senders can create messages" ON messages;
-CREATE POLICY "Senders can create messages" 
-ON messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
+DROP POLICY IF EXISTS "Participants can send messages" ON messages;
+CREATE POLICY "Participants can send messages"
+ON messages FOR INSERT WITH CHECK (
+  auth.uid() = sender_id
+  AND EXISTS (
+    SELECT 1 FROM jobs
+    WHERE jobs.id = messages.job_id
+      AND (jobs.client_id = auth.uid() OR jobs.worker_id = auth.uid())
+  )
+);
 
 -- Senders can update/delete their own messages
 DROP POLICY IF EXISTS "Senders can update own messages" ON messages;

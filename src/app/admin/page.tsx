@@ -5,30 +5,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { CheckCircle2, Eye, Loader2, ShieldCheck, ShieldX, UserRound, XCircle } from "lucide-react"
 import toast from "react-hot-toast"
-import { supabase } from "@/lib/supabaseClient"
-
-const founderEmail =
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
-  process.env.NEXT_PUBLIC_FOUNDER_EMAIL ||
-  "founder@phandalinks.com"
 
 type PortfolioItem = {
   id: string
   title: string
   description?: string | null
   image_url: string
-}
-
-type PortfolioQueryRow = PortfolioItem & {
-  worker_id: string
-}
-
-type WorkerMeta = {
-  user_id: string
-  skills: unknown
-  rating: number | null
-  availability: string | null
-  verified: boolean | null
 }
 
 type WorkerReviewRow = {
@@ -54,97 +36,18 @@ export default function AdminVerificationPage() {
       setLoading(true)
       setAccessDenied(false)
 
-      const { data: userData } = await supabase.auth.getUser()
-      const currentUser = userData.user
+      const response = await fetch("/api/admin/workers", { cache: "no-store" })
+      const result = await response.json().catch(() => ({}))
 
-      if (!currentUser) {
-        setAccessDenied(true)
+      if (!response.ok) {
+        setUserEmail(typeof result.email === "string" ? result.email : null)
+        setAccessDenied(response.status === 401 || response.status === 403)
+        if (response.status !== 401 && response.status !== 403) toast.error(result.error || "Could not load workers for review.")
         setLoading(false)
         return
       }
 
-      const currentEmail = currentUser.email?.toLowerCase() || ""
-      setUserEmail(currentEmail)
-
-      if (currentEmail !== founderEmail.toLowerCase()) {
-        setAccessDenied(true)
-        setLoading(false)
-        return
-      }
-
-      const { data: profiles, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url, location, role, is_verified")
-        .eq("role", "worker")
-        .order("full_name", { ascending: true })
-
-      if (profileError) {
-        console.error(profileError)
-        toast.error("Could not load workers for review.")
-        setLoading(false)
-        return
-      }
-
-      const workerIds = (profiles ?? []).map((profile) => profile.id)
-
-      const [portfolioRes, workerMetaRes] = await Promise.all([
-        workerIds.length
-          ? supabase
-              .from("worker_portfolios")
-              .select("id, worker_id, title, description, image_url")
-              .in("worker_id", workerIds)
-              .order("created_at", { ascending: false })
-              : Promise.resolve({ data: [] as PortfolioQueryRow[] }),
-        workerIds.length
-          ? supabase
-              .from("worker_profiles")
-              .select("user_id, skills, rating, availability, verified")
-              .in("user_id", workerIds)
-              : Promise.resolve({ data: [] as WorkerMeta[] }),
-      ])
-
-            const metaByWorker = new Map<string, WorkerMeta>()
-      ;(workerMetaRes.data ?? []).forEach((row) => metaByWorker.set(row.user_id, row))
-
-      const portfoliosByWorker = new Map<string, PortfolioItem[]>()
-      ;(portfolioRes.data ?? []).forEach((item) => {
-        const existing = portfoliosByWorker.get(item.worker_id) ?? []
-        existing.push({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          image_url: item.image_url,
-        })
-        portfoliosByWorker.set(item.worker_id, existing)
-      })
-
-      const nextWorkers: WorkerReviewRow[] = (profiles ?? []).map((profile) => {
-        const meta = metaByWorker.get(profile.id) ?? {
-          user_id: profile.id,
-          skills: [],
-          rating: null,
-          availability: "available",
-          verified: false,
-        }
-        const portfolio = portfoliosByWorker.get(profile.id) || []
-        const skills = Array.isArray(meta.skills)
-          ? meta.skills.filter((skill): skill is string => typeof skill === "string")
-          : []
-
-        return {
-          id: profile.id,
-          full_name: profile.full_name || "Unknown Worker",
-          avatar_url: profile.avatar_url,
-          location: profile.location,
-          is_verified: Boolean(profile.is_verified || meta.verified),
-          rating: meta.rating ?? null,
-          availability: meta.availability ?? "available",
-          skills,
-          portfolio,
-        }
-      })
-
-      setWorkers(nextWorkers)
+      setWorkers((result.workers || []) as WorkerReviewRow[])
       setLoading(false)
     }
 
@@ -161,18 +64,13 @@ export default function AdminVerificationPage() {
 
   const toggleVerification = async (workerId: string, nextValue: boolean) => {
     try {
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ is_verified: nextValue })
-        .eq("id", workerId)
-
-      if (profileError) throw profileError
-
-      const { error: workerProfileError } = await supabase
-        .from("worker_profiles")
-        .upsert({ user_id: workerId, verified: nextValue }, { onConflict: "user_id" })
-
-      if (workerProfileError) throw workerProfileError
+      const response = await fetch("/api/admin/workers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, verified: nextValue }),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result.error || "Failed to update verification status.")
 
       setWorkers((current) =>
         current.map((worker) =>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { createClient as createSessionClient } from "@/lib/supabaseServer"
 
 function getAdminSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -45,16 +46,32 @@ function normalizePhone(value?: string | null) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { workerId, clientName, jobTitle, amount, jobUrl } = body || {}
+    const { jobId, workerId } = body || {}
 
-    if (!workerId) {
-      return NextResponse.json({ ok: false, error: "Missing workerId" }, { status: 400 })
+    if (!jobId || !workerId) {
+      return NextResponse.json({ ok: false, error: "Missing jobId or workerId" }, { status: 400 })
+    }
+
+    const sessionClient = await createSessionClient()
+    const { data: userData, error: authError } = await sessionClient.auth.getUser()
+    if (authError || !userData.user) {
+      return NextResponse.json({ ok: false, error: "Authentication required" }, { status: 401 })
+    }
+
+    const { data: job, error: jobError } = await sessionClient
+      .from("jobs")
+      .select("id, title, price, client_id, worker_id, status, client:profiles!client_id (full_name)")
+      .eq("id", jobId)
+      .eq("client_id", userData.user.id)
+      .eq("worker_id", workerId)
+      .eq("status", "pending")
+      .single()
+
+    if (jobError || !job) {
+      return NextResponse.json({ ok: false, error: "Job request is not valid" }, { status: 403 })
     }
 
     const adminSupabase = getAdminSupabase()
-    const clientEmail = process.env.RESEND_API_KEY ? "" : ""
-    const clientPhone = process.env.TWILIO_ACCOUNT_SID ? "" : ""
-
     let workerEmail: string | null = null
     let workerPhone: string | null = null
 
@@ -70,10 +87,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, attempted: false, reason: "No worker contact available" })
     }
 
-    const formattedAmount = Number(amount || 0)
-    const safeClientName = clientName || "A client"
-    const safeJobTitle = jobTitle || "a job"
-    const safeJobUrl = jobUrl || `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/worker/active-jobs`
+    const formattedAmount = Number(job.price || 0)
+    const clientProfile = Array.isArray(job.client) ? job.client[0] : job.client
+    const safeClientName = clientProfile?.full_name || "A client"
+    const safeJobTitle = job.title || "a job"
+    const safeJobUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/worker/active-jobs`
 
     let emailSent = false
     let smsSent = false
@@ -145,8 +163,8 @@ export async function POST(request: Request) {
       workerEmail: workerEmail || null,
       workerPhone: normalizedPhone || null,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Job request notification error:", error)
-    return NextResponse.json({ ok: false, error: error?.message || "Notification failed" }, { status: 500 })
+    return NextResponse.json({ ok: false, error: error instanceof Error ? error.message : "Notification failed" }, { status: 500 })
   }
 }
