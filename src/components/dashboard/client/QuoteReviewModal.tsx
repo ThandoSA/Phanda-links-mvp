@@ -11,7 +11,7 @@ interface Quote {
   id: string
   job_id: string
   worker_id: string
-  amount: number
+  amount: number | string
   description: string
   status: string
   created_at: string
@@ -88,7 +88,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
       await supabase.from("messages").insert({
         job_id: jobId,
         sender_id: user.id,
-        content: `Your quote of R${quote.amount.toLocaleString()} has been accepted. Please open My Active Jobs to update your job status.`,
+        content: `Your quote of R${Number(quote.amount).toLocaleString()} has been accepted. Please open My Active Jobs to update your job status.`,
       }).then(({ error }) => {
         if (error) console.warn("Notification message failed (non-critical):", error.message)
       })
@@ -162,7 +162,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
                   </div>
 
                   <div className="text-left sm:text-right">
-                    <p className="text-2xl font-black text-black">R {quote.amount.toLocaleString()}</p>
+                    <p className="text-2xl font-black text-black">R {Number(quote.amount).toLocaleString()}</p>
                     <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Quote Amount</p>
                   </div>
                 </div>
@@ -176,13 +176,15 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
                 <div className="flex justify-end pt-2">
                   <button
                     onClick={() => handleAcceptQuote(quote)}
-                    disabled={acceptingId === quote.id || quote.status === "approved"}
+                    disabled={acceptingId === quote.id || quote.status !== "pending"}
                     className="btn-luxury btn-luxury-primary px-6 py-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 disabled:opacity-50"
                   >
                     {acceptingId === quote.id ? (
                       "Accepting..."
                     ) : quote.status === "approved" ? (
                       <>Accepted <Check className="w-4 h-4 text-emerald-400" /></>
+                    ) : quote.status === "rejected" ? (
+                      "Unavailable"
                     ) : (
                       <>Accept Proposal <Check className="w-4 h-4" /></>
                     )}
