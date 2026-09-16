@@ -28,13 +28,27 @@ export default function ChatPage() {
     if (!authData?.user) { toast.error("Session expired."); window.location.href = "/login"; return }
     setUserId(authData.user.id)
 
-    const { data: jobData } = await supabase
+    const { data: jobData, error: jobError } = await supabase
       .from("jobs")
       .select(`*, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)`)
       .eq("id", jobId).single()
-    if (jobData) setJob(jobData as unknown as Job)
+    if (jobError || !jobData) {
+      toast.error(jobError?.message || "This conversation is unavailable.")
+      setLoading(false)
+      return
+    }
+    setJob(jobData as unknown as Job)
 
-    const { data: msgs } = await supabase.from("messages").select("*").eq("job_id", jobId).order("created_at", { ascending: true })
+    const { data: msgs, error: messagesError } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("job_id", jobId)
+      .order("created_at", { ascending: true })
+    if (messagesError) {
+      toast.error(messagesError.message || "Failed to load messages.")
+      setLoading(false)
+      return
+    }
     setMessages(msgs || [])
     setLoading(false)
   }, [jobId, router])

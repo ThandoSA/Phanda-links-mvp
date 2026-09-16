@@ -44,13 +44,17 @@ export default function MessagesInboxPage() {
         const jobs = (data as unknown as Job[]) || []
         const jobIds = jobs.map((job) => job.id)
 
-        const { data: messagesData } = jobIds.length
+        const { data: messagesData, error: messagesError } = jobIds.length
             ? await supabase
                 .from("messages")
                 .select("job_id, sender_id, created_at")
                 .in("job_id", jobIds)
                 .order("created_at", { ascending: false })
             : { data: [] }
+
+        if (messagesError) {
+            toast.error("Failed to load message activity.")
+        }
 
         const latestMessagesMap = new Map<string, { sender_id: string; created_at: string }>()
         ;(messagesData || []).forEach((message) => {
