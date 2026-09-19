@@ -29,9 +29,9 @@ export default function EarningsPage() {
     fetchEarnings()
   }, [])
 
-  const acceptedJobs = jobs.filter(j => j.status === "accepted")
-  const pendingJobs = jobs.filter(j => j.status === "pending")
-  const totalEarned = acceptedJobs.reduce((sum, job) => sum + (Number(job.price) || 0), 0)
+  const completedJobs = jobs.filter(j => j.status === "completed")
+  const pendingJobs = jobs.filter(j => ["pending", "accepted", "en_route", "in_progress"].includes(j.status))
+  const totalEarned = completedJobs.reduce((sum, job) => sum + (Number(job.price) || 0), 0)
   const pendingAmount = pendingJobs.reduce((sum, job) => sum + (Number(job.price) || 0), 0)
 
   if (loading) {
@@ -66,7 +66,7 @@ export default function EarningsPage() {
               R {totalEarned.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h2>
             <div className="h-0.5 w-24 bg-gradient-to-r from-gold to-transparent mb-3" />
-            <p className="text-gray-500 text-sm font-medium">Based on {acceptedJobs.length} completed / accepted jobs</p>
+            <p className="text-gray-500 text-sm font-medium">Based on {completedJobs.length} completed jobs</p>
           </div>
           <button className="bg-gold text-black px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-[0_0_30px_rgba(212,175,55,0.25)] whitespace-nowrap hover:scale-105 transition-all flex items-center gap-2">
             Withdraw Funds <ArrowUpRight className="w-4 h-4" />
@@ -91,7 +91,7 @@ export default function EarningsPage() {
           </div>
           <div>
             <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">Total Jobs Done</p>
-            <p className="text-3xl font-black text-emerald-400">{acceptedJobs.length} Jobs</p>
+            <p className="text-3xl font-black text-emerald-400">{completedJobs.length} Jobs</p>
           </div>
         </div>
       </div>

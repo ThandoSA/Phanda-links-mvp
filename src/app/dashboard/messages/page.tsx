@@ -157,7 +157,7 @@ export default function MessagesInboxPage() {
                         />
                     </div>
                 ) : (
-                    filteredChats.map((chat, i) => {
+                    filteredChats.map((chat) => {
                         const isMeWorker = chat.worker_id === userId
                         const otherParty = isMeWorker ? chat.client : chat.worker
 
@@ -187,7 +187,9 @@ export default function MessagesInboxPage() {
                                             )}
                                         </div>
                                         <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
-                                            {new Date(chat.updated_at || "").toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                            {chat.last_message_at
+                                                ? new Date(chat.last_message_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                                                : "No activity"}
                                         </span>
                                     </div>
                                     <p className="text-gray-500 text-sm truncate font-medium">{chat.title || "Conversation"}</p>

@@ -18,6 +18,7 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState("")
   const [userId, setUserId] = useState("")
   const [job, setJob] = useState<Job | null>(null)
+  const [conversationError, setConversationError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
@@ -33,10 +34,13 @@ export default function ChatPage() {
       .select(`*, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)`)
       .eq("id", jobId).single()
     if (jobError || !jobData) {
-      toast.error(jobError?.message || "This conversation is unavailable.")
+      const message = jobError?.message || "This conversation is unavailable."
+      setConversationError(message)
+      toast.error(message)
       setLoading(false)
       return
     }
+    setConversationError(null)
     setJob(jobData as unknown as Job)
 
     const { data: msgs, error: messagesError } = await supabase
@@ -157,6 +161,24 @@ export default function ChatPage() {
             </div>
           ))}
         </div>
+      </div>
+    )
+  }
+
+  if (conversationError || !job) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
+        <MessageSquare className="w-12 h-12 text-gray-300 mb-5" />
+        <h1 className="text-2xl font-black text-black">Conversation unavailable</h1>
+        <p className="text-gray-500 text-sm font-medium mt-2 max-w-md">
+          This job conversation could not be loaded. It may have been removed or you may not have access.
+        </p>
+        <button
+          onClick={() => router.push("/dashboard/messages")}
+          className="btn-luxury btn-luxury-primary mt-6 px-6 py-3 font-bold"
+        >
+          Back to Messages
+        </button>
       </div>
     )
   }
