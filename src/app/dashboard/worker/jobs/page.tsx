@@ -71,9 +71,9 @@ export default function JobsPage() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 card-luxury rounded-2xl p-8"
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 card-luxury rounded-2xl p-6 sm:p-8"
       >
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2 lg:flex-1">
           <p className="text-sm text-[#D4AF37] font-bold uppercase tracking-widest">Marketplace</p>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">
             Browse <span className="text-[#D4AF37]">Opportunities.</span>
@@ -82,8 +82,8 @@ export default function JobsPage() {
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="w-full lg:w-auto flex flex-col md:flex-row items-center gap-4">
-          <div className="relative w-full md:w-80 group">
+        <div className="flex w-full min-w-0 flex-col items-stretch gap-3 md:flex-row md:items-center lg:flex-1 lg:justify-end">
+          <div className="group relative w-full min-w-0 md:flex-1 lg:max-w-80">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 transition-colors group-focus-within:text-[#D4AF37]" />
             <input
               type="text"
@@ -93,12 +93,12 @@ export default function JobsPage() {
               className="w-full bg-white/5 border border-white/10 rounded-full py-3.5 pl-12 pr-6 text-sm font-bold text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-inner placeholder-gray-500"
             />
           </div>
-          <div className="flex gap-2">
+              <div className="flex shrink-0 flex-wrap gap-2">
              {["All", "Recent", "High Pay"].map((btn) => (
                <button 
                 key={btn}
                 onClick={() => setFilter(btn)}
-                className={`px-5 py-3.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                className={`whitespace-nowrap px-4 py-3.5 rounded-full text-xs font-bold transition-all shadow-sm sm:px-5 ${
                   filter === btn ? "bg-white text-black" : "bg-white/5 text-gray-400 border border-white/10 hover:text-white hover:border-white/20"
                 }`}
                >
