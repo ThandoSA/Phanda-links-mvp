@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
 import { Job } from "@/types"
 import StatusBadge from "@/components/ui/StatusBadge"
@@ -15,6 +16,7 @@ import { CHAT_UNREAD_CHANGED_EVENT, isMessageUnread } from "@/lib/chatUnread"
 interface InboxChat extends Job {
     last_message_at?: string | null
     unread?: boolean
+    conversation_id?: string | null
 }
 
 export default function MessagesInboxPage() {
@@ -22,12 +24,35 @@ export default function MessagesInboxPage() {
     const [loading, setLoading] = useState(true)
     const [userId, setUserId] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const workerId = searchParams.get("worker_id")
 
     const fetchChats = useCallback(async () => {
         const { data: userData } = await supabase.auth.getUser()
         if (!userData.user) { window.location.href = "/login"; return }
         const currentUserId = userData.user.id
         setUserId(currentUserId)
+
+        if (workerId && workerId !== currentUserId) {
+            const { data: conversation, error: conversationError } = await supabase
+                .from("conversations")
+                .upsert(
+                    { client_id: currentUserId, worker_id: workerId },
+                    { onConflict: "client_id,worker_id" },
+                )
+                .select("id")
+                .single()
+
+            if (conversationError || !conversation) {
+                toast.error(conversationError?.message || "Could not start this conversation.")
+                setLoading(false)
+                return
+            }
+
+            router.replace(`/dashboard/messages/${conversation.id}`)
+            return
+        }
 
         const { data, error } = await supabase
             .from("jobs")
@@ -74,13 +99,39 @@ export default function MessagesInboxPage() {
             }
         })
 
-        setChats(chatsWithUnread.sort((a, b) => {
+        const { data: directConversations, error: directError } = await supabase
+            .from("conversations")
+            .select("id, client_id, worker_id, updated_at, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)")
+            .or(`client_id.eq.${currentUserId},worker_id.eq.${currentUserId}`)
+            .order("updated_at", { ascending: false })
+
+        if (directError) toast.error("Failed to load direct conversations.")
+
+        const directChats: InboxChat[] = (directConversations || []).map((conversation) => ({
+            id: conversation.id,
+            title: "Direct conversation",
+            status: "accepted",
+            created_at: conversation.updated_at,
+            updated_at: conversation.updated_at,
+            worker_id: conversation.worker_id,
+            client_id: conversation.client_id,
+            price: 0,
+            location: "",
+            description: "",
+            worker: Array.isArray(conversation.worker) ? conversation.worker[0] : conversation.worker,
+            client: Array.isArray(conversation.client) ? conversation.client[0] : conversation.client,
+            conversation_id: conversation.id,
+            last_message_at: conversation.updated_at,
+            unread: false,
+        }))
+
+        setChats([...chatsWithUnread, ...directChats].sort((a, b) => {
             const aTime = new Date(a.last_message_at || a.updated_at || 0).getTime()
             const bTime = new Date(b.last_message_at || b.updated_at || 0).getTime()
             return bTime - aTime
         }))
         setLoading(false)
-    }, [])
+    }, [router, workerId])
 
     useEffect(() => { fetchChats() }, [fetchChats])
 
@@ -164,7 +215,7 @@ export default function MessagesInboxPage() {
                         return (
                             <Link
                                 key={chat.id}
-                                href={`/dashboard/messages/${chat.id}`}
+                                href={`/dashboard/messages/${chat.conversation_id || chat.id}`}
                                 className="flex items-center gap-4 p-5 hover:bg-black/[0.02] transition-colors group"
                             >
                                 <div className="relative w-14 h-14 rounded-full overflow-hidden border border-black/5 flex-shrink-0 group-hover:border-gold/40 transition-colors">
@@ -197,7 +248,6 @@ export default function MessagesInboxPage() {
                                         <StatusBadge status={chat.status} />
                                     </div>
                                 </div>
-
                                 <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0" />
                             </Link>
                         )

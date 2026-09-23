@@ -9,6 +9,15 @@ import { Message, Job } from "@/types"
 import { ArrowLeft, Send, MessageSquare, ShieldCheck, Clock } from "lucide-react"
 import { markConversationRead } from "@/lib/chatUnread"
 
+type DirectConversation = {
+  id: string
+  client_id: string
+  worker_id: string
+  updated_at: string
+  client?: { full_name: string; avatar_url?: string | null } | null
+  worker?: { full_name: string; avatar_url?: string | null } | null
+}
+
 export default function ChatPage() {
   const params = useParams()
   const router = useRouter()
@@ -18,6 +27,7 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState("")
   const [userId, setUserId] = useState("")
   const [job, setJob] = useState<Job | null>(null)
+  const [conversation, setConversation] = useState<DirectConversation | null>(null)
   const [conversationError, setConversationError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -33,21 +43,35 @@ export default function ChatPage() {
       .from("jobs")
       .select(`*, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)`)
       .eq("id", jobId).single()
-    if (jobError || !jobData) {
-      const message = jobError?.message || "This conversation is unavailable."
-      setConversationError(message)
-      toast.error(message)
-      setLoading(false)
-      return
-    }
-    setConversationError(null)
-    setJob(jobData as unknown as Job)
+    if (jobData) {
+      setConversation(null)
+      setConversationError(null)
+      setJob(jobData as unknown as Job)
+    } else {
+      const { data: directConversation, error: conversationError } = await supabase
+        .from("conversations")
+        .select("id, client_id, worker_id, updated_at, worker:profiles!worker_id (full_name, avatar_url), client:profiles!client_id (full_name, avatar_url)")
+        .eq("id", jobId)
+        .single()
 
-    const { data: msgs, error: messagesError } = await supabase
+      if (conversationError || !directConversation) {
+        const message = jobError?.message || conversationError?.message || "This conversation is unavailable."
+        setConversationError(message)
+        toast.error(message)
+        setLoading(false)
+        return
+      }
+
+      setJob(null)
+      setConversation(directConversation as unknown as DirectConversation)
+      setConversationError(null)
+    }
+
+    let messagesQuery = supabase
       .from("messages")
       .select("*")
-      .eq("job_id", jobId)
-      .order("created_at", { ascending: true })
+    messagesQuery = jobData ? messagesQuery.eq("job_id", jobId) : messagesQuery.eq("conversation_id", jobId)
+    const { data: msgs, error: messagesError } = await messagesQuery.order("created_at", { ascending: true })
     if (messagesError) {
       toast.error(messagesError.message || "Failed to load messages.")
       setLoading(false)
@@ -62,13 +86,13 @@ export default function ChatPage() {
   useEffect(() => {
     if (!jobId || !userId) return
     markConversationRead(jobId)
-  }, [jobId, userId])
+  }, [job, jobId, userId])
 
   // Realtime subscription
   useEffect(() => {
     if (!jobId) return
     const channel = supabase.channel(`messages-${jobId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `job_id=eq.${jobId}` },
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `${job ? "job_id" : "conversation_id"}=eq.${jobId}` },
         (payload) => {
           setMessages(prev => {
             const newMsg = payload.new as Message
@@ -109,7 +133,8 @@ export default function ChatPage() {
     const tempId = `temp-${Date.now()}`
     const optimisticMsg: Message = {
       id: tempId,
-      job_id: jobId,
+      job_id: job ? jobId : null,
+      conversation_id: job ? null : jobId,
       sender_id: userId,
       content: tempMessage,
       created_at: new Date().toISOString()
@@ -119,7 +144,12 @@ export default function ChatPage() {
 
     const { data, error } = await supabase
       .from("messages")
-      .insert({ job_id: jobId, sender_id: userId, content: tempMessage })
+      .insert({
+        job_id: job ? jobId : null,
+        conversation_id: job ? null : jobId,
+        sender_id: userId,
+        content: tempMessage,
+      })
       .select()
       .single()
 
@@ -137,12 +167,18 @@ export default function ChatPage() {
         }
         return prev.map(m => m.id === tempId ? realMsg : m)
       })
-      await supabase.from("jobs").update({ updated_at: new Date().toISOString() }).eq("id", jobId)
+      if (job) {
+        await supabase.from("jobs").update({ updated_at: new Date().toISOString() }).eq("id", jobId)
+      } else {
+        await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", jobId)
+      }
     }
     setIsSending(false)
   }
 
-  const otherParty = job?.worker_id === userId ? job?.client : job?.worker
+  const otherParty = job
+    ? (job.worker_id === userId ? job.client : job.worker)
+    : (conversation?.worker_id === userId ? conversation.client : conversation?.worker)
 
   if (loading) {
     return (
@@ -165,13 +201,13 @@ export default function ChatPage() {
     )
   }
 
-  if (conversationError || !job) {
+  if (conversationError || (!job && !conversation)) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
         <MessageSquare className="w-12 h-12 text-gray-300 mb-5" />
         <h1 className="text-2xl font-black text-black">Conversation unavailable</h1>
         <p className="text-gray-500 text-sm font-medium mt-2 max-w-md">
-          This job conversation could not be loaded. It may have been removed or you may not have access.
+          This conversation could not be loaded. It may have been removed or you may not have access.
         </p>
         <button
           onClick={() => router.push("/dashboard/messages")}
@@ -206,7 +242,7 @@ export default function ChatPage() {
                 {otherParty?.full_name || "Premium User"}
               </h1>
               <p className="text-xs text-gray-500 font-bold mt-0.5">
-                <span className="text-black">{job?.title}</span> {job?.price ? `· R ${job.price}` : ""}
+                <span className="text-black">{job?.title || "Direct conversation"}</span> {job?.price ? `· R ${job.price}` : ""}
               </p>
             </div>
           </div>

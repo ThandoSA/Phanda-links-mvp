@@ -61,7 +61,8 @@ export type Message = {
   content: string
   created_at: string
   sender_id: string
-  job_id: string
+  job_id?: string | null
+  conversation_id?: string | null
 }
 
 export type PortfolioItem = {

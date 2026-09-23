@@ -94,7 +94,7 @@ export default function WorkerProfile() {
       router.push("/login");
       return;
     }
-    // Open the messages hub — the worker thread will be created on first send
+    // The messages hub creates or reuses a direct conversation for this worker.
     router.push(`/dashboard/messages?worker_id=${workerId}`);
   };
 
