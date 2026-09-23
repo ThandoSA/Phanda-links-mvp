@@ -15,6 +15,7 @@ import { CHAT_UNREAD_CHANGED_EVENT, isMessageUnread } from "@/lib/chatUnread"
 
 interface InboxChat extends Job {
     last_message_at?: string | null
+    last_message?: string | null
     unread?: boolean
     conversation_id?: string | null
 }
@@ -107,7 +108,33 @@ export default function MessagesInboxPage() {
 
         if (directError) toast.error("Failed to load direct conversations.")
 
+        const directConversationIds = (directConversations || []).map((conversation) => conversation.id)
+        const { data: directMessages, error: directMessagesError } = directConversationIds.length
+            ? await supabase
+                .from("messages")
+                .select("conversation_id, content, sender_id, created_at")
+                .in("conversation_id", directConversationIds)
+                .order("created_at", { ascending: false })
+            : { data: [] }
+
+        if (directMessagesError) toast.error("Failed to load direct message activity.")
+
+        const latestDirectMessages = new Map<string, { content: string; sender_id: string; created_at: string }>()
+        ;(directMessages || []).forEach((message) => {
+            if (message.conversation_id && !latestDirectMessages.has(message.conversation_id)) {
+                latestDirectMessages.set(message.conversation_id, message)
+            }
+        })
+
         const directChats: InboxChat[] = (directConversations || []).map((conversation) => ({
+            ...(() => {
+                const message = latestDirectMessages.get(conversation.id)
+                return {
+                    last_message: message?.content || null,
+                    last_message_at: message?.created_at || conversation.updated_at,
+                    unread: Boolean(message && message.sender_id !== currentUserId && isMessageUnread(conversation.id, message.created_at, currentUserId, message.sender_id)),
+                }
+            })(),
             id: conversation.id,
             title: "Direct conversation",
             status: "accepted",
@@ -121,8 +148,6 @@ export default function MessagesInboxPage() {
             worker: Array.isArray(conversation.worker) ? conversation.worker[0] : conversation.worker,
             client: Array.isArray(conversation.client) ? conversation.client[0] : conversation.client,
             conversation_id: conversation.id,
-            last_message_at: conversation.updated_at,
-            unread: false,
         }))
 
         setChats([...chatsWithUnread, ...directChats].sort((a, b) => {
@@ -243,7 +268,7 @@ export default function MessagesInboxPage() {
                                                 : "No activity"}
                                         </span>
                                     </div>
-                                    <p className="text-gray-500 text-sm truncate font-medium">{chat.title || "Conversation"}</p>
+                                    <p className="text-gray-500 text-sm truncate font-medium">{chat.last_message || chat.title || "Conversation"}</p>
                                     <div className="mt-2">
                                         <StatusBadge status={chat.status} />
                                     </div>
