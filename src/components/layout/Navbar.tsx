@@ -75,7 +75,7 @@ export default function Navbar() {
 
   const workerLinks = [
     { href: "/dashboard/worker", label: "Dashboard" },
-    { href: "/dashboard/workers", label: "Find Workers" },
+    { href: "/dashboard/client/workers", label: "Find Workers" },
     { href: "/dashboard/worker/jobs", label: "Browse Jobs" },
     { href: "/dashboard/messages", label: "Messages" },
     { href: "/dashboard/worker/profile", label: "Profile" },

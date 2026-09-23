@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setProfile(prof || null)
         setUserId(userData.user.id)
 
-        const isClientRoute = pathname.startsWith("/dashboard/client/") || pathname === "/dashboard/client"
+        const isClientRoute = pathname.startsWith("/dashboard/client/") || pathname === "/dashboard/client" || pathname === "/dashboard/workers"
         const isWorkerRoute = pathname.startsWith("/dashboard/worker/") || pathname === "/dashboard/worker"
 
         if (isClientRoute && userRole !== "client") {
@@ -262,7 +262,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client" icon={Icons.dashboard} isActive={isActive("/dashboard/client")}>Dashboard</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/saved" icon={Icons.saved} isActive={isActive("/dashboard/client/saved")}>Saved</NavItem></div>
-                <div onClick={closeMobileMenu}><NavItem href="/dashboard/workers" icon={Icons.browse} isActive={isActive("/dashboard/workers")}>Browse Workers</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/workers" icon={Icons.browse} isActive={isActive("/dashboard/client/workers")}>Browse Workers</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/post-job" icon={Icons.jobs} isActive={isActive("/dashboard/client/post-job")}>Post Job</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")} showUnreadDot={unreadCount > 0}>Messages</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/profile" icon={Icons.profile} isActive={isActive("/dashboard/client/profile")}>Profile</NavItem></div>

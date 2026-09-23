@@ -251,7 +251,7 @@ export default function ClientDashboard() {
         className="grid md:grid-cols-2 gap-6"
       >
         <motion.div variants={itemVariants}>
-          <Link href="/dashboard/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
+          <Link href="/dashboard/client/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
             <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Users className="w-7 h-7 text-[#D4AF37]" />
             </div>
