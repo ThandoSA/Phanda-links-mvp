@@ -101,7 +101,9 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
       // Redirect to direct job messaging
       router.push(`/dashboard/messages/${jobId}`)
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to accept quote")
+      console.error("Accept quote error:", err)
+      const error = err as { message?: string; details?: string; hint?: string } | null
+      toast.error(error?.message || error?.details || error?.hint || "Failed to accept quote")
     } finally {
       setAcceptingId(null)
     }
