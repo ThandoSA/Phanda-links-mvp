@@ -97,6 +97,25 @@ export default function ClientDashboard() {
         applicants_count: 0,
       }));
 
+      const jobIds = formattedJobs.map((job) => job.id);
+      if (jobIds.length > 0) {
+        const { data: quotesData, error: quotesError } = await supabase
+          .from("quotes")
+          .select("job_id")
+          .in("job_id", jobIds);
+
+        if (quotesError) {
+          console.error("Client dashboard quotes fetch error:", quotesError);
+          toast.error("Could not load proposal counts.");
+        } else {
+          const counts = new Map<string, number>();
+          (quotesData || []).forEach(({ job_id }) => counts.set(job_id, (counts.get(job_id) || 0) + 1));
+          formattedJobs.forEach((job) => {
+            job.applicants_count = counts.get(job.id) || 0;
+          });
+        }
+      }
+
       setPostedJobs(formattedJobs);
       setLoading(false);
     };
@@ -106,6 +125,7 @@ export default function ClientDashboard() {
     const channel = supabase
       .channel("client-dashboard")
       .on("postgres_changes", { event: "*", schema: "public", table: "jobs" }, fetchClientData)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quotes" }, fetchClientData)
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -161,7 +181,7 @@ export default function ClientDashboard() {
         {[
           { label: "Jobs Posted", value: postedJobs.length, icon: <Briefcase className="w-7 h-7" /> },
           { label: "Active Jobs", value: activeJobsCount, icon: <Clock className="w-7 h-7" /> },
-          { label: "Total Applicants", value: postedJobs.reduce((a, j) => a + (j.applicants_count || 0), 0), icon: <Users className="w-7 h-7" /> },
+          { label: "Proposals Received", value: postedJobs.reduce((a, j) => a + (j.applicants_count || 0), 0), icon: <Users className="w-7 h-7" /> },
           { label: "Avg Rating", value: "4.9", icon: <Star className="w-7 h-7" /> },
         ].map((stat, i) => (
           <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
