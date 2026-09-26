@@ -24,6 +24,7 @@ export default function MessagesInboxPage() {
     const [chats, setChats] = useState<InboxChat[]>([])
     const [loading, setLoading] = useState(true)
     const [userId, setUserId] = useState<string | null>(null)
+    const [role, setRole] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -34,6 +35,13 @@ export default function MessagesInboxPage() {
         if (!userData.user) { window.location.href = "/login"; return }
         const currentUserId = userData.user.id
         setUserId(currentUserId)
+
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", currentUserId)
+            .single()
+        setRole((profile?.role || userData.user.user_metadata?.role || "worker").toLowerCase())
 
         if (workerId && workerId !== currentUserId) {
             const { data: conversation, error: conversationError } = await supabase
@@ -228,8 +236,8 @@ export default function MessagesInboxPage() {
                             description={searchQuery
                                 ? "Try a different search term."
                                 : "When you hire a worker or receive a booking, your chats will appear here."}
-                            actionLabel={searchQuery ? undefined : "Find Talent"}
-                            actionHref={searchQuery ? undefined : "/workers"}
+                            actionLabel={!searchQuery && role === "client" ? "Find Talent" : undefined}
+                            actionHref={!searchQuery && role === "client" ? "/workers" : undefined}
                         />
                     </div>
                 ) : (

@@ -26,13 +26,28 @@ export default function JobsPage() {
 
   useEffect(() => {
     const loadOpenJobs = async () => {
-      const { data, error } = await fetchOpenJobs(supabase)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setLoading(false)
+        return
+      }
+
+      const [{ data, error }, { data: submittedQuotes, error: quotesError }] = await Promise.all([
+        fetchOpenJobs(supabase),
+        supabase.from("quotes").select("job_id").eq("worker_id", user.id),
+      ])
 
       if (error) {
         console.error("Open jobs fetch error:", error)
         toast.error("Failed to load open jobs: " + error.message)
       } else {
-        setOpenJobs((data as unknown as Job[]) || [])
+        if (quotesError) {
+          console.error("Submitted quotes fetch error:", quotesError)
+          toast.error("Could not check your submitted proposals.")
+        }
+
+        const submittedJobIds = new Set((submittedQuotes || []).map((quote) => quote.job_id))
+        setOpenJobs(((data as unknown as Job[]) || []).filter((job) => !submittedJobIds.has(job.id)))
       }
       setLoading(false)
     }

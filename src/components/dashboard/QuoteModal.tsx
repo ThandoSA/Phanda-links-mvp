@@ -43,6 +43,8 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
         if (error) {
             if (error.code === '42P01') {
                 toast.error("Database Error: 'quotes' table does not exist. Please contact support.")
+            } else if (error.code === "23505") {
+                toast.error("You have already submitted a quote for this job.")
             } else {
                 toast.error("Failed to send quote: " + error.message)
             }
