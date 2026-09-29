@@ -135,16 +135,17 @@ export default function ClientDashboard() {
   const { greeting, tagline } = getGreeting(firstName);
 
   const activeJobsCount = postedJobs.filter(j => j.status === "open" || j.status === "pending").length;
+  const activityProgress = postedJobs.length > 0 ? Math.round((activeJobsCount / postedJobs.length) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white bg-[#05080f] rounded-[2rem] shadow-2xl ring-1 ring-white/10">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
 
       {/* ── Welcome Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl bg-[#111823] border border-white/10"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10"
       >
         <div className="flex items-center gap-5">
           <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-4 border-white/10 shadow-xl flex-shrink-0">
@@ -163,13 +164,32 @@ export default function ClientDashboard() {
           </div>
         </div>
 
-        <Link
-          href="/dashboard/client/post-job"
-          className="btn-luxury btn-luxury-primary flex items-center gap-2 self-start md:self-auto"
-        >
-          <Plus className="w-4 h-4" /> Post New Job
-        </Link>
+        <div className="flex flex-col gap-3 text-right md:text-left md:self-start min-w-56">
+          <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your activity</p>
+          <div className="h-3 rounded-full bg-black/20 overflow-hidden border border-white/10 w-full">
+            <div className="h-full bg-[#D4AF37] transition-all" style={{ width: `${activityProgress}%` }} />
+          </div>
+          <p className="text-xs text-gray-300">{activeJobsCount} active {activeJobsCount === 1 ? "job" : "jobs"} of {postedJobs.length} posted</p>
+        </div>
       </motion.div>
+
+      <div className="card-luxury p-6 rounded-2xl border border-[#D4AF37]/20 bg-[#111316]">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black mb-2">Keep your work moving</p>
+            <h2 className="text-2xl font-black text-white">Find the right person for the job</h2>
+            <p className="text-gray-400 mt-2 text-sm">Browse trusted workers or post a new request and start receiving proposals.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary px-6 py-3 text-sm flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Post New Job
+            </Link>
+            <Link href="/dashboard/client/workers" className="btn-luxury btn-luxury-outline px-6 py-3 text-sm text-white">
+              Browse Workers
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* ── Stats ── */}
       <motion.div
@@ -211,7 +231,7 @@ export default function ClientDashboard() {
               <motion.div
                 key={job.id}
                 variants={itemVariants}
-                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3 bg-[#0b1120] p-5 rounded-3xl"
+                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3"
               >
                 <div className="flex-1">
                   <p className="font-bold text-white text-base">{job.title}</p>
@@ -268,26 +288,42 @@ export default function ClientDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid md:grid-cols-2 gap-6"
+        className="grid lg:grid-cols-5 gap-8"
       >
-        <motion.div variants={itemVariants}>
-          <Link href="/dashboard/client/workers" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
-            <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Users className="w-7 h-7 text-[#D4AF37]" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Browse Workers</h3>
-            <p className="text-gray-400 text-sm font-medium mt-auto">Find verified professionals for your next project.</p>
-          </Link>
+        <motion.div variants={itemVariants} className="lg:col-span-3 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
+          <div className="flex justify-between items-center mb-7">
+            <h3 className="text-xl font-black text-white">Next steps</h3>
+            <Link href="/dashboard/client/profile" className="text-[#D4AF37] hover:underline text-sm font-bold">View Profile</Link>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Link href="/dashboard/client/workers" className="border border-white/10 rounded-2xl p-5 hover:border-[#D4AF37]/50 transition-colors group">
+              <Users className="w-7 h-7 text-[#D4AF37] mb-4 group-hover:scale-110 transition-transform" />
+              <h4 className="font-bold text-white mb-1">Browse Workers</h4>
+              <p className="text-gray-400 text-sm">Find verified professionals for your next project.</p>
+            </Link>
+            <Link href="/dashboard/client/bookings" className="border border-white/10 rounded-2xl p-5 hover:border-[#D4AF37]/50 transition-colors group">
+              <Briefcase className="w-7 h-7 text-[#D4AF37] mb-4 group-hover:scale-110 transition-transform" />
+              <h4 className="font-bold text-white mb-1">Job History</h4>
+              <p className="text-gray-400 text-sm">View completed and past jobs.</p>
+            </Link>
+          </div>
         </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <Link href="/dashboard/client/bookings" className="card-luxury p-10 rounded-2xl hover:shadow-xl transition-all group flex flex-col border border-white/10 bg-[#0f1320] hover:border-[#D4AF37]/50">
-            <div className="w-14 h-14 rounded-full bg-black/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Briefcase className="w-7 h-7 text-[#D4AF37]" />
+        <motion.div variants={itemVariants} className="lg:col-span-2 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
+          <h3 className="text-xl font-black text-white mb-6">Account Snapshot</h3>
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1.5">Profile</p>
+              <p className="text-gray-300 text-sm">{profile?.full_name ? `Signed in as ${profile.full_name}.` : "Complete your profile to build trust with workers."}</p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Job History</h3>
-            <p className="text-gray-400 text-sm font-medium mt-auto">View completed and past jobs</p>
-          </Link>
+            <div>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Quick links</p>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/dashboard/client/saved" className="text-xs bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 px-3 py-1.5 rounded-full font-bold">Saved Workers</Link>
+                <Link href="/dashboard/messages" className="text-xs bg-white/5 text-gray-300 border border-white/10 px-3 py-1.5 rounded-full font-bold">Messages</Link>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </motion.div>
 
