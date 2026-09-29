@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Briefcase, Users, Clock, Star, FileText } from "lucide-react";
+import { Plus, Briefcase, Users, Clock, Star, FileText, AlertCircle, ArrowRight, CheckCircle2, MapPin, MessageSquare } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal";
@@ -16,6 +16,9 @@ interface PostedJob {
   price?: number;
   applicants_count?: number;
   created_at?: string;
+  updated_at?: string;
+  location?: string;
+  worker_id?: string | null;
 }
 
 interface Profile {
@@ -82,7 +85,7 @@ export default function ClientDashboard() {
 
       const { data: jobsData, error: jobsError } = await supabase
         .from("jobs")
-        .select("id, title, status, price, created_at, location")
+        .select("id, title, status, price, created_at, updated_at, location, worker_id")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false })
         .limit(6);
@@ -92,7 +95,7 @@ export default function ClientDashboard() {
         toast.error("Could not load your posted jobs. Refresh to try again.");
       }
 
-      const formattedJobs = (jobsData || []).map((job: any) => ({
+      const formattedJobs: PostedJob[] = (jobsData || []).map((job) => ({
         ...job,
         applicants_count: 0,
       }));
@@ -134,8 +137,26 @@ export default function ClientDashboard() {
   const firstName = profile?.full_name?.split(" ")[0] || "";
   const { greeting, tagline } = getGreeting(firstName);
 
-  const activeJobsCount = postedJobs.filter(j => j.status === "open" || j.status === "pending").length;
-  const activityProgress = postedJobs.length > 0 ? Math.round((activeJobsCount / postedJobs.length) * 100) : 0;
+  const activeStatuses = ["open", "pending", "accepted", "en_route", "in_progress"];
+  const activeJobs = postedJobs.filter(job => activeStatuses.includes(job.status));
+  const activeJobsCount = activeJobs.length;
+  const completedJobsCount = postedJobs.filter(job => job.status === "completed").length;
+  const hiredWorkersCount = postedJobs.filter(job => job.worker_id && ["accepted", "en_route", "in_progress", "completed"].includes(job.status)).length;
+  const proposalCount = postedJobs.reduce((total, job) => total + (job.applicants_count || 0), 0);
+  const activityProgress = postedJobs.length > 0 ? Math.round((completedJobsCount / postedJobs.length) * 100) : 0;
+  const jobsForDisplay = [...postedJobs].sort((a, b) => {
+    const activeDifference = Number(activeStatuses.includes(b.status)) - Number(activeStatuses.includes(a.status));
+    if (activeDifference !== 0) return activeDifference;
+    return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime();
+  });
+  const needsAttention = postedJobs.filter(job =>
+    (job.applicants_count || 0) > 0 && ["open", "pending"].includes(job.status),
+  ).slice(0, 3);
+  const recentActivity = [...postedJobs]
+    .sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime())
+    .slice(0, 4);
+
+  const statusLabel = (status: string) => status.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
 
   return (
     <div className="font-sans max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
@@ -165,11 +186,11 @@ export default function ClientDashboard() {
         </div>
 
         <div className="flex flex-col gap-3 text-right md:text-left md:self-start min-w-56">
-          <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your activity</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Work completed</p>
           <div className="h-3 rounded-full bg-black/20 overflow-hidden border border-white/10 w-full">
             <div className="h-full bg-[#D4AF37] transition-all" style={{ width: `${activityProgress}%` }} />
           </div>
-          <p className="text-xs text-gray-300">{activeJobsCount} active {activeJobsCount === 1 ? "job" : "jobs"} of {postedJobs.length} posted</p>
+          <p className="text-xs text-gray-300">{completedJobsCount} of {postedJobs.length} {postedJobs.length === 1 ? "job" : "jobs"} completed</p>
         </div>
       </motion.div>
 
@@ -201,8 +222,8 @@ export default function ClientDashboard() {
         {[
           { label: "Jobs Posted", value: postedJobs.length, icon: <Briefcase className="w-7 h-7" /> },
           { label: "Active Jobs", value: activeJobsCount, icon: <Clock className="w-7 h-7" /> },
-          { label: "Proposals Received", value: postedJobs.reduce((a, j) => a + (j.applicants_count || 0), 0), icon: <Users className="w-7 h-7" /> },
-          { label: "Avg Rating", value: "4.9", icon: <Star className="w-7 h-7" /> },
+          { label: "Proposals Received", value: proposalCount, icon: <Users className="w-7 h-7" /> },
+          { label: "Workers Hired", value: hiredWorkersCount, icon: <Star className="w-7 h-7" /> },
         ].map((stat, i) => (
           <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
             <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
@@ -211,6 +232,56 @@ export default function ClientDashboard() {
           </motion.div>
         ))}
       </motion.div>
+
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="card-luxury p-6 md:p-8 rounded-2xl bg-[#111316] border border-[#D4AF37]/20"
+      >
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-[#D4AF37]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-white">Needs your attention</h2>
+              <p className="text-sm text-gray-400 font-medium">Keep your hiring moving with these next actions.</p>
+            </div>
+          </div>
+          <Link href="/dashboard/client/bookings" className="text-sm font-bold text-[#D4AF37] hover:underline flex items-center gap-1">
+            View all jobs <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {needsAttention.length > 0 ? (
+          <div className="grid md:grid-cols-3 gap-4">
+            {needsAttention.map((job) => (
+              <div key={job.id} className="border border-white/10 rounded-2xl p-5 min-w-0">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-black text-white leading-tight line-clamp-2">{job.title}</h3>
+                  <span className="flex-shrink-0 text-xs font-black text-[#D4AF37] bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full px-2.5 py-1">
+                    {job.applicants_count} {job.applicants_count === 1 ? "quote" : "quotes"}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-400 mt-3">Review proposals and choose the right worker.</p>
+                <button
+                  type="button"
+                  onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
+                  className="mt-4 min-h-11 w-full flex items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-4 py-2 text-xs font-black text-black hover:bg-[#b8962e] transition-colors"
+                >
+                  <FileText className="w-3.5 h-3.5" /> Review quotes
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <CheckCircle2 className="w-7 h-7 text-emerald-400 flex-shrink-0" />
+            <p className="text-sm text-gray-300 font-medium">You&apos;re all caught up. New proposals and job updates will appear here.</p>
+          </div>
+        )}
+      </motion.section>
 
       {/* ── Posted Jobs ── */}
       <div className="card-luxury p-8 rounded-2xl bg-[#0d1120] border border-white/10">
@@ -227,26 +298,27 @@ export default function ClientDashboard() {
           </div>
         ) : postedJobs.length > 0 ? (
           <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-5">
-            {postedJobs.map((job) => (
+            {jobsForDisplay.map((job) => (
               <motion.div
                 key={job.id}
                 variants={itemVariants}
-                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3"
+                className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-4"
               >
-                <div className="flex-1">
-                  <p className="font-black text-white text-base leading-tight">{job.title}</p>
-                  <p className="text-xs text-gray-400 font-medium mt-0.5">
-                    Posted {new Date(job.created_at || "").toLocaleDateString("en-ZA")}
-                  </p>
-                </div>
+                <Link href="/dashboard/client/bookings" className="flex-1 min-w-0 rounded-xl p-2 -m-2 hover:bg-white/[0.03] transition-colors group">
+                  <p className="font-black text-white text-base leading-tight group-hover:text-[#D4AF37] transition-colors truncate">{job.title}</p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 font-medium mt-2">
+                    <span>Updated {new Date(job.updated_at || job.created_at || "").toLocaleDateString("en-ZA")}</span>
+                    <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3 text-[#D4AF37]" />{job.location || "On-site"}</span>
+                  </div>
+                </Link>
 
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className={`px-4 py-1.5 text-xs font-bold rounded-full ${
+                <div className="flex items-center gap-3 flex-wrap md:justify-end">
+                  <span className={`px-3 py-1.5 text-xs font-black rounded-full capitalize ${
                     job.status === "open" ? "bg-emerald-900/50 text-emerald-200"
                     : job.status === "completed" ? "bg-gray-800 text-gray-200"
                     : "bg-amber-900/50 text-amber-200"
                   }`}>
-                    {job.status}
+                    {statusLabel(job.status)}
                   </span>
 
                   {job.price && (
@@ -263,8 +335,9 @@ export default function ClientDashboard() {
 
                   {(job.status === "open" || job.status === "pending") && (
                     <button
+                      type="button"
                       onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
-                      className="flex items-center gap-1.5 px-4 py-1.5 bg-[#D4AF37] hover:bg-[#b8962e] text-black text-xs font-black rounded-full transition-colors"
+                      className="min-h-11 flex items-center gap-1.5 px-4 py-2 bg-[#D4AF37] hover:bg-[#b8962e] text-black text-xs font-black rounded-full transition-colors"
                     >
                       <FileText className="w-3.5 h-3.5" /> View Quotes
                     </button>
@@ -274,11 +347,16 @@ export default function ClientDashboard() {
             ))}
           </motion.div>
         ) : (
-          <div className="text-center py-20">
-            <p className="text-gray-500 font-medium mb-6">You haven&apos;t posted any jobs yet.</p>
-            <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary">
-              Post Your First Job
-            </Link>
+          <div className="text-center py-14 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center mb-5">
+              <Briefcase className="w-7 h-7 text-[#D4AF37]" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2">Start your first project</h3>
+            <p className="text-gray-400 font-medium text-sm max-w-md mb-6">Post a request for trusted workers, or browse professionals who can help today.</p>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary min-h-11 px-6">Post Your First Job</Link>
+              <Link href="/dashboard/client/workers" className="btn-luxury btn-luxury-outline min-h-11 px-6 text-white">Browse Workers</Link>
+            </div>
           </div>
         )}
       </div>
@@ -310,20 +388,31 @@ export default function ClientDashboard() {
         </motion.div>
 
         <motion.div variants={itemVariants} className="lg:col-span-2 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
-          <h3 className="text-xl font-black text-white mb-6">Account Snapshot</h3>
-          <div className="space-y-5">
-            <div>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1.5">Profile</p>
-              <p className="text-gray-300 text-sm">{profile?.full_name ? `Signed in as ${profile.full_name}.` : "Complete your profile to build trust with workers."}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Quick links</p>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/dashboard/client/saved" className="text-xs bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 px-3 py-1.5 rounded-full font-bold">Saved Workers</Link>
-                <Link href="/dashboard/messages" className="text-xs bg-white/5 text-gray-300 border border-white/10 px-3 py-1.5 rounded-full font-bold">Messages</Link>
-              </div>
-            </div>
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <h3 className="text-xl font-black text-white">Recent Activity</h3>
+            <MessageSquare className="w-5 h-5 text-[#D4AF37]" />
           </div>
+          {recentActivity.length > 0 ? (
+            <div className="space-y-5">
+              {recentActivity.map((job) => (
+                <Link key={job.id} href="/dashboard/client/bookings" className="flex items-start gap-3 group">
+                  <div className={`mt-1 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${job.applicants_count ? "bg-[#D4AF37]/10" : "bg-white/5"}`}>
+                    {job.applicants_count ? <FileText className="w-3.5 h-3.5 text-[#D4AF37]" /> : <Clock className="w-3.5 h-3.5 text-gray-400" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-white group-hover:text-[#D4AF37] transition-colors truncate">{job.applicants_count ? `${job.applicants_count} ${job.applicants_count === 1 ? "proposal" : "proposals"} received` : `${statusLabel(job.status)} job`}</p>
+                    <p className="text-xs text-gray-400 truncate">{job.title}</p>
+                    <p className="text-[10px] text-gray-500 mt-1">{new Date(job.updated_at || job.created_at || "").toLocaleDateString("en-ZA")}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-400 font-medium">
+              <p>No activity yet.</p>
+              <Link href="/dashboard/client/workers" className="inline-flex items-center gap-1 mt-3 text-[#D4AF37] hover:underline">Browse workers <ArrowRight className="w-3.5 h-3.5" /></Link>
+            </div>
+          )}
         </motion.div>
       </motion.div>
 
