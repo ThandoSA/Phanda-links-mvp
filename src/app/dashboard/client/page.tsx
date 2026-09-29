@@ -138,7 +138,7 @@ export default function ClientDashboard() {
   const activityProgress = postedJobs.length > 0 ? Math.round((activeJobsCount / postedJobs.length) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
+    <div className="font-sans max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
 
       {/* ── Welcome Header ── */}
       <motion.div
@@ -160,7 +160,7 @@ export default function ClientDashboard() {
             <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white leading-tight">
               {loading ? "Loading..." : greeting}
             </h1>
-            <p className="text-gray-400 font-medium mt-1">{loading ? "" : tagline}</p>
+            <p className="text-gray-400 font-medium mt-1 tracking-tight">{loading ? "" : tagline}</p>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ export default function ClientDashboard() {
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black mb-2">Keep your work moving</p>
             <h2 className="text-2xl font-black text-white">Find the right person for the job</h2>
-            <p className="text-gray-400 mt-2 text-sm">Browse trusted workers or post a new request and start receiving proposals.</p>
+            <p className="text-gray-400 mt-2 text-sm font-medium">Browse trusted workers or post a new request and start receiving proposals.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/dashboard/client/post-job" className="btn-luxury btn-luxury-primary px-6 py-3 text-sm flex items-center gap-2">
@@ -234,7 +234,7 @@ export default function ClientDashboard() {
                 className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-5 last:border-none gap-3"
               >
                 <div className="flex-1">
-                  <p className="font-bold text-white text-base">{job.title}</p>
+                  <p className="font-black text-white text-base leading-tight">{job.title}</p>
                   <p className="text-xs text-gray-400 font-medium mt-0.5">
                     Posted {new Date(job.created_at || "").toLocaleDateString("en-ZA")}
                   </p>
@@ -251,20 +251,20 @@ export default function ClientDashboard() {
 
                   {job.price && (
                     <div className="text-right">
-                      <p className="font-bold text-white text-sm">R{job.price}</p>
+                      <p className="font-black text-white text-sm">R{job.price}</p>
                       <p className="text-xs text-gray-400">Budget</p>
                     </div>
                   )}
 
                   <div className="text-right">
-                    <p className="font-bold text-white text-sm">{job.applicants_count || 0}</p>
+                    <p className="font-black text-white text-sm">{job.applicants_count || 0}</p>
                     <p className="text-xs text-gray-400">Applicants</p>
                   </div>
 
                   {(job.status === "open" || job.status === "pending") && (
                     <button
                       onClick={() => setQuoteModal({ jobId: job.id, jobTitle: job.title })}
-                      className="flex items-center gap-1.5 px-4 py-1.5 bg-[#D4AF37] hover:bg-[#b8962e] text-black text-xs font-bold rounded-full transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-1.5 bg-[#D4AF37] hover:bg-[#b8962e] text-black text-xs font-black rounded-full transition-colors"
                     >
                       <FileText className="w-3.5 h-3.5" /> View Quotes
                     </button>
