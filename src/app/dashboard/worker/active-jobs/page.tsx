@@ -7,11 +7,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Job } from "@/types"
-import StatusBadge from "@/components/ui/StatusBadge"
 import ReviewModal from "@/components/dashboard/ReviewModal"
+import ReviewsModal from "@/components/dashboard/ReviewsModal"
 import {
   Briefcase, MapPin, Calendar, ArrowRight,
-  Navigation, Play, CheckCircle, MessageSquare, Clock, Star
+  Navigation, Play, CheckCircle, MessageSquare, Star
 } from "lucide-react"
 
 interface ActiveJob extends Job {
@@ -33,6 +33,8 @@ export default function ActiveJobsPage() {
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [reviewJob, setReviewJob] = useState<ActiveJob | null>(null)
+  const [reviewsModal, setReviewsModal] = useState<{ revieweeId: string; revieweeName: string } | null>(null)
+  const [reviewedJobIds, setReviewedJobIds] = useState<Set<string>>(new Set())
   const [userId, setUserId] = useState<string | null>(null)
 
   const fetchActiveJobs = useCallback(async () => {
@@ -51,8 +53,26 @@ export default function ActiveJobsPage() {
       .in("status", ["pending", "accepted", "en_route", "in_progress", "completed"])
       .order("updated_at", { ascending: false })
 
-    if (error) toast.error("Failed to load active jobs")
-    else setJobs((data as unknown as ActiveJob[]) || [])
+    if (error) {
+      toast.error("Failed to load active jobs")
+    } else {
+      const workerJobs = (data as unknown as ActiveJob[]) || []
+      setJobs(workerJobs)
+
+      const jobIds = workerJobs.map((job) => job.id)
+      if (jobIds.length > 0) {
+        const { data: reviewData, error: reviewError } = await supabase
+          .from("reviews")
+          .select("job_id")
+          .eq("reviewer_id", userData.user.id)
+          .in("job_id", jobIds)
+
+        if (reviewError) toast.error("Could not load your review status")
+        setReviewedJobIds(new Set((reviewData || []).map((review) => review.job_id)))
+      } else {
+        setReviewedJobIds(new Set())
+      }
+    }
     setLoading(false)
   }, [])
 
@@ -281,11 +301,21 @@ export default function ActiveJobsPage() {
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0">
                       <p className="font-black text-white">R {(job.price || 0).toLocaleString()}</p>
+                      {!reviewedJobIds.has(job.id) && (
+                        <button
+                          type="button"
+                          onClick={() => setReviewJob(job)}
+                          className="flex items-center gap-1.5 px-4 py-2 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 rounded-full text-xs font-bold hover:bg-[#D4AF37]/20 transition-colors"
+                        >
+                          <Star className="w-3.5 h-3.5" /> Rate Client
+                        </button>
+                      )}
                       <button
-                        onClick={() => setReviewJob(job)}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 rounded-full text-xs font-bold hover:bg-[#D4AF37]/20 transition-colors"
+                        type="button"
+                        onClick={() => setReviewsModal({ revieweeId: job.client_id, revieweeName: job.client?.full_name || "Client" })}
+                        className="flex items-center gap-1.5 px-4 py-2 bg-white/5 text-gray-300 border border-white/10 rounded-full text-xs font-bold hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors"
                       >
-                        <Star className="w-3.5 h-3.5" /> Rate Client
+                        <Star className="w-3.5 h-3.5" /> View Reviews
                       </button>
                     </div>
                   </div>
@@ -306,7 +336,17 @@ export default function ActiveJobsPage() {
           reviewerId={userId}
           role="worker"
           onClose={() => setReviewJob(null)}
-          onSubmitted={() => setReviewJob(null)}
+          onSubmitted={() => {
+            setReviewedJobIds((current) => new Set(current).add(reviewJob.id))
+            setReviewJob(null)
+          }}
+        />
+      )}
+      {reviewsModal && (
+        <ReviewsModal
+          revieweeId={reviewsModal.revieweeId}
+          revieweeName={reviewsModal.revieweeName}
+          onClose={() => setReviewsModal(null)}
         />
       )}
     </div>

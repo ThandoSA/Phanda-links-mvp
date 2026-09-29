@@ -6,11 +6,11 @@ import Image from "next/image"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { Job } from "@/types"
-import StatusBadge from "@/components/ui/StatusBadge"
 import { Star, MapPin, ClipboardList, ArrowRight, Calendar, User, FileText, CreditCard } from "lucide-react"
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal"
 import PaymentConfirmModal from "@/components/dashboard/PaymentConfirmModal"
 import ReviewModal from "@/components/dashboard/ReviewModal"
+import ReviewsModal from "@/components/dashboard/ReviewsModal"
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,6 +19,8 @@ export default function BookingsPage() {
   const [quoteModal, setQuoteModal] = useState<{ jobId: string; jobTitle: string } | null>(null)
   const [payModal, setPayModal] = useState<{ jobId: string; jobTitle: string; amount: number; workerName: string } | null>(null)
   const [reviewModal, setReviewModal] = useState<{ jobId: string; jobTitle: string; revieweeId: string; revieweeName: string } | null>(null)
+  const [reviewsModal, setReviewsModal] = useState<{ revieweeId: string; revieweeName: string } | null>(null)
+  const [reviewedJobIds, setReviewedJobIds] = useState<Set<string>>(new Set())
 
   const fetchBookings = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser()
@@ -31,8 +33,26 @@ export default function BookingsPage() {
       .eq("client_id", userData.user.id)
       .order("created_at", { ascending: false })
 
-    if (error) toast.error("Failed to load bookings")
-    else setBookings((data as unknown as Job[]) || [])
+    if (error) {
+      toast.error("Failed to load bookings")
+    } else {
+      const clientJobs = (data as unknown as Job[]) || []
+      setBookings(clientJobs)
+
+      const jobIds = clientJobs.map((job) => job.id)
+      if (jobIds.length > 0) {
+        const { data: reviewData, error: reviewError } = await supabase
+          .from("reviews")
+          .select("job_id")
+          .eq("reviewer_id", userData.user.id)
+          .in("job_id", jobIds)
+
+        if (reviewError) toast.error("Could not load your review status")
+        setReviewedJobIds(new Set((reviewData || []).map((review) => review.job_id)))
+      } else {
+        setReviewedJobIds(new Set())
+      }
+    }
     setLoading(false)
   }, [])
 
@@ -127,12 +147,6 @@ export default function BookingsPage() {
                     <MapPin className="w-3.5 h-3.5 text-gold" />
                     {job.location || "On-site"}
                   </div>
-                  {job.worker?.rating && (
-                    <div className="flex items-center gap-1.5 text-gold">
-                      <Star className="w-3.5 h-3.5 fill-gold" />
-                      {job.worker.rating}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -166,9 +180,10 @@ export default function BookingsPage() {
                       <CreditCard className="w-3.5 h-3.5" /> Confirm &amp; Pay
                     </button>
                   )}
-                  {/* Leave review — only after accepted or completed */}
-                  {["completed", "accepted", "in_progress"].includes(job.status) && job.worker_id && (
+                  {/* Client reviews become available only after completion. */}
+                  {job.status === "completed" && job.worker_id && !reviewedJobIds.has(job.id) && (
                     <button
+                      type="button"
                       onClick={() => setReviewModal({
                         jobId: job.id,
                         jobTitle: job.title,
@@ -178,6 +193,15 @@ export default function BookingsPage() {
                       className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold/10 hover:text-gold hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
                     >
                       <Star className="w-3.5 h-3.5" /> Leave Review
+                    </button>
+                  )}
+                  {job.worker_id && (
+                    <button
+                      type="button"
+                      onClick={() => setReviewsModal({ revieweeId: job.worker_id!, revieweeName: job.worker?.full_name || "Worker" })}
+                      className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold/10 hover:text-gold hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
+                    >
+                      <Star className="w-3.5 h-3.5" /> View Reviews
                     </button>
                   )}
                   <Link
@@ -233,7 +257,17 @@ export default function BookingsPage() {
           reviewerId={userId}
           role="client"
           onClose={() => setReviewModal(null)}
-          onSubmitted={() => setReviewModal(null)}
+          onSubmitted={() => {
+            setReviewedJobIds((current) => new Set(current).add(reviewModal.jobId))
+            setReviewModal(null)
+          }}
+        />
+      )}
+      {reviewsModal && (
+        <ReviewsModal
+          revieweeId={reviewsModal.revieweeId}
+          revieweeName={reviewsModal.revieweeName}
+          onClose={() => setReviewsModal(null)}
         />
       )}
     </div>
