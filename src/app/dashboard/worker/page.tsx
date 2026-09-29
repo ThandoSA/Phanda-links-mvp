@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Briefcase, Star, MapPin, Calendar, Plus, Zap, ArrowRight, Clock } from "lucide-react";
+import { Briefcase, Star, MapPin, Calendar, Zap, ArrowRight, Clock, AlertCircle, CheckCircle2, Wallet, FileText } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface WorkerProfile {
@@ -25,6 +25,15 @@ interface RecentJob {
   title: string;
   status: string;
   price?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface SubmittedQuote {
+  id: string;
+  job_id: string;
+  status: string;
+  amount?: number;
   created_at?: string;
 }
 
@@ -76,6 +85,8 @@ const itemVariants = {
 export default function WorkerDashboard() {
   const [profile, setProfile] = useState<WorkerProfile | null>(null);
   const [recentJobs, setRecentJobs] = useState<RecentJob[]>([]);
+  const [workerJobs, setWorkerJobs] = useState<RecentJob[]>([]);
+  const [submittedQuotes, setSubmittedQuotes] = useState<SubmittedQuote[]>([]);
   const [topPicks, setTopPicks] = useState<OpenJob[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -121,12 +132,20 @@ export default function WorkerDashboard() {
       // Fetch recent jobs assigned to this worker
       const { data: jobsData } = await supabase
         .from("jobs")
-        .select("id, title, status, price, created_at")
+        .select("id, title, status, price, created_at, updated_at")
         .eq("worker_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(5);
+        .order("created_at", { ascending: false });
 
-      setRecentJobs(jobsData || []);
+      setWorkerJobs(jobsData || []);
+      setRecentJobs((jobsData || []).slice(0, 5));
+
+      const { data: quotesData } = await supabase
+        .from("quotes")
+        .select("id, job_id, status, amount, created_at")
+        .eq("worker_id", user.id)
+        .order("created_at", { ascending: false });
+
+      setSubmittedQuotes(quotesData || []);
 
       // Fetch Top Picks — open jobs matching worker's skills
       if (workerSkills.length > 0) {
@@ -161,6 +180,7 @@ export default function WorkerDashboard() {
       .channel("worker-dashboard")
       .on("postgres_changes", { event: "*", schema: "public", table: "worker_profiles" }, fetchDashboardData)
       .on("postgres_changes", { event: "*", schema: "public", table: "jobs" }, fetchDashboardData)
+      .on("postgres_changes", { event: "*", schema: "public", table: "quotes" }, fetchDashboardData)
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -178,12 +198,24 @@ export default function WorkerDashboard() {
 
   const completedCount = profileCompletionItems.filter((item) => item.done).length;
   const missingItems = profileCompletionItems.filter((item) => !item.done);
+  const activeJobs = workerJobs.filter((job) => ["accepted", "en_route", "in_progress"].includes(job.status));
+  const completedJobs = workerJobs.filter((job) => job.status === "completed");
+  const pendingEarnings = activeJobs.reduce((total, job) => total + Number(job.price || 0), 0);
+  const totalEarned = completedJobs.reduce((total, job) => total + Number(job.price || 0), 0);
+  const pendingQuotes = submittedQuotes.filter((quote) => quote.status === "pending");
+  const acceptedQuotes = submittedQuotes.filter((quote) => ["approved", "accepted"].includes(quote.status));
+  const needsAttention = [
+    ...(missingItems.length > 0 ? [{ label: "Complete your profile", detail: `${missingItems.length} item${missingItems.length === 1 ? "" : "s"} still pending`, href: "/dashboard/worker/profile" }] : []),
+    ...(pendingQuotes.length > 0 ? [{ label: "Track your proposals", detail: `${pendingQuotes.length} awaiting a client response`, href: "/dashboard/worker/jobs" }] : []),
+    ...(activeJobs.length > 0 ? [{ label: "Update active work", detail: `${activeJobs.length} active job${activeJobs.length === 1 ? "" : "s"}`, href: "/dashboard/worker/active-jobs" }] : []),
+  ].slice(0, 3);
+  const statusLabel = (status: string) => status.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
 
   const stats = [
     { label: "Jobs Completed", value: profile?.jobs_completed ?? 0, icon: <Briefcase className="w-7 h-7" /> },
     { label: "Rating", value: profile?.rating ? Number(profile.rating).toFixed(1) : "0.0", icon: <Star className="w-7 h-7" /> },
     { label: "Availability", value: profile?.availability ? profile.availability.charAt(0).toUpperCase() + profile.availability.slice(1) : "Available", icon: <MapPin className="w-7 h-7" /> },
-    { label: "This Month", value: recentJobs.filter(j => {
+    { label: "This Month", value: workerJobs.filter(j => {
       const d = new Date(j.created_at || "");
       const now = new Date();
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
@@ -275,6 +307,74 @@ export default function WorkerDashboard() {
         ))}
       </motion.div>
 
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="card-luxury p-6 md:p-8 rounded-2xl bg-[#111316] border border-[#D4AF37]/20"
+      >
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-[#D4AF37]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-white">Your next actions</h2>
+              <p className="text-sm text-gray-400 font-medium">Small updates that help you win and complete more work.</p>
+            </div>
+          </div>
+          <Link href="/dashboard/messages" className="text-sm font-bold text-[#D4AF37] hover:underline flex items-center gap-1">
+            Check messages <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {needsAttention.length > 0 ? (
+          <div className="grid md:grid-cols-3 gap-4">
+            {needsAttention.map((item) => (
+              <Link key={item.label} href={item.href} className="border border-white/10 rounded-2xl p-5 hover:border-[#D4AF37]/50 transition-colors group min-h-11">
+                <h3 className="font-black text-white group-hover:text-[#D4AF37] transition-colors">{item.label}</h3>
+                <p className="text-sm text-gray-400 mt-2">{item.detail}</p>
+                <span className="inline-flex items-center gap-1 mt-4 text-xs font-bold text-[#D4AF37]">Take action <ArrowRight className="w-3 h-3" /></span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <CheckCircle2 className="w-7 h-7 text-emerald-400 flex-shrink-0" />
+            <p className="text-sm text-gray-300 font-medium">You&apos;re all caught up. Browse new jobs when you&apos;re ready for the next opportunity.</p>
+          </div>
+        )}
+      </motion.section>
+
+      <div className="grid md:grid-cols-2 gap-5">
+        <div className="card-luxury p-6 rounded-2xl bg-[#111316] border border-white/10 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex items-center justify-center flex-shrink-0">
+            <Wallet className="w-5 h-5 text-[#D4AF37]" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-black">Recent earnings</p>
+            <p className="text-2xl font-black text-white mt-1">R {totalEarned.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-1">{completedJobs.length} completed jobs</p>
+          </div>
+          <Link href="/dashboard/worker/earnings" className="ml-auto text-[#D4AF37]" aria-label="View earnings">
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+        <div className="card-luxury p-6 rounded-2xl bg-[#111316] border border-white/10 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider font-black">Pending value</p>
+            <p className="text-2xl font-black text-white mt-1">R {pendingEarnings.toLocaleString()}</p>
+            <p className="text-xs text-gray-500 mt-1">{activeJobs.length} active jobs</p>
+          </div>
+          <Link href="/dashboard/worker/active-jobs" className="ml-auto text-[#D4AF37]" aria-label="View active jobs">
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </div>
+
       {/* ── Top Picks for Your Skills ── */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -353,7 +453,7 @@ export default function WorkerDashboard() {
       </motion.section>
 
       {/* ── Bottom Row ── */}
-      <div className="grid lg:grid-cols-5 gap-8">
+      <div className="grid lg:grid-cols-7 gap-8">
         {/* Recent Activity */}
         <div className="lg:col-span-3 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
           <div className="flex justify-between items-center mb-7">
@@ -381,7 +481,7 @@ export default function WorkerDashboard() {
                     <span className={`px-3 py-1 text-xs font-bold rounded-full ${
                       job.status === "completed" ? "bg-emerald-900/50 text-emerald-200" : "bg-amber-900/50 text-amber-200"
                     }`}>
-                      {job.status}
+                      {statusLabel(job.status)}
                     </span>
                     {job.price && <p className="text-sm font-bold text-white mt-1">R{job.price}</p>}
                   </div>
@@ -421,6 +521,28 @@ export default function WorkerDashboard() {
             {!profile?.bio && !profile?.skills?.length && (
               <p className="text-sm text-gray-400 font-medium">Complete your profile to attract more clients.</p>
             )}
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <h3 className="text-xl font-black text-white">Proposal Tracker</h3>
+            <FileText className="w-5 h-5 text-[#D4AF37]" />
+          </div>
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-gray-400">Submitted</span>
+              <span className="text-xl font-black text-white">{submittedQuotes.length}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-gray-400">Awaiting response</span>
+              <span className="text-xl font-black text-[#D4AF37]">{pendingQuotes.length}</span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-gray-400">Accepted</span>
+              <span className="text-xl font-black text-emerald-400">{acceptedQuotes.length}</span>
+            </div>
+            <Link href="/dashboard/worker/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#D4AF37] hover:underline">Browse more jobs <ArrowRight className="w-3.5 h-3.5" /></Link>
           </div>
         </div>
       </div>
