@@ -9,7 +9,7 @@ import { AnimatePresence } from "framer-motion"
 import PageTransition from "@/components/ui/PageTransition"
 import Skeleton from "@/components/ui/Skeleton"
 import Logo from "@/components/ui/Logo"
-import { Menu, X, LogOut } from "lucide-react"
+import { Menu, X, LogOut, Bell } from "lucide-react"
 import OnboardingWizard from "@/components/dashboard/OnboardingWizard"
 import { CHAT_UNREAD_CHANGED_EVENT, countUnreadMessages } from "@/lib/chatUnread"
 
@@ -69,9 +69,10 @@ type NavItemProps = {
   isActive: boolean
   onClick?: () => void
   showUnreadDot?: boolean
+  badgeCount?: number
 }
 
-const NavItem = ({ href, icon, children, isActive, onClick, showUnreadDot = false }: NavItemProps) => (
+const NavItem = ({ href, icon, children, isActive, onClick, showUnreadDot = false, badgeCount = 0 }: NavItemProps) => (
   <Link
     href={href}
     onClick={onClick}
@@ -88,6 +89,7 @@ const NavItem = ({ href, icon, children, isActive, onClick, showUnreadDot = fals
       )}
     </span>
     {children}
+    {badgeCount > 0 && <span className="ml-auto min-w-5 rounded-full bg-[#D4AF37] px-1.5 py-0.5 text-center text-[9px] font-black text-black">{badgeCount > 99 ? "99+" : badgeCount}</span>}
   </Link>
 )
 
@@ -97,6 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -191,6 +194,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [userId])
 
+  useEffect(() => {
+    if (!userId) return
+
+    let isMounted = true
+    const refreshNotificationCount = async () => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("read_at", null)
+      if (isMounted) setNotificationUnreadCount(count || 0)
+    }
+
+    refreshNotificationCount()
+    const channel = supabase.channel(`dashboard-notifications-${userId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, refreshNotificationCount)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, refreshNotificationCount)
+      .subscribe()
+
+    return () => {
+      isMounted = false
+      supabase.removeChannel(channel)
+    }
+  }, [userId])
+
   const isActive = (path: string) => {
     if (path === "/dashboard/client" || path === "/dashboard/worker") {
       return pathname === path
@@ -256,6 +284,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/active-jobs" icon={Icons.bookings} isActive={isActive("/dashboard/worker/active-jobs")}>My Active Jobs</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/earnings" icon={Icons.earnings} isActive={isActive("/dashboard/worker/earnings")}>Earnings</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")} showUnreadDot={unreadCount > 0}>Messages</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/notifications" icon={<Bell className="h-4 w-4" />} isActive={isActive("/dashboard/notifications")} badgeCount={notificationUnreadCount}>Notifications</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/profile" icon={Icons.profile} isActive={isActive("/dashboard/worker/profile")}>Profile</NavItem></div>
               </>
             ) : (
@@ -265,6 +294,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/workers" icon={Icons.browse} isActive={isActive("/dashboard/client/workers")}>Browse Workers</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/post-job" icon={Icons.jobs} isActive={isActive("/dashboard/client/post-job")}>Post Job</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/messages" icon={Icons.messages} isActive={isActive("/dashboard/messages")} showUnreadDot={unreadCount > 0}>Messages</NavItem></div>
+                <div onClick={closeMobileMenu}><NavItem href="/dashboard/notifications" icon={<Bell className="h-4 w-4" />} isActive={isActive("/dashboard/notifications")} badgeCount={notificationUnreadCount}>Notifications</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/profile" icon={Icons.profile} isActive={isActive("/dashboard/client/profile")}>Profile</NavItem></div>
               </>
             )}

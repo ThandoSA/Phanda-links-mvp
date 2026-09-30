@@ -205,10 +205,16 @@ export default function BookingsPage() {
                     </button>
                   )}
                   <Link
+                    href={`/dashboard/jobs/${job.id}`}
+                    className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold hover:text-black hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
+                  >
+                    Job Details <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                  <Link
                     href={`/dashboard/messages/${job.id}`}
                     className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-gold hover:text-black hover:border-gold text-white text-[10px] font-black uppercase tracking-[0.2em] py-3 px-8 rounded-none transition-colors duration-75"
                   >
-                    View Details <ArrowRight className="w-3.5 h-3.5" />
+                    Message <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>

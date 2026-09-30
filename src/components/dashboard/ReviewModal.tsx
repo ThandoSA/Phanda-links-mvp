@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { X, Star } from "lucide-react"
@@ -23,6 +23,14 @@ export default function ReviewModal({
   const [hovered, setHovered] = useState(0)
   const [comment, setComment] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [onClose])
 
   const handleSubmit = async () => {
     if (rating === 0) { toast.error("Please select a star rating"); return }
@@ -62,7 +70,7 @@ export default function ReviewModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="glass-card bg-white/97 w-full max-w-md p-8 rounded-3xl shadow-2xl relative space-y-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="review-dialog-title" className="glass-card bg-white/97 w-full max-w-md p-8 rounded-3xl shadow-2xl relative space-y-6">
         {/* Close */}
         <button
           onClick={onClose}
@@ -76,7 +84,7 @@ export default function ReviewModal({
           <p className="text-xs font-mono font-bold text-[#D4AF37] uppercase tracking-widest mb-1">
             {role === "worker" ? "Rate Your Client" : "Rate Your Worker"}
           </p>
-          <h2 className="text-2xl font-black text-black tracking-tight leading-tight">{jobTitle}</h2>
+          <h2 id="review-dialog-title" className="text-2xl font-black text-black tracking-tight leading-tight">{jobTitle}</h2>
           <p className="text-gray-500 text-sm font-medium mt-1">
             How was your experience with <span className="font-bold text-black">{revieweeName}</span>?
           </p>
@@ -86,8 +94,10 @@ export default function ReviewModal({
         <div className="flex flex-col items-center gap-3">
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map(n => (
-              <button
+                <button
                 key={n}
+                  type="button"
+                  aria-label={`Rate ${n} out of 5 stars`}
                 onMouseEnter={() => setHovered(n)}
                 onMouseLeave={() => setHovered(0)}
                 onClick={() => setRating(n)}

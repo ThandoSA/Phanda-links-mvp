@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Navbar from "@/components/layout/Navbar";
-import { Star, MapPin, Award, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Star, MapPin, Award, MessageCircle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface WorkerProfile {
@@ -22,12 +22,21 @@ interface WorkerProfile {
   availability?: string;
 }
 
+interface WorkerReview {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  created_at: string;
+  reviewer?: { full_name?: string | null } | null;
+}
+
 export default function WorkerProfile() {
   const params = useParams();
   const router = useRouter();
   const workerId = params.id as string;
 
   const [profile, setProfile] = useState<WorkerProfile | null>(null);
+  const [reviews, setReviews] = useState<WorkerReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +78,14 @@ export default function WorkerProfile() {
           location: data.location,
           ...workerData,
         });
+
+        const { data: reviewData } = await supabase
+          .from("reviews")
+          .select("id, rating, comment, created_at, reviewer:profiles!reviews_reviewer_id_fkey(full_name)")
+          .eq("reviewee_id", workerId)
+          .order("created_at", { ascending: false })
+          .limit(6);
+        setReviews((reviewData as unknown as WorkerReview[]) || []);
       }
       setLoading(false);
     };
@@ -203,6 +220,33 @@ export default function WorkerProfile() {
                 </div>
               </div>
             )}
+
+            <div className="mt-12">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold">Reviews</h3>
+                  <p className="mt-1 text-sm text-gray-500">Feedback from clients after completed jobs.</p>
+                </div>
+                <div className="flex items-center gap-2 text-lg font-bold text-gray-700">
+                  <Star className="h-5 w-5 fill-[#D4AF37] text-[#D4AF37]" />
+                  {profile.rating ? Number(profile.rating).toFixed(1) : "New"} <span className="text-sm font-medium text-gray-500">({reviews.length} shown)</span>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                {reviews.length > 0 ? reviews.map((review) => (
+                  <article key={review.id} className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-bold text-gray-900">{review.reviewer?.full_name || "Verified client"}</p>
+                        <p className="mt-1 text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString("en-ZA")}</p>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-sm font-black text-[#B8860B]"><Star className="h-4 w-4 fill-[#D4AF37] text-[#D4AF37]" />{review.rating}/5</span>
+                    </div>
+                    {review.comment && <p className="mt-3 text-sm leading-6 text-gray-600">{review.comment}</p>}
+                  </article>
+                )) : <p className="rounded-2xl border border-dashed border-gray-300 p-6 text-sm font-medium text-gray-500">No client reviews yet.</p>}
+              </div>
+            </div>
           </div>
 
           {/* Right Column - Actions & Stats */}

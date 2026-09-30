@@ -273,6 +273,12 @@ export default function ActiveJobsPage() {
                           </button>
                         )}
                         <Link
+                          href={`/dashboard/jobs/${job.id}`}
+                          className="flex items-center justify-center gap-2 px-6 py-3.5 border border-white/10 rounded-full text-sm font-bold text-white hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all bg-white/5 hover:bg-[#D4AF37]/10"
+                        >
+                          Job Details <ArrowRight className="w-4 h-4" />
+                        </Link>
+                        <Link
                           href={`/dashboard/messages/${job.id}`}
                           className="flex items-center justify-center gap-2 px-6 py-3.5 border border-white/10 rounded-full text-sm font-bold text-white hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all bg-white/5 hover:bg-[#D4AF37]/10"
                         >
