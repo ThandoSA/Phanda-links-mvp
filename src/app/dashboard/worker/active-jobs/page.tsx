@@ -84,10 +84,10 @@ export default function ActiveJobsPage() {
 
     setUpdatingId(job.id)
     try {
-      const { error } = await supabase
-        .from("jobs")
-        .update({ status: step.next, updated_at: new Date().toISOString() })
-        .eq("id", job.id)
+      const { error } = await supabase.rpc("transition_job_status", {
+        p_job_id: job.id,
+        p_next_status: step.next,
+      })
 
       if (error) throw error
 
@@ -104,8 +104,8 @@ export default function ActiveJobsPage() {
       if (step.next === "completed") {
         setReviewJob({ ...job, status: "completed" })
       }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update status")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update status")
     } finally {
       setUpdatingId(null)
     }

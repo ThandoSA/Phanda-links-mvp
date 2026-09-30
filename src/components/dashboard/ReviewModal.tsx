@@ -46,27 +46,11 @@ export default function ReviewModal({
         return
       }
 
-      // Also update worker_profiles rating if reviewing a worker
-      if (role === "client") {
-        const { data: existing } = await supabase
-          .from("reviews")
-          .select("rating")
-          .eq("reviewee_id", revieweeId)
-
-        if (existing && existing.length > 0) {
-          const avg = (existing.reduce((s: number, r: any) => s + r.rating, 0)) / existing.length
-          await supabase
-            .from("worker_profiles")
-            .update({ rating: Math.round(avg * 10) / 10 })
-            .eq("user_id", revieweeId)
-        }
-      }
-
       toast.success("Review submitted — thank you!")
       onSubmitted?.()
       onClose()
-    } catch (err: any) {
-      toast.error(err.message || "Failed to submit review")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit review")
     } finally {
       setLoading(false)
     }
