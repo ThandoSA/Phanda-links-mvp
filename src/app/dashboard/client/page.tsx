@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Briefcase, Users, Clock, Star, FileText, AlertCircle, ArrowRight, CheckCircle2, MapPin, MessageSquare } from "lucide-react";
+import { Plus, Briefcase, Users, Clock, Star, FileText, AlertCircle, ArrowRight, CheckCircle2, MapPin, MessageSquare, CalendarDays, RefreshCw, Wallet } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal";
@@ -19,6 +19,7 @@ interface PostedJob {
   updated_at?: string;
   location?: string;
   worker_id?: string | null;
+  scheduled_time?: string | null;
 }
 
 interface Profile {
@@ -67,6 +68,7 @@ export default function ClientDashboard() {
   const [postedJobs, setPostedJobs] = useState<PostedJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [quoteModal, setQuoteModal] = useState<{ jobId: string; jobTitle: string } | null>(null);
+  const [currentTime] = useState(() => Date.now());
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -85,7 +87,7 @@ export default function ClientDashboard() {
 
       const { data: jobsData, error: jobsError } = await supabase
         .from("jobs")
-        .select("id, title, status, price, created_at, updated_at, location, worker_id")
+        .select("id, title, status, price, created_at, updated_at, location, worker_id, scheduled_time")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false })
         .limit(6);
@@ -143,6 +145,19 @@ export default function ClientDashboard() {
   const completedJobsCount = postedJobs.filter(job => job.status === "completed").length;
   const hiredWorkersCount = postedJobs.filter(job => job.worker_id && ["accepted", "en_route", "in_progress", "completed"].includes(job.status)).length;
   const proposalCount = postedJobs.reduce((total, job) => total + (job.applicants_count || 0), 0);
+  const committedBudget = activeJobs.reduce((total, job) => total + Number(job.price || 0), 0);
+  const upcomingJobs = postedJobs
+    .filter((job) => job.scheduled_time && new Date(job.scheduled_time).getTime() >= currentTime && activeStatuses.includes(job.status))
+    .sort((a, b) => new Date(a.scheduled_time || 0).getTime() - new Date(b.scheduled_time || 0).getTime())
+    .slice(0, 3);
+  const pipeline = [
+    { label: "Open", statuses: ["open"] },
+    { label: "Reviewing quotes", statuses: ["pending"] },
+    { label: "Worker selected", statuses: ["accepted"] },
+    { label: "In progress", statuses: ["en_route", "in_progress"] },
+    { label: "Completed", statuses: ["completed"] },
+  ];
+  const profileComplete = Boolean(profile?.full_name && profile.avatar_url && profile.avatar_url !== "/images/default-avatar.svg");
   const activityProgress = postedJobs.length > 0 ? Math.round((completedJobsCount / postedJobs.length) * 100) : 0;
   const jobsForDisplay = [...postedJobs].sort((a, b) => {
     const activeDifference = Number(activeStatuses.includes(b.status)) - Number(activeStatuses.includes(a.status));
@@ -217,13 +232,14 @@ export default function ClientDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-4 gap-5"
+        className="grid grid-cols-2 md:grid-cols-5 gap-5"
       >
         {[
           { label: "Jobs Posted", value: postedJobs.length, icon: <Briefcase className="w-7 h-7" /> },
           { label: "Active Jobs", value: activeJobsCount, icon: <Clock className="w-7 h-7" /> },
           { label: "Proposals Received", value: proposalCount, icon: <Users className="w-7 h-7" /> },
           { label: "Workers Hired", value: hiredWorkersCount, icon: <Star className="w-7 h-7" /> },
+          { label: "Committed Budget", value: `R ${committedBudget.toLocaleString()}`, icon: <Wallet className="w-7 h-7" /> },
         ].map((stat, i) => (
           <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
             <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
@@ -232,6 +248,24 @@ export default function ClientDashboard() {
           </motion.div>
         ))}
       </motion.div>
+
+      <section className="card-luxury rounded-2xl border border-white/10 bg-[#111316] p-6 md:p-8">
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div><h2 className="text-xl font-black text-white">Hiring pipeline</h2><p className="mt-1 text-sm font-medium text-gray-400">See where every request stands.</p></div>
+          <button type="button" onClick={() => window.location.reload()} aria-label="Refresh client dashboard" className="rounded-full p-2 text-[#D4AF37] transition-colors hover:bg-white/5"><RefreshCw className="h-5 w-5" /></button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          {pipeline.map((stage) => {
+            const count = postedJobs.filter((job) => stage.statuses.includes(job.status)).length
+            return <Link key={stage.label} href="/dashboard/client/bookings" className="rounded-2xl border border-white/10 p-4 transition-colors hover:border-[#D4AF37]/50"><p className="text-2xl font-black text-white">{count}</p><p className="mt-1 text-xs font-bold leading-5 text-gray-400">{stage.label}</p></Link>
+          })}
+        </div>
+      </section>
+
+      <section className="card-luxury rounded-2xl border border-white/10 bg-[#111316] p-6 md:p-8">
+        <div className="flex items-center justify-between gap-3 mb-6"><div><h2 className="text-xl font-black text-white">Upcoming work</h2><p className="mt-1 text-sm font-medium text-gray-400">Scheduled jobs that need your attention next.</p></div><CalendarDays className="h-5 w-5 text-[#D4AF37]" aria-hidden="true" /></div>
+        {upcomingJobs.length > 0 ? <div className="grid gap-4 md:grid-cols-3">{upcomingJobs.map((job) => <Link key={job.id} href={`/dashboard/jobs/${job.id}`} className="rounded-2xl border border-white/10 p-5 transition-colors hover:border-[#D4AF37]/50"><p className="font-black text-white">{job.title}</p><p className="mt-2 text-sm font-bold text-[#D4AF37]">{new Date(job.scheduled_time || "").toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" })}</p><p className="mt-1 text-xs text-gray-400">{job.location || "On-site"}</p></Link>)}</div> : <p className="rounded-2xl border border-dashed border-white/10 p-5 text-sm font-medium text-gray-400">No upcoming jobs scheduled yet.</p>}
+      </section>
 
       <motion.section
         variants={containerVariants}
@@ -371,7 +405,7 @@ export default function ClientDashboard() {
         <motion.div variants={itemVariants} className="lg:col-span-3 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
           <div className="flex justify-between items-center mb-7">
             <h3 className="text-xl font-black text-white">Next steps</h3>
-            <Link href="/dashboard/client/profile" className="text-[#D4AF37] hover:underline text-sm font-bold">View Profile</Link>
+            <Link href="/dashboard/client/profile" className="text-[#D4AF37] hover:underline text-sm font-bold">{profileComplete ? "View Profile" : "Complete Profile"}</Link>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <Link href="/dashboard/client/workers" className="border border-white/10 rounded-2xl p-5 hover:border-[#D4AF37]/50 transition-colors group">

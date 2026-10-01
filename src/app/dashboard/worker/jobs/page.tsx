@@ -7,7 +7,6 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Job } from "@/types"
 import QuoteModal from "@/components/dashboard/QuoteModal"
-import Skeleton from "@/components/ui/Skeleton"
 import { fetchOpenJobs } from "@/lib/marketplace"
 import { 
   Search, 
@@ -23,6 +22,8 @@ export default function JobsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [filter, setFilter] = useState("All")
+  const [category, setCategory] = useState("All")
+  const [maxBudget, setMaxBudget] = useState("")
 
   useEffect(() => {
     const loadOpenJobs = async () => {
@@ -54,10 +55,15 @@ export default function JobsPage() {
     loadOpenJobs()
   }, [])
 
+  const categories = Array.from(new Set(openJobs.map((job) => (job as Job & { category?: string }).category).filter(Boolean))) as string[]
+
   const filteredJobs = [...openJobs].filter(job => {
     const matchesSearch = (job.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
                           (job.location?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-    return matchesSearch
+    const jobCategory = (job as Job & { category?: string }).category || ""
+    const matchesCategory = category === "All" || jobCategory === category
+    const matchesBudget = !maxBudget || Number(job.price || 0) <= Number(maxBudget)
+    return matchesSearch && matchesCategory && matchesBudget
   }).sort((a, b) => {
     if (filter === "High Pay") {
       return (b.price || 0) - (a.price || 0);
@@ -108,6 +114,11 @@ export default function JobsPage() {
               className="w-full bg-white/5 border border-white/10 rounded-full py-3.5 pl-12 pr-6 text-sm font-bold text-white focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all shadow-inner placeholder-gray-500"
             />
           </div>
+          <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category" className="min-h-11 rounded-full border border-white/10 bg-white/5 px-4 text-xs font-bold text-white outline-none focus:border-[#D4AF37]">
+            <option value="All" className="bg-[#111316]">All categories</option>
+            {categories.map((item) => <option key={item} value={item} className="bg-[#111316]">{item}</option>)}
+          </select>
+          <input value={maxBudget} onChange={(event) => setMaxBudget(event.target.value)} type="number" min="0" placeholder="Max budget" aria-label="Maximum budget" className="min-h-11 w-full rounded-full border border-white/10 bg-white/5 px-4 text-xs font-bold text-white outline-none placeholder:text-gray-500 focus:border-[#D4AF37] md:w-32" />
               <div className="flex shrink-0 flex-wrap gap-2">
              {["All", "Recent", "High Pay"].map((btn) => (
                <button 

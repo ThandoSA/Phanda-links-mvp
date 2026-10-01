@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Briefcase, Star, MapPin, Calendar, Zap, ArrowRight, Clock, AlertCircle, CheckCircle2, Wallet, FileText } from "lucide-react";
+import { Briefcase, Star, MapPin, Calendar, Zap, ArrowRight, Clock, AlertCircle, CheckCircle2, Wallet, FileText, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
 interface WorkerProfile {
@@ -35,6 +35,7 @@ interface SubmittedQuote {
   status: string;
   amount?: number;
   created_at?: string;
+  jobTitle?: string;
 }
 
 interface OpenJob {
@@ -145,7 +146,13 @@ export default function WorkerDashboard() {
         .eq("worker_id", user.id)
         .order("created_at", { ascending: false });
 
-      setSubmittedQuotes(quotesData || []);
+      const quoteRows = quotesData || [];
+      const quoteJobIds = quoteRows.map((quote) => quote.job_id);
+      const { data: quoteJobs } = quoteJobIds.length > 0
+        ? await supabase.from("jobs").select("id, title").in("id", quoteJobIds)
+        : { data: [] };
+      const quoteTitles = new Map((quoteJobs || []).map((job) => [job.id, job.title]));
+      setSubmittedQuotes(quoteRows.map((quote) => ({ ...quote, jobTitle: quoteTitles.get(quote.job_id) || "Job proposal" })));
 
       // Fetch Top Picks — open jobs matching worker's skills
       if (workerSkills.length > 0) {
@@ -254,7 +261,7 @@ export default function WorkerDashboard() {
           </div>
 
           <div className="flex flex-col gap-3 text-right md:text-left md:self-start">
-            <p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your progress</p>
+            <div className="flex items-center justify-end gap-2 md:justify-start"><p className="text-sm uppercase tracking-[0.3em] text-[#D4AF37] font-black">Your progress</p><button type="button" onClick={() => window.location.reload()} aria-label="Refresh worker dashboard" className="rounded-full p-1 text-[#D4AF37] transition-colors hover:bg-white/5"><RefreshCw className="h-4 w-4" /></button></div>
             <div className="h-3 rounded-full bg-black/20 overflow-hidden border border-white/10 w-full md:w-72">
               <div className="h-full bg-[#D4AF37] transition-all" style={{ width: `${(completedCount / profileCompletionItems.length) * 100}%` }} />
             </div>
@@ -542,6 +549,12 @@ export default function WorkerDashboard() {
               <span className="text-sm text-gray-400">Accepted</span>
               <span className="text-xl font-black text-emerald-400">{acceptedQuotes.length}</span>
             </div>
+            {submittedQuotes.slice(0, 3).map((quote) => (
+              <Link key={quote.id} href="/dashboard/worker/jobs" className="block border-t border-white/10 pt-3 transition-colors hover:text-[#D4AF37]">
+                <div className="flex items-center justify-between gap-3"><span className="min-w-0 truncate text-sm font-bold text-white">{quote.jobTitle}</span><span className="shrink-0 text-xs font-black capitalize text-gray-400">{quote.status}</span></div>
+                <p className="mt-1 text-xs text-gray-500">R {Number(quote.amount || 0).toLocaleString()} · {quote.created_at ? new Date(quote.created_at).toLocaleDateString("en-ZA") : "Recent"}</p>
+              </Link>
+            ))}
             <Link href="/dashboard/worker/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#D4AF37] hover:underline">Browse more jobs <ArrowRight className="w-3.5 h-3.5" /></Link>
           </div>
         </div>
