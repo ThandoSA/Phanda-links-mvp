@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
-import Link from "next/link"
 import { 
   BadgeCheck, 
   Star, 
@@ -86,8 +85,8 @@ export default function WorkerProfileForm() {
       const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
       await supabase.from("worker_profiles").upsert({ user_id: user.id, skills: skillsArray, bio, availability })
       toast.success("Profile updated successfully!")
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save profile")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to save profile")
     } finally {
       setSaving(false)
     }

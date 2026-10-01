@@ -199,7 +199,7 @@ export default function JobsPage() {
                     </div>
                     <h3 className="text-2xl font-black text-white leading-tight tracking-tight group-hover:text-[#D4AF37] transition-colors">{job.title || "Service Request"}</h3>
                     <p className="text-gray-400 text-sm font-medium line-clamp-3 leading-relaxed">
-                      "{job.description || "NO SPECIFIC DETAILS PROVIDED."}"
+                      &quot;{job.description || "NO SPECIFIC DETAILS PROVIDED."}&quot;
                     </p>
                   </div>
 
@@ -208,10 +208,10 @@ export default function JobsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10 bg-white/5 flex-shrink-0">
-                          <Image src={(job.client as any)?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill sizes="40px" className="object-cover" />
+                          <Image src={job.client?.avatar_url || "/images/default-avatar.svg"} alt="Client" fill sizes="40px" className="object-cover" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-white text-sm font-bold truncate">{(job.client as any)?.full_name || "Premium Client"}</p>
+                          <p className="text-white text-sm font-bold truncate">{job.client?.full_name || "Premium Client"}</p>
                         </div>
                       </div>
                       <div className="text-right flex flex-col items-end">

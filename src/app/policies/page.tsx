@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
-import { Shield, Book, UserCheck, Briefcase, CreditCard, XCircle, Star, Scale, Award, Heart, ScrollText, Lock } from "lucide-react"
+import { Shield, UserCheck, Briefcase, CreditCard, XCircle, Star, Scale, Award, Heart, ScrollText, Lock } from "lucide-react"
 
 export default function PoliciesPage() {
     const policies = [
@@ -238,7 +238,7 @@ export default function PoliciesPage() {
 
                         {/* Policies Content */}
                         <div className="lg:col-span-3 space-y-24">
-                            {policies.map((p, idx) => (
+                            {policies.map((p) => (
                                 <motion.section 
                                     key={p.id} 
                                     id={p.id}

@@ -8,11 +8,12 @@ import toast from "react-hot-toast"
 import { Menu, X } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 import { motion, AnimatePresence } from "framer-motion"
+import type { User } from "@supabase/supabase-js"
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<string | null>(null)
   const pathname = usePathname()
 

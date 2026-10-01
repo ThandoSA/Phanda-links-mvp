@@ -56,7 +56,9 @@ export default function BookingsPage() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchBookings() }, [fetchBookings])
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchBookings())
+  }, [fetchBookings])
 
   const filteredBookings = bookings.filter(job => {
     if (filter === "active") return ["open", "pending", "accepted", "en_route", "in_progress"].includes(job.status)

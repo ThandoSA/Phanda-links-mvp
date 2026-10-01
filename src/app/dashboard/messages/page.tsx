@@ -166,7 +166,9 @@ export default function MessagesInboxPage() {
         setLoading(false)
     }, [router, workerId])
 
-    useEffect(() => { fetchChats() }, [fetchChats])
+    useEffect(() => {
+        void Promise.resolve().then(() => fetchChats())
+    }, [fetchChats])
 
     useEffect(() => {
         if (!userId) return

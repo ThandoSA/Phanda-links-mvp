@@ -57,7 +57,9 @@ export default function NotificationsPage() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchNotifications() }, [fetchNotifications])
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchNotifications())
+  }, [fetchNotifications])
 
   useEffect(() => {
     if (!userId) return

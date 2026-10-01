@@ -5,12 +5,11 @@ import Image from "next/image"
 
 type LogoProps = {
   size?: number
-  showText?: boolean
   href?: string | null
   className?: string
 }
 
-export default function Logo({ size = 32, showText = true, href = "/", className = "" }: LogoProps) {
+export default function Logo({ size = 32, href = "/", className = "" }: LogoProps) {
   const content = (
     <span className={`flex items-center gap-3 group ${className}`}>
       <Image 

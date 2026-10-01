@@ -98,7 +98,7 @@ function PostJobForm() {
                 toast.success("Job request published successfully!")
                 router.push("/dashboard/client")
             }
-        } catch (err: any) {
+        } catch {
             toast.error("An unexpected error occurred")
         } finally {
             setLoading(false)

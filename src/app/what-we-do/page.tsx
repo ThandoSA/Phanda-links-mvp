@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
-import { Briefcase, Users, Search, Star, CreditCard, Clock, ShieldCheck, MapPin, CalendarCheck, MessageSquare, ArrowRight } from "lucide-react"
+import { Briefcase, Users, Search, Star, CreditCard, Clock, ShieldCheck, MapPin, CalendarCheck, MessageSquare } from "lucide-react"
 
 export default function WhatWeDoPage() {
     const workerBenefits = [
@@ -98,7 +98,7 @@ export default function WhatWeDoPage() {
                             What we <span className="text-[#D4AF37]">do.</span>
                         </h1>
                         <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed">
-                            We connect workers to jobs and clients to trusted services, creating a seamless marketplace for Mzansi's excellence.
+                            We connect workers to jobs and clients to trusted services, creating a seamless marketplace for Mzansi&apos;s excellence.
                         </p>
                     </motion.div>
                 </div>

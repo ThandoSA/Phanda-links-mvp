@@ -119,7 +119,7 @@ export default function WorkerDashboard() {
       let workerSkills: string[] = [];
 
       if (!error && profileData) {
-        const workerData = (profileData.worker_profiles as any)?.[0] || {};
+        const workerData = (Array.isArray(profileData.worker_profiles) ? profileData.worker_profiles[0] : profileData.worker_profiles) || {};
         workerSkills = workerData.skills || [];
         setProfile({
           ...workerData,

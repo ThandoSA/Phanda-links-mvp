@@ -4,7 +4,7 @@ import { useState } from "react"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import toast from "react-hot-toast"
-import { Mail, Phone, MapPin, Send, ShieldCheck, Clock } from "lucide-react"
+import { Mail, Phone, MapPin, Send, ShieldCheck } from "lucide-react"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

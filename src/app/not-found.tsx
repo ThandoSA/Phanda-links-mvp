@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Home, ArrowLeft, Search } from "lucide-react"
+import { Home, Search } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 
 export default function NotFound() {

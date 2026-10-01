@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { X, Check, Star, MessageSquare, ShieldCheck, Clock, User } from "lucide-react"
+import { X, Check, Clock } from "lucide-react"
 
 interface Quote {
   id: string
@@ -57,7 +57,7 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
         console.error("Fetch quotes error:", error)
         toast.error("Failed to load quotes")
       } else {
-        setQuotes((data as any) || [])
+        setQuotes((data as unknown as Quote[]) || [])
       }
     } catch (err) {
       console.error(err)

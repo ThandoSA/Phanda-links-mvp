@@ -22,7 +22,9 @@ function SignupForm() {
   const [location, setLocation] = useState("")
   const [showPassword, setShowPassword] = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    queueMicrotask(() => setMounted(true))
+  }, [])
   if (!mounted) return null
 
   const handleGoogleSignup = async () => {

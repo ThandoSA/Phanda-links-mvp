@@ -4,7 +4,7 @@ import { useState } from "react"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
-import { Search, ChevronDown, HelpCircle, Briefcase, ShieldCheck, UserCheck, MessageSquare, ArrowRight } from "lucide-react"
+import { Search, ChevronDown, HelpCircle, ArrowRight } from "lucide-react"
 
 interface FAQItem {
   question: string

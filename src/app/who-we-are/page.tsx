@@ -45,7 +45,7 @@ export default function WhoWeArePage() {
                             <span className="text-[#D4AF37]">skills meet opportunity.</span>
                         </h1>
                         <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed">
-                            Connecting communities and empowering South Africa's workforce through trust, visibility, and professional dignity.
+                            Connecting communities and empowering South Africa&apos;s workforce through trust, visibility, and professional dignity.
                         </p>
                     </motion.div>
 
@@ -89,10 +89,10 @@ export default function WhoWeArePage() {
                                     Phanda Links was born from a simple observation: talented, hardworking people across South Africa struggle to find consistent work, while households and businesses need reliable local services.
                                 </p>
                                 <p>
-                                    We saw an opportunity to bridge this gap through technology — creating a platform that doesn't just connect people, but builds trust, circulates income, and strengthens communities.
+                                    We saw an opportunity to bridge this gap through technology — creating a platform that doesn&apos;t just connect people, but builds trust, circulates income, and strengthens communities.
                                 </p>
                                 <p>
-                                    Today, we're proud to be empowering thousands of workers while providing South Africans with fast, reliable access to trusted local services.
+                                    Today, we&apos;re proud to be empowering thousands of workers while providing South Africans with fast, reliable access to trusted local services.
                                 </p>
                             </div>
                         </motion.div>
@@ -182,7 +182,7 @@ export default function WhoWeArePage() {
                         <span className="text-[#D4AF37]">Community.</span>
                     </h2>
                     <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                        Whether you're looking for work or need a trusted service provider, Phanda Links is here to bridge the gap.
+                        Whether you&apos;re looking for work or need a trusted service provider, Phanda Links is here to bridge the gap.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient"
 import Image from "next/image"
 import Link from "next/link"
 import { Worker } from "@/types"
-import { Star, MapPin, BadgeCheck, Search, ArrowRight, User } from "lucide-react"
+import { Star, MapPin, BadgeCheck, Search, ArrowRight } from "lucide-react"
 
 export default function SavedPage() {
   const [savedWorkers, setSavedWorkers] = useState<Worker[]>([])
@@ -21,18 +21,13 @@ export default function SavedPage() {
           .select(`worker:profiles (id, full_name, avatar_url, location, worker_profiles (skills, bio, availability, rating, verified))`)
           .eq("client_id", userData.user.id)
         if (!error && data) {
-          const mapped = data.map((item: any) => {
-            const worker = item.worker
+          const mapped = data.map((item: { worker: Worker[] }) => {
+            const worker = item.worker[0]
             if (worker) {
-              const wp = worker.worker_profiles?.[0]
-              return {
-                ...worker,
-                rating: wp?.rating || 0,
-                is_verified: wp?.verified || false
-              }
+              return worker
             }
             return null
-          }).filter(Boolean)
+          }).filter((worker): worker is Worker => Boolean(worker))
           setSavedWorkers(mapped || [])
         }
       } catch (err) {
@@ -80,7 +75,7 @@ export default function SavedPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {savedWorkers.map((worker, i) => {
-            const availability = (worker as any).worker_profiles?.[0]?.availability
+            const availability = worker.worker_profiles?.[0]?.availability
             const isAvailable = !availability || availability === "available"
             return (
               <div key={worker.id} className={`card-luxury p-6 rounded-md flex flex-col items-center text-center animate-fade-in-up stagger-${Math.min(i+1,6)} border border-white/5 hover:border-gold/30 group`}>
@@ -98,7 +93,7 @@ export default function SavedPage() {
 
                 <h3 className="text-xl font-black text-white mb-1 group-hover:text-gold transition-colors">{worker.full_name}</h3>
                 
-                {(worker as any).is_verified && (
+                {worker.is_verified && (
                   <div className="flex items-center gap-1.5 text-[9px] text-emerald-400 font-black uppercase tracking-wider border border-emerald-500/30 px-2 py-0.5 rounded-full bg-emerald-500/10 mb-2">
                     <BadgeCheck className="w-3 h-3" />
                     Verified
@@ -110,10 +105,10 @@ export default function SavedPage() {
                   <p className="text-[10px] font-bold uppercase tracking-widest">{worker.location || "Available Nationwide"}</p>
                 </div>
 
-                {(worker as any).rating > 0 && (
+                {(worker.worker_profiles?.[0]?.rating || 0) > 0 && (
                   <div className="flex items-center gap-1 text-gold text-xs font-black mb-5">
                     <Star className="w-3.5 h-3.5 fill-gold" />
-                    {(worker as any).rating.toFixed(1)}
+                    {worker.worker_profiles?.[0]?.rating?.toFixed(1)}
                   </div>
                 )}
 

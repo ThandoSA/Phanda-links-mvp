@@ -6,7 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Briefcase, Star, Users, MapPin, Award } from "lucide-react";
+import { Briefcase, Users, Award } from "lucide-react";
 
 const heroImages = [
   "/images/cinematic-1.png.jpg",

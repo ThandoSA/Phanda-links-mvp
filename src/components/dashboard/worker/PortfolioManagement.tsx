@@ -91,8 +91,8 @@ export default function PortfolioManagement() {
             setIsAdding(false)
             resetForm()
             fetchPortfolio()
-        } catch (error: any) {
-            toast.error(error.message || "Failed to add item")
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : "Failed to add item")
         } finally {
             setUploading(false)
         }
@@ -119,8 +119,8 @@ export default function PortfolioManagement() {
 
             toast.success("Item deleted")
             setItems(items.filter(item => item.id !== id))
-        } catch (error: any) {
-            toast.error(error.message || "Failed to delete item")
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : "Failed to delete item")
         }
     }
 

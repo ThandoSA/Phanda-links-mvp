@@ -32,8 +32,8 @@ export default function PaymentConfirmModal({ jobId, jobTitle, amount, workerNam
       setConfirmed(true)
       toast.success("Payment confirmed! Your job is now closed.")
       onConfirmed?.()
-    } catch (err: any) {
-      toast.error(err.message || "Failed to confirm payment")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to confirm payment")
     } finally {
       setLoading(false)
     }

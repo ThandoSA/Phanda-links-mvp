@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabaseClient"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import { Message, Job } from "@/types"
-import { ArrowLeft, Send, MessageSquare, ShieldCheck, Clock } from "lucide-react"
+import { ArrowLeft, Send, MessageSquare, Clock } from "lucide-react"
 import { markConversationRead } from "@/lib/chatUnread"
 
 type DirectConversation = {
@@ -79,9 +79,11 @@ export default function ChatPage() {
     }
     setMessages(msgs || [])
     setLoading(false)
-  }, [jobId, router])
+  }, [jobId])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchData())
+  }, [fetchData])
 
   useEffect(() => {
     if (!jobId || !userId) return
@@ -118,7 +120,7 @@ export default function ChatPage() {
         }
       ).subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [jobId, userId])
+  }, [job, jobId, userId])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages])
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
-import { Search, MapPin, Star, Filter, Loader2 } from "lucide-react";
+import { Search, MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { fetchListedWorkers, type ListedWorker } from "@/lib/marketplace";
 
@@ -12,7 +12,6 @@ export default function WorkersPage() {
   const [workers, setWorkers] = useState<ListedWorker[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterLocation, setFilterLocation] = useState("");
 
   // Fetch workers with real-time subscription
   useEffect(() => {
@@ -51,10 +50,7 @@ export default function WorkersPage() {
       worker.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       worker.skills?.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesLocation = filterLocation === "" ||
-      worker.location?.toLowerCase().includes(filterLocation.toLowerCase());
-
-    return matchesSearch && matchesLocation;
+    return matchesSearch;
   });
 
   return (

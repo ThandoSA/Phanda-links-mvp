@@ -94,9 +94,9 @@ export default function ClientProfileForm() {
 
             toast.success("Profile updated successfully!")
             router.refresh()
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Save error:", error)
-            toast.error(error.message || "Failed to save profile")
+            toast.error(error instanceof Error ? error.message : "Failed to save profile")
         } finally {
             setSaving(false)
         }

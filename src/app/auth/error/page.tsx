@@ -1,8 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Navbar from "@/components/layout/Navbar"
-import Footer from "@/components/layout/Footer"
 import { AlertTriangle, ArrowLeft, RefreshCw, Mail } from "lucide-react"
 
 export default function AuthErrorPage() {

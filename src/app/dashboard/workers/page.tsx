@@ -44,7 +44,7 @@ export default function DashboardWorkersPage() {
       }
 
       if (savedRes.data) {
-        setSavedWorkerIds(new Set(savedRes.data.map((s: any) => s.worker_id)));
+        setSavedWorkerIds(new Set(savedRes.data.map((savedWorker: { worker_id: string }) => savedWorker.worker_id)));
       }
 
       setLoading(false);

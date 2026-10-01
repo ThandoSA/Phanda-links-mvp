@@ -73,7 +73,9 @@ export default function JobDetailPage() {
     setLoading(false)
   }, [params.jobId])
 
-  useEffect(() => { fetchJob() }, [fetchJob])
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchJob())
+  }, [fetchJob])
 
   if (loading) return <div className="mx-auto max-w-5xl space-y-6"><div className="h-12 w-64 animate-pulse rounded bg-white/5" /><div className="h-72 animate-pulse rounded-2xl bg-white/5" /><div className="h-48 animate-pulse rounded-2xl bg-white/5" /></div>
   if (!job) return <div className="mx-auto max-w-5xl py-20 text-center text-gray-400">This job could not be found.</div>

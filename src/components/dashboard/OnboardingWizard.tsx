@@ -120,8 +120,8 @@ export default function OnboardingWizard({ role, userId }: Props) {
       
       toast.success("Profile setup complete!");
       setShow(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to save profile");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to save profile");
     } finally {
       setSaving(false);
     }
@@ -166,7 +166,7 @@ export default function OnboardingWizard({ role, userId }: Props) {
               </div>
               <h2 className="text-3xl font-black tracking-tighter mb-4 text-black">Welcome to Phanda Links</h2>
               <p className="text-gray-500 font-medium mb-8">
-                You're all set to find South Africa's best talent. Browse worker profiles, post jobs, and build your trusted network.
+                You&apos;re all set to find South Africa&apos;s best talent. Browse worker profiles, post jobs, and build your trusted network.
               </p>
               
               <div className="space-y-4 mb-8 text-left bg-gray-50 p-6 rounded-2xl border border-gray-100">

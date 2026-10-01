@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Navbar from "@/components/layout/Navbar"
-import Footer from "@/components/layout/Footer"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { KeyRound, ArrowRight, ArrowLeft, Mail, CheckCircle2 } from "lucide-react"
@@ -32,7 +30,7 @@ export default function ForgotPasswordPage() {
         setSubmitted(true)
         toast.success("Password reset email sent!")
       }
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to process request")
     } finally {
       setLoading(false)

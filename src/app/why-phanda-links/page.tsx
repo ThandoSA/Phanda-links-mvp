@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Users, Target, Award, ArrowRight } from "lucide-react";
+import { Users, Target, Award } from "lucide-react";
 
 const fadeUp = {
   initial: { opacity: 0, y: 40 },
@@ -44,7 +44,7 @@ export default function WhyPhandaLinks() {
             transition={{ delay: 0.3 }}
             className="text-2xl text-white/90"
           >
-            Talent shouldn't depend on who you know.
+            Talent shouldn&apos;t depend on who you know.
           </motion.p>
         </div>
       </section>
@@ -120,10 +120,10 @@ export default function WhyPhandaLinks() {
           <motion.div {...fadeUp}>
             <Award className="w-16 h-16 mx-auto text-[#D4AF37] mb-6" />
             <h2 className="text-5xl font-black tracking-tighter mb-8">
-              Why "<span className="text-[#D4AF37]">Phanda</span>"?
+              Why &quot;<span className="text-[#D4AF37]">Phanda</span>&quot;?
             </h2>
             <p className="text-xl leading-relaxed text-gray-300">
-              "Phanda" captures the South African spirit of hustle, resilience, and determination. 
+              &quot;Phanda&quot; captures the South African spirit of hustle, resilience, and determination. 
               This platform exists to support that spirit — making hardworking people more visible.
             </p>
           </motion.div>
