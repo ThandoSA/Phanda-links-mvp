@@ -85,12 +85,25 @@ export default function ClientDashboard() {
 
       setProfile(profileData);
 
-      const { data: jobsData, error: jobsError } = await supabase
+      const jobsWithSchedule = await supabase
         .from("jobs")
         .select("id, title, status, price, created_at, updated_at, location, worker_id, scheduled_time")
         .eq("client_id", user.id)
         .order("created_at", { ascending: false })
         .limit(6);
+
+      const missingScheduleColumn = jobsWithSchedule.error?.code === "42703"
+        || jobsWithSchedule.error?.code === "PGRST204"
+        || jobsWithSchedule.error?.message?.includes("scheduled_time");
+      const jobsResult = missingScheduleColumn
+        ? await supabase
+            .from("jobs")
+            .select("id, title, status, price, created_at, updated_at, location, worker_id")
+            .eq("client_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(6)
+        : jobsWithSchedule;
+      const { data: jobsData, error: jobsError } = jobsResult;
 
       if (jobsError) {
         console.error("Client dashboard jobs fetch error:", jobsError);
