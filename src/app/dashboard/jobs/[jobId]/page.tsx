@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabaseClient"
 import StatusBadge from "@/components/ui/StatusBadge"
 import JobStatusTimeline from "@/components/dashboard/JobStatusTimeline"
 import ReviewModal from "@/components/dashboard/ReviewModal"
+import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal"
 
 interface JobDetail {
   id: string
@@ -49,6 +50,7 @@ export default function JobDetailPage() {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [showQuoteReview, setShowQuoteReview] = useState(false)
   const [showReview, setShowReview] = useState(false)
   const [hasReviewed, setHasReviewed] = useState(false)
   const [reviewStatusLoaded, setReviewStatusLoaded] = useState(false)
@@ -81,6 +83,25 @@ export default function JobDetailPage() {
   useEffect(() => {
     void Promise.resolve().then(() => fetchJob())
   }, [fetchJob])
+
+  useEffect(() => {
+    if (!params.jobId) return
+
+    const channel = supabase.channel(`job-detail-quotes-${params.jobId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "quotes",
+        filter: `job_id=eq.${params.jobId}`,
+      }, () => {
+        void fetchJob()
+      })
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [fetchJob, params.jobId])
 
   useEffect(() => {
     let active = true
@@ -174,7 +195,19 @@ export default function JobDetailPage() {
         </section>
       </div>
 
-      {quotes.length > 0 && <section className="card-luxury rounded-2xl border border-white/10 p-6"><h2 className="text-xl font-black text-white">Quotes received</h2><div className="mt-5 grid gap-4 md:grid-cols-2">{quotes.map((quote) => <article key={quote.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-white">{quote.worker?.full_name || "Worker"}</p><p className="mt-1 text-xs text-gray-500">{new Date(quote.created_at).toLocaleDateString("en-ZA")}</p></div><p className="font-black text-[#D4AF37]">R {Number(quote.amount).toLocaleString()}</p></div><p className="mt-3 text-sm leading-6 text-gray-400">{quote.description}</p><p className="mt-3 text-xs font-black uppercase tracking-wider text-gray-500">{quote.status}</p></article>)}</div></section>}
+      {quotes.length > 0 && <section className="card-luxury rounded-2xl border border-white/10 p-6"><div className="flex flex-wrap items-center justify-between gap-4"><h2 className="text-xl font-black text-white">{isClient ? "Proposals received" : "Your proposal"}</h2>{isClient && job.status === "open" && quotes.some((quote) => quote.status === "pending") && <button type="button" onClick={() => setShowQuoteReview(true)} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]">Review and accept proposals</button>}</div><div className="mt-5 grid gap-4 md:grid-cols-2">{quotes.map((quote) => <article key={quote.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-white">{quote.worker?.full_name || "Worker"}</p><p className="mt-1 text-xs text-gray-500">{new Date(quote.created_at).toLocaleDateString("en-ZA")}</p></div><p className="font-black text-[#D4AF37]">R {Number(quote.amount).toLocaleString()}</p></div><p className="mt-3 text-sm leading-6 text-gray-400">{quote.description}</p><p className="mt-3 text-xs font-black uppercase tracking-wider text-gray-500">{quote.status}</p></article>)}</div></section>}
+
+      {showQuoteReview && currentUserId === job.client_id && job.status === "open" && (
+        <QuoteReviewModal
+          jobId={job.id}
+          jobTitle={job.title}
+          onClose={() => setShowQuoteReview(false)}
+          onAccepted={() => {
+            setShowQuoteReview(false)
+            void fetchJob()
+          }}
+        />
+      )}
 
       {showReview && currentUserId && revieweeId && (
         <ReviewModal

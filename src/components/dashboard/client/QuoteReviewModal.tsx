@@ -35,8 +35,8 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
   const [loading, setLoading] = useState(true)
   const [acceptingId, setAcceptingId] = useState<string | null>(null)
 
-  const fetchQuotes = useCallback(async () => {
-    setLoading(true)
+  const fetchQuotes = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true)
     try {
       const { data, error } = await supabase
         .from("quotes")
@@ -62,13 +62,28 @@ export default function QuoteReviewModal({ jobId, jobTitle, onClose, onAccepted 
     } catch (err) {
       console.error(err)
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }, [jobId])
 
   useEffect(() => {
-    fetchQuotes()
-  }, [fetchQuotes])
+    void fetchQuotes()
+
+    const channel = supabase.channel(`quote-review-${jobId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "quotes",
+        filter: `job_id=eq.${jobId}`,
+      }, () => {
+        void fetchQuotes(false)
+      })
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [fetchQuotes, jobId])
 
   const handleAcceptQuote = async (quote: Quote) => {
     setAcceptingId(quote.id)

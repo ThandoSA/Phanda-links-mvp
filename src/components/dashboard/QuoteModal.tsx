@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { X, Send } from "lucide-react"
@@ -17,6 +18,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
     const [amount, setAmount] = useState(clientPrice.toString())
     const [description, setDescription] = useState("")
     const [loading, setLoading] = useState(false)
+    const [submitted, setSubmitted] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -51,7 +53,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
         } else {
             toast.success("Quote sent successfully!")
             onSuccess()
-            onClose()
+            setSubmitted(true)
         }
         setLoading(false)
     }
@@ -69,6 +71,21 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                         <p className="text-gray-400 text-sm font-bold truncate">Job: {jobTitle}</p>
                     </div>
 
+                    {submitted ? (
+                        <div className="space-y-5 text-center">
+                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-400">
+                                <Send className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-white">Proposal sent</h3>
+                                <p className="mt-2 text-sm leading-6 text-gray-400">Your proposal is awaiting the client&apos;s response. You can track its status from your dashboard.</p>
+                            </div>
+                            <div className="flex flex-col gap-3 sm:flex-row">
+                                <button type="button" onClick={onClose} className="min-h-11 flex-1 rounded-full border border-white/20 px-5 text-sm font-bold text-white hover:bg-white/10">Close</button>
+                                <Link href="/dashboard/worker#proposal-tracker" onClick={onClose} className="btn-luxury flex min-h-11 flex-1 items-center justify-center bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]">View proposal status</Link>
+                            </div>
+                        </div>
+                    ) : (
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-2">
                             <div className="relative pt-2">
@@ -126,6 +143,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                             </button>
                         </div>
                     </form>
+                    )}
                 </div>
             </div>
         </div>

@@ -531,7 +531,7 @@ export default function WorkerDashboard() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10">
+        <div id="proposal-tracker" className="lg:col-span-2 card-luxury p-8 rounded-2xl bg-[#111316] border border-white/10 scroll-mt-8">
           <div className="flex items-center justify-between gap-3 mb-6">
             <h3 className="text-xl font-black text-white">Proposal Tracker</h3>
             <FileText className="w-5 h-5 text-[#D4AF37]" />
@@ -549,12 +549,22 @@ export default function WorkerDashboard() {
               <span className="text-sm text-gray-400">Accepted</span>
               <span className="text-xl font-black text-emerald-400">{acceptedQuotes.length}</span>
             </div>
-            {submittedQuotes.slice(0, 3).map((quote) => (
-              <Link key={quote.id} href="/dashboard/worker/jobs" className="block border-t border-white/10 pt-3 transition-colors hover:text-[#D4AF37]">
-                <div className="flex items-center justify-between gap-3"><span className="min-w-0 truncate text-sm font-bold text-white">{quote.jobTitle}</span><span className="shrink-0 text-xs font-black capitalize text-gray-400">{quote.status}</span></div>
-                <p className="mt-1 text-xs text-gray-500">R {Number(quote.amount || 0).toLocaleString()} · {quote.created_at ? new Date(quote.created_at).toLocaleDateString("en-ZA") : "Recent"}</p>
-              </Link>
-            ))}
+            {submittedQuotes.slice(0, 3).map((quote) => {
+              const content = (
+                <>
+                  <div className="flex items-center justify-between gap-3"><span className="min-w-0 truncate text-sm font-bold text-white">{quote.jobTitle}</span><span className="shrink-0 text-xs font-black capitalize text-gray-400">{quote.status}</span></div>
+                  <p className="mt-1 text-xs text-gray-500">R {Number(quote.amount || 0).toLocaleString()} · {quote.created_at ? new Date(quote.created_at).toLocaleDateString("en-ZA") : "Recent"}</p>
+                </>
+              )
+
+              return quote.status === "rejected" ? (
+                <div key={quote.id} className="border-t border-white/10 pt-3">{content}</div>
+              ) : (
+                <Link key={quote.id} href={`/dashboard/jobs/${quote.job_id}`} className="block border-t border-white/10 pt-3 transition-colors hover:text-[#D4AF37]">
+                  {content}
+                </Link>
+              )
+            })}
             <Link href="/dashboard/worker/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-[#D4AF37] hover:underline">Browse more jobs <ArrowRight className="w-3.5 h-3.5" /></Link>
           </div>
         </div>
