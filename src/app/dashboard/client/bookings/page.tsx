@@ -29,7 +29,7 @@ export default function BookingsPage() {
 
     const { data, error } = await supabase
       .from("jobs")
-      .select(`id, status, created_at, title, description, price, location, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url, rating)`)
+      .select(`id, status, created_at, title, description, price, location, worker_id, client_id, client_payment_confirmed_at, worker:profiles!worker_id (full_name, avatar_url, rating)`)
       .eq("client_id", userData.user.id)
       .order("created_at", { ascending: false })
 
@@ -59,6 +59,25 @@ export default function BookingsPage() {
   useEffect(() => {
     void Promise.resolve().then(() => fetchBookings())
   }, [fetchBookings])
+
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase.channel(`client-jobs-${userId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "jobs",
+        filter: `client_id=eq.${userId}`,
+      }, () => {
+        void fetchBookings()
+      })
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [fetchBookings, userId])
 
   const filteredBookings = bookings.filter(job => {
     if (filter === "active") return ["open", "pending", "accepted", "en_route", "in_progress"].includes(job.status)
@@ -169,7 +188,10 @@ export default function BookingsPage() {
                     </button>
                   )}
                   {/* Completed — confirm payment */}
-                  {job.status === "completed" && (
+                  {job.status === "completed" && job.client_payment_confirmed_at && (
+                    <p className="text-xs font-bold text-emerald-400">Payment confirmed</p>
+                  )}
+                  {job.status === "completed" && !job.client_payment_confirmed_at && (
                     <button
                       onClick={() => setPayModal({
                         jobId: job.id,

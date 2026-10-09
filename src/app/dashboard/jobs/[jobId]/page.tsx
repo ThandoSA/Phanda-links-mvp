@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { ArrowLeft, Calendar, FileText, MapPin, MessageSquare, RefreshCw } from "lucide-react"
+import { ArrowLeft, Calendar, FileText, MapPin, MessageSquare, RefreshCw, Star } from "lucide-react"
 import toast from "react-hot-toast"
 import { supabase } from "@/lib/supabaseClient"
 import StatusBadge from "@/components/ui/StatusBadge"
 import JobStatusTimeline from "@/components/dashboard/JobStatusTimeline"
+import ReviewModal from "@/components/dashboard/ReviewModal"
 
 interface JobDetail {
   id: string
@@ -47,6 +48,10 @@ export default function JobDetailPage() {
   const [events, setEvents] = useState<JobEvent[]>([])
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [showReview, setShowReview] = useState(false)
+  const [hasReviewed, setHasReviewed] = useState(false)
+  const [reviewStatusLoaded, setReviewStatusLoaded] = useState(false)
 
   const fetchJob = useCallback(async () => {
     if (!params.jobId) return
@@ -77,11 +82,56 @@ export default function JobDetailPage() {
     void Promise.resolve().then(() => fetchJob())
   }, [fetchJob])
 
+  useEffect(() => {
+    let active = true
+
+    const loadReviewStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!active) return
+
+      if (!user) {
+        setReviewStatusLoaded(true)
+        return
+      }
+
+      setCurrentUserId(user.id)
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("job_id", params.jobId)
+        .eq("reviewer_id", user.id)
+        .maybeSingle()
+
+      if (!active) return
+      if (error) {
+        toast.error("Could not check your review status.")
+        setHasReviewed(true)
+      } else {
+        setHasReviewed(Boolean(data))
+      }
+      setReviewStatusLoaded(true)
+    }
+
+    void loadReviewStatus()
+    return () => {
+      active = false
+    }
+  }, [params.jobId])
+
   if (loading) return <div className="mx-auto max-w-5xl space-y-6"><div className="h-12 w-64 animate-pulse rounded bg-white/5" /><div className="h-72 animate-pulse rounded-2xl bg-white/5" /><div className="h-48 animate-pulse rounded-2xl bg-white/5" /></div>
   if (!job) return <div className="mx-auto max-w-5xl py-20 text-center text-gray-400">This job could not be found.</div>
 
   const participant = job.worker || job.client
   const participantLabel = job.worker ? "Worker" : "Client"
+  const isClient = currentUserId === job.client_id
+  const revieweeId = isClient ? job.worker_id : job.client_id
+  const revieweeName = isClient
+    ? job.worker?.full_name || "Worker"
+    : job.client?.full_name || "Client"
+  const role = isClient ? "client" : "worker"
+  const canReview = reviewStatusLoaded && job.status === "completed" &&
+    Boolean(currentUserId && (currentUserId === job.client_id || currentUserId === job.worker_id)) &&
+    !hasReviewed
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-10">
@@ -110,7 +160,10 @@ export default function JobDetailPage() {
           <div className="flex items-center justify-between gap-3"><h2 className="text-xl font-black text-white">Project brief</h2><FileText className="h-5 w-5 text-[#D4AF37]" /></div>
           <p className="whitespace-pre-line text-sm leading-7 text-gray-300">{job.description || "No description provided."}</p>
           {participant && <div className="border-t border-white/10 pt-5"><p className="text-xs font-black uppercase tracking-wider text-gray-500">{participantLabel}</p><p className="mt-1 font-bold text-white">{participant.full_name || "User"}</p></div>}
-          <Link href={`/dashboard/messages/${job.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]"><MessageSquare className="h-4 w-4" /> Message {participantLabel}</Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href={`/dashboard/messages/${job.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]"><MessageSquare className="h-4 w-4" /> Message {participantLabel}</Link>
+            {canReview && revieweeId && <button type="button" onClick={() => setShowReview(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#D4AF37] px-5 text-sm font-black text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black"><Star className="h-4 w-4" /> Leave a Review</button>}
+          </div>
         </section>
 
         <section className="card-luxury rounded-2xl border border-white/10 p-6 lg:col-span-2">
@@ -122,6 +175,19 @@ export default function JobDetailPage() {
       </div>
 
       {quotes.length > 0 && <section className="card-luxury rounded-2xl border border-white/10 p-6"><h2 className="text-xl font-black text-white">Quotes received</h2><div className="mt-5 grid gap-4 md:grid-cols-2">{quotes.map((quote) => <article key={quote.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-white">{quote.worker?.full_name || "Worker"}</p><p className="mt-1 text-xs text-gray-500">{new Date(quote.created_at).toLocaleDateString("en-ZA")}</p></div><p className="font-black text-[#D4AF37]">R {Number(quote.amount).toLocaleString()}</p></div><p className="mt-3 text-sm leading-6 text-gray-400">{quote.description}</p><p className="mt-3 text-xs font-black uppercase tracking-wider text-gray-500">{quote.status}</p></article>)}</div></section>}
+
+      {showReview && currentUserId && revieweeId && (
+        <ReviewModal
+          jobId={job.id}
+          jobTitle={job.title}
+          revieweeId={revieweeId}
+          revieweeName={revieweeName}
+          reviewerId={currentUserId}
+          role={role}
+          onClose={() => setShowReview(false)}
+          onSubmitted={() => setHasReviewed(true)}
+        />
+      )}
     </div>
   )
 }

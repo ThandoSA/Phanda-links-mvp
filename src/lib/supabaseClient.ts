@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 // Public (client-side) Supabase keys must be prefixed with NEXT_PUBLIC_ in Next.js.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 	)
 }
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     flowType: 'pkce',
   }

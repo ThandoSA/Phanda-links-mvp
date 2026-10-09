@@ -21,11 +21,9 @@ export default function PaymentConfirmModal({ jobId, jobTitle, amount, workerNam
   const handleConfirm = async () => {
     setLoading(true)
     try {
-      // Attempt to set payment_status if column exists; fall back to a status note
-      const { error } = await supabase
-        .from("jobs")
-        .update({ status: "completed" })
-        .eq("id", jobId)
+      const { error } = await supabase.rpc("confirm_job_payment", {
+        p_job_id: jobId,
+      })
 
       if (error) throw error
 

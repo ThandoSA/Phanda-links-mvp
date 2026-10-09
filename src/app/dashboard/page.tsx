@@ -39,7 +39,7 @@ export default function DashboardRouter() {
               full_name: metadata.full_name || "",
               role: metadata.role,
             })
-            .select()
+            .select("id, role")
             .single()
           
           if (!createError) {

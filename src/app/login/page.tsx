@@ -8,6 +8,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
+import { getSafeNextPath } from "@/lib/safeNextPath"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -16,7 +17,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const nextPath = searchParams.get("next") || "/dashboard"
+  const nextPath = getSafeNextPath(searchParams.get("next"))
 
   const handleGoogleLogin = async () => {
     try {
@@ -54,34 +55,8 @@ function LoginForm() {
       }
 
       if (data?.user) {
-        const { data: prof, error: profError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single()
-        
-        if (profError) {
-          console.error("Profile fetch error:", profError)
-        }
-
         toast.success("Welcome back!")
-        const role = prof?.role?.toLowerCase() || "worker"
-        if (data.session) {
-          try {
-            await fetch('/api/auth/set-cookie', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                access_token: data.session.access_token,
-                refresh_token: data.session.refresh_token,
-              }),
-            })
-          } catch (err) {
-            console.error('Failed to set server session cookie:', err)
-          }
-        }
-
-        router.push(nextPath || `/dashboard/${role}`)
+        router.replace(nextPath)
       }
     } catch (err) {
       console.error("Unexpected login error:", err)

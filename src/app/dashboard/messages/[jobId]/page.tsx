@@ -169,11 +169,6 @@ export default function ChatPage() {
         }
         return prev.map(m => m.id === tempId ? realMsg : m)
       })
-      if (job) {
-        await supabase.from("jobs").update({ updated_at: new Date().toISOString() }).eq("id", jobId)
-      } else {
-        await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", jobId)
-      }
     }
     setIsSending(false)
   }
@@ -184,7 +179,7 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-screen bg-[#F9FAFB]">
+      <div className="flex h-[calc(100dvh-72px)] flex-col bg-[#F9FAFB] md:h-screen">
         <header className="glass-card border-b border-gray-200 p-4 md:px-8 flex items-center gap-4 sticky top-0 z-20">
           <div className="w-10 h-10 rounded-full skeleton" />
           <div className="space-y-2">
@@ -222,7 +217,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#F9FAFB] relative overflow-hidden">
+    <div className="relative flex h-[calc(100dvh-72px)] flex-col overflow-hidden bg-[#F9FAFB] md:h-screen">
       {/* Background soft glow */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-white blur-[100px] rounded-full pointer-events-none opacity-50" />
 
@@ -301,7 +296,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 px-4 md:px-8 pb-6 pt-10 bg-gradient-to-t from-[#F9FAFB] via-[#F9FAFB]/90 to-transparent flex justify-center">
+      <div className="absolute bottom-0 left-0 right-0 z-30 flex justify-center bg-gradient-to-t from-[#F9FAFB] via-[#F9FAFB]/90 to-transparent px-4 pt-10 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] md:px-8">
         <form onSubmit={sendMessage} className="w-full max-w-4xl">
           <div className="flex items-center gap-3 p-2 rounded-full border border-gray-200 bg-white shadow-md">
             <input

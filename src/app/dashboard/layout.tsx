@@ -116,17 +116,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           return
         }
 
-        const { data: prof } = await supabase
+        const { data: prof, error: profileError } = await supabase
           .from("profiles")
           .select("role, full_name, avatar_url")
           .eq("id", userData.user.id)
-          .single()
+          .maybeSingle()
 
         if (!isMounted) return
 
-        const userRole = (prof?.role || userData.user.user_metadata?.role || "worker").toLowerCase()
+        if (profileError || !prof?.role) {
+          setRole(null)
+          setProfile(null)
+          if (pathname !== "/dashboard") router.replace("/dashboard")
+          return
+        }
+
+        const userRole = prof.role.toLowerCase()
+        if (userRole !== "client" && userRole !== "worker") {
+          setRole(null)
+          setProfile(null)
+          router.replace("/dashboard")
+          return
+        }
+
         setRole(userRole)
-        setProfile(prof || null)
+        setProfile(prof)
         setUserId(userData.user.id)
 
         const isClientRoute = pathname.startsWith("/dashboard/client/") || pathname === "/dashboard/client" || pathname === "/dashboard/workers"
@@ -287,7 +301,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/notifications" icon={<Bell className="h-4 w-4" />} isActive={isActive("/dashboard/notifications")} badgeCount={notificationUnreadCount}>Notifications</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/worker/profile" icon={Icons.profile} isActive={isActive("/dashboard/worker/profile")}>Profile</NavItem></div>
               </>
-            ) : (
+            ) : role === "client" ? (
               <>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client" icon={Icons.dashboard} isActive={isActive("/dashboard/client")}>Dashboard</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/saved" icon={Icons.saved} isActive={isActive("/dashboard/client/saved")}>Saved</NavItem></div>
@@ -297,7 +311,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/notifications" icon={<Bell className="h-4 w-4" />} isActive={isActive("/dashboard/notifications")} badgeCount={notificationUnreadCount}>Notifications</NavItem></div>
                 <div onClick={closeMobileMenu}><NavItem href="/dashboard/client/profile" icon={Icons.profile} isActive={isActive("/dashboard/client/profile")}>Profile</NavItem></div>
               </>
-            )}
+            ) : null}
           </nav>
         </div>
 

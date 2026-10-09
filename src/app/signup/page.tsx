@@ -8,11 +8,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { Hammer, Briefcase, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
+import { getSafeNextPath } from "@/lib/safeNextPath"
 
 function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const nextPath = searchParams.get("next") || "/dashboard"
+  const nextPath = getSafeNextPath(searchParams.get("next"))
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
@@ -47,53 +48,53 @@ function SignupForm() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: fullName, role } }
-    })
-    if (error) { toast.error(error.message); setLoading(false); return }
-    const user = data.user
-    if (!user) { setLoading(false); return }
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName, role, location },
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+        },
+      })
 
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      id: user.id, full_name: fullName, role, location,
-    })
-
-    if (profileError) {
-      toast.error(profileError.message || "Profile error")
-      setLoading(false)
-      return
-    }
-
-    if (role === "worker") {
-      await supabase.from("worker_profiles").upsert({ user_id: user.id, skills: [], bio: "" })
-    }
-
-    if (!data.session) {
-      toast.success("Account created! Check your email to confirm.")
-      setLoading(false)
-      router.push("/auth/confirm")
-      return
-    }
-    // If Supabase returned a session, post tokens to server to set cookies
-    if (data.session) {
-      try {
-        await fetch('/api/auth/set-cookie', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          }),
-        })
-      } catch (err) {
-        console.error('Failed to set server session cookie:', err)
+      if (error) {
+        toast.error(error.message)
+        return
       }
-    }
 
-    toast.success("Account created successfully!")
-    router.push(nextPath || `/dashboard/${role}`)
-    setLoading(false)
+      if (!data.user) {
+        throw new Error("Account creation did not return a user.")
+      }
+
+      if (!data.session) {
+        toast.success("Account created! Check your email to confirm.")
+        router.replace("/auth/confirm")
+        return
+      }
+
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: data.user.id,
+        full_name: fullName,
+        role,
+        location,
+      })
+      if (profileError) throw profileError
+
+      if (role === "worker") {
+        const { error: workerProfileError } = await supabase
+          .from("worker_profiles")
+          .upsert({ user_id: data.user.id, skills: [], bio: "" })
+        if (workerProfileError) throw workerProfileError
+      }
+
+      toast.success("Account created successfully!")
+      router.replace(nextPath)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Could not create your account.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

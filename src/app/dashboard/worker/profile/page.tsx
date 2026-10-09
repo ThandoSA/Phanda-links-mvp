@@ -36,7 +36,11 @@ export default function WorkerProfileForm() {
       const user = userData.user
       if (!user) { toast.error("Session expired."); window.location.href = "/login"; return }
 
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, location, avatar_url, is_verified")
+        .eq("id", user.id)
+        .single()
       if (profile) {
         setFullName(profile.full_name || "")
         setLocation(profile.location || "")

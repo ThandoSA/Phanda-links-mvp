@@ -26,7 +26,7 @@ export default function ClientProfileForm() {
 
             const { data: profile } = await supabase
                 .from("profiles")
-                .select("*")
+                .select("full_name, location, avatar_url")
                 .eq("id", user.id)
                 .single()
 

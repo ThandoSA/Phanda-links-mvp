@@ -78,6 +78,25 @@ export default function ActiveJobsPage() {
 
   useEffect(() => { fetchActiveJobs() }, [fetchActiveJobs])
 
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase.channel(`worker-jobs-${userId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "jobs",
+        filter: `worker_id=eq.${userId}`,
+      }, () => {
+        void fetchActiveJobs()
+      })
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+  }, [fetchActiveJobs, userId])
+
   const advanceStatus = async (job: ActiveJob) => {
     const step = STATUS_STEPS[job.status]
     if (!step) return

@@ -2,6 +2,18 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { createClient as createSessionClient } from "@/lib/supabaseServer"
 
+function escapeHtml(value: string) {
+  const entities: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }
+
+  return value.replace(/[&<>"']/g, (character) => entities[character])
+}
+
 function getAdminSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -91,6 +103,8 @@ export async function POST(request: Request) {
     const clientProfile = Array.isArray(job.client) ? job.client[0] : job.client
     const safeClientName = clientProfile?.full_name || "A client"
     const safeJobTitle = job.title || "a job"
+    const htmlClientName = escapeHtml(safeClientName)
+    const htmlJobTitle = escapeHtml(safeJobTitle)
     const safeJobUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/worker/active-jobs`
 
     let emailSent = false
@@ -111,7 +125,7 @@ export async function POST(request: Request) {
           html: `
             <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.6;">
               <h2 style="margin-bottom: 8px;">You have a new job request</h2>
-              <p><strong>${safeClientName}</strong> has requested your help for <strong>${safeJobTitle}</strong>.</p>
+              <p><strong>${htmlClientName}</strong> has requested your help for <strong>${htmlJobTitle}</strong>.</p>
               <p><strong>Budget:</strong> R${formattedAmount.toLocaleString()}</p>
               <p>Please log in to Phanda Links to review and accept the request.</p>
               <p><a href="${safeJobUrl}" style="display:inline-block; background:#D4AF37; color:#111; padding:12px 18px; border-radius:999px; text-decoration:none; font-weight:bold;">Review request</a></p>
@@ -160,8 +174,6 @@ export async function POST(request: Request) {
       attempted: true,
       emailSent,
       smsSent,
-      workerEmail: workerEmail || null,
-      workerPhone: normalizedPhone || null,
     })
   } catch (error: unknown) {
     console.error("Job request notification error:", error)
