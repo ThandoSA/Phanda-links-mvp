@@ -27,16 +27,31 @@ export default function BookingsPage() {
     if (!userData.user) return
     setUserId(userData.user.id)
 
+    const primarySelect = `id, status, created_at, title, description, price, location, worker_id, client_id, client_payment_confirmed_at, worker:profiles!worker_id (full_name, avatar_url, rating)`
+    const fallbackSelect = `id, status, created_at, title, description, price, location, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url, rating)`
+
     const { data, error } = await supabase
       .from("jobs")
-      .select(`id, status, created_at, title, description, price, location, worker_id, client_id, client_payment_confirmed_at, worker:profiles!worker_id (full_name, avatar_url, rating)`)
+      .select(primarySelect)
       .eq("client_id", userData.user.id)
       .order("created_at", { ascending: false })
 
-    if (error) {
+    const isMissingPaymentColumn = error?.code === "42703" || error?.code === "PGRST204" || error?.message?.includes("client_payment_confirmed_at")
+
+    const resolved = isMissingPaymentColumn
+      ? await supabase
+          .from("jobs")
+          .select(fallbackSelect)
+          .eq("client_id", userData.user.id)
+          .order("created_at", { ascending: false })
+      : { data, error }
+
+    const { data: jobData, error: jobError } = resolved
+
+    if (jobError) {
       toast.error("Failed to load bookings")
     } else {
-      const clientJobs = (data as unknown as Job[]) || []
+      const clientJobs = (jobData as unknown as Job[]) || []
       setBookings(clientJobs)
 
       const jobIds = clientJobs.map((job) => job.id)
