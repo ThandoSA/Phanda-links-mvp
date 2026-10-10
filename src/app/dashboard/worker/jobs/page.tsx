@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Job } from "@/types"
 import QuoteModal from "@/components/dashboard/QuoteModal"
@@ -13,11 +14,23 @@ import {
   Briefcase, 
   ArrowRight,
   MapPin,
-  Clock
+  Clock,
+  FileText,
+  CheckCircle2
 } from "lucide-react"
+
+type ProposalSummary = {
+  id: string
+  job_id: string
+  amount: number | string
+  status: string
+  created_at: string
+  jobTitle: string
+}
 
 export default function JobsPage() {
   const [openJobs, setOpenJobs] = useState<Job[]>([])
+  const [myProposals, setMyProposals] = useState<ProposalSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -35,20 +48,42 @@ export default function JobsPage() {
 
       const [{ data, error }, { data: submittedQuotes, error: quotesError }] = await Promise.all([
         fetchOpenJobs(supabase),
-        supabase.from("quotes").select("job_id").eq("worker_id", user.id),
+        supabase
+          .from("quotes")
+          .select("id, job_id, amount, status, created_at")
+          .eq("worker_id", user.id)
+          .order("created_at", { ascending: false }),
       ])
 
       if (error) {
         console.error("Open jobs fetch error:", error)
         toast.error("Failed to load open jobs: " + error.message)
+        setOpenJobs([])
       } else {
-        if (quotesError) {
-          console.error("Submitted quotes fetch error:", quotesError)
-          toast.error("Could not check your submitted proposals.")
-        }
-
         const submittedJobIds = new Set((submittedQuotes || []).map((quote) => quote.job_id))
         setOpenJobs(((data as unknown as Job[]) || []).filter((job) => !submittedJobIds.has(job.id)))
+      }
+
+      if (quotesError) {
+        console.error("Submitted quotes fetch error:", quotesError)
+        toast.error("Could not load your submitted proposals.")
+      } else {
+        const quoteRows = submittedQuotes || []
+        const quoteJobIds = [...new Set(quoteRows.map((quote) => quote.job_id))]
+        const { data: quoteJobs, error: quoteJobsError } = quoteJobIds.length
+          ? await supabase.from("jobs").select("id, title").in("id", quoteJobIds)
+          : { data: [], error: null }
+
+        if (quoteJobsError) {
+          console.error("Proposal job titles fetch error:", quoteJobsError)
+          toast.error("Could not load proposal job titles.")
+        }
+
+        const titleByJobId = new Map((quoteJobs || []).map((job) => [job.id, job.title]))
+        setMyProposals(quoteRows.map((quote) => ({
+          ...quote,
+          jobTitle: titleByJobId.get(quote.job_id) || "Service request",
+        })))
       }
       setLoading(false)
     }
@@ -134,6 +169,58 @@ export default function JobsPage() {
           </div>
         </div>
       </motion.div>
+
+      <section id="my-proposals" className="scroll-mt-8 border-y border-white/10 py-7">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <FileText className="h-5 w-5 text-[#D4AF37]" />
+            <div>
+              <h2 className="text-xl font-black text-white">My proposals</h2>
+              <p className="text-sm text-gray-400">Track client responses to the work you&apos;ve quoted.</p>
+            </div>
+          </div>
+          <Link href="/dashboard/worker/active-jobs" className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-[#D4AF37] hover:underline sm:self-auto">
+            Active jobs <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        {myProposals.length === 0 ? (
+          <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-5 text-sm text-gray-400">
+            Your submitted proposals will appear here with their current status.
+          </p>
+        ) : (
+          <div className="divide-y divide-white/10">
+            {myProposals.map((proposal) => {
+              const accepted = proposal.status === "approved" || proposal.status === "accepted"
+              const rejected = proposal.status === "rejected"
+              const statusText = accepted ? "Accepted" : rejected ? "Not selected" : "Awaiting response"
+              const statusClass = accepted ? "text-emerald-300" : rejected ? "text-gray-400" : "text-amber-300"
+
+              return (
+                <div key={proposal.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-white">{proposal.jobTitle}</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      R {Number(proposal.amount).toLocaleString()} · Submitted {new Date(proposal.created_at).toLocaleDateString("en-ZA")}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 sm:justify-end">
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${statusClass}`}>
+                      {accepted ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                      {statusText}
+                    </span>
+                    {accepted && (
+                      <Link href="/dashboard/worker/active-jobs" className="inline-flex min-h-11 items-center gap-1 text-xs font-black text-[#D4AF37] hover:underline">
+                        Open job <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
 
       {openJobs.length > 0 && (
         <motion.div
@@ -243,7 +330,13 @@ export default function JobsPage() {
           jobTitle={selectedJob.title}
           clientPrice={selectedJob.price}
           onClose={() => setSelectedJob(null)}
-          onSuccess={() => setOpenJobs(openJobs.filter(j => j.id !== selectedJob.id))}
+          onSuccess={(quote) => {
+            setOpenJobs((jobs) => jobs.filter((job) => job.id !== selectedJob.id))
+            setMyProposals((proposals) => [
+              { ...quote, jobTitle: selectedJob.title },
+              ...proposals.filter((proposal) => proposal.job_id !== selectedJob.id),
+            ])
+          }}
         />
       )}
     </div>

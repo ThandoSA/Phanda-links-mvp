@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { ArrowLeft, Calendar, FileText, MapPin, MessageSquare, RefreshCw, Star } from "lucide-react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { ArrowLeft, Calendar, CheckCircle2, FileText, MapPin, MessageSquare, RefreshCw, Star } from "lucide-react"
 import toast from "react-hot-toast"
 import { supabase } from "@/lib/supabaseClient"
 import StatusBadge from "@/components/ui/StatusBadge"
@@ -45,6 +45,8 @@ interface Quote {
 
 export default function JobDetailPage() {
   const params = useParams<{ jobId: string }>()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [job, setJob] = useState<JobDetail | null>(null)
   const [events, setEvents] = useState<JobEvent[]>([])
   const [quotes, setQuotes] = useState<Quote[]>([])
@@ -54,6 +56,8 @@ export default function JobDetailPage() {
   const [showReview, setShowReview] = useState(false)
   const [hasReviewed, setHasReviewed] = useState(false)
   const [reviewStatusLoaded, setReviewStatusLoaded] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+  const reviewSuccess = searchParams.get("review_success") === "1"
 
   const fetchJob = useCallback(async () => {
     if (!params.jobId) return
@@ -139,6 +143,44 @@ export default function JobDetailPage() {
     }
   }, [params.jobId])
 
+  useEffect(() => {
+    if (!reviewSuccess || !params.jobId) return
+    const timeout = window.setTimeout(() => {
+      router.replace(`/dashboard/jobs/${params.jobId}`)
+    }, 4000)
+    return () => window.clearTimeout(timeout)
+  }, [params.jobId, reviewSuccess, router])
+
+  const updateStatus = async (nextStatus: "accepted" | "en_route" | "in_progress" | "completed") => {
+    if (!job || !currentUserId) return
+
+    setUpdatingStatus(true)
+    try {
+      const { data, error } = await supabase.rpc("transition_job_status", {
+        p_job_id: job.id,
+        p_next_status: nextStatus,
+      })
+
+      if (error) throw error
+
+      if (data) {
+        setJob({ ...job, status: data.status, updated_at: data.updated_at })
+      } else {
+        setJob({ ...job, status: nextStatus })
+      }
+
+      toast.success(
+        nextStatus === "completed"
+          ? "Job marked complete. You can leave a review now."
+          : `Status updated to ${nextStatus.replaceAll("_", " ")}`
+      )
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to update the job status")
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
   if (loading) return <div className="mx-auto max-w-5xl space-y-6"><div className="h-12 w-64 animate-pulse rounded bg-white/5" /><div className="h-72 animate-pulse rounded-2xl bg-white/5" /><div className="h-48 animate-pulse rounded-2xl bg-white/5" /></div>
   if (!job) return <div className="mx-auto max-w-5xl py-20 text-center text-gray-400">This job could not be found.</div>
 
@@ -152,7 +194,10 @@ export default function JobDetailPage() {
   const role = isClient ? "client" : "worker"
   const canReview = reviewStatusLoaded && job.status === "completed" &&
     Boolean(currentUserId && (currentUserId === job.client_id || currentUserId === job.worker_id)) &&
+    revieweeId !== currentUserId &&
     !hasReviewed
+  const canAdvanceStatus = currentUserId === job.worker_id && ["accepted", "en_route", "in_progress"].includes(job.status)
+    || (currentUserId === job.client_id && job.status === "in_progress")
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-10">
@@ -173,8 +218,40 @@ export default function JobDetailPage() {
           </div>
           <div className="text-left md:text-right"><StatusBadge status={job.status} /><p className="mt-2 text-2xl font-black text-white">R {Number(job.price || 0).toLocaleString()}</p></div>
         </div>
+        {reviewSuccess && (
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+            <div className="flex items-center gap-2 font-bold"><CheckCircle2 className="h-4 w-4" /> Thanks for your review.</div>
+            <p className="mt-1 text-emerald-50/90">Your feedback has been submitted and the job record is now complete.</p>
+          </div>
+        )}
         <JobStatusTimeline status={job.status} />
       </header>
+
+      {canAdvanceStatus && (
+        <section className="card-luxury rounded-2xl border border-white/10 p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#D4AF37]">Update job progress</p>
+              <h2 className="mt-2 text-xl font-black text-white">Keep this job moving</h2>
+            </div>
+            {job.status === "accepted" && currentUserId === job.worker_id && (
+              <button type="button" disabled={updatingStatus} onClick={() => void updateStatus("en_route")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e] disabled:opacity-60">
+                I&apos;m on my way
+              </button>
+            )}
+            {job.status === "en_route" && currentUserId === job.worker_id && (
+              <button type="button" disabled={updatingStatus} onClick={() => void updateStatus("in_progress")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e] disabled:opacity-60">
+                I&apos;ve started work
+              </button>
+            )}
+            {job.status === "in_progress" && (
+              <button type="button" disabled={updatingStatus} onClick={() => void updateStatus("completed")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-500 px-5 text-sm font-black text-white hover:bg-emerald-600 disabled:opacity-60">
+                {currentUserId === job.worker_id ? "Mark as complete" : "Confirm completion"}
+              </button>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-5">
         <section className="card-luxury space-y-5 rounded-2xl border border-white/10 p-6 lg:col-span-3">

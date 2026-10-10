@@ -17,6 +17,22 @@ import {
 import PortfolioManagement from "@/components/dashboard/worker/PortfolioManagement"
 
 export default function WorkerProfileForm() {
+  type ProfileRecord = {
+    full_name?: string | null
+    location?: string | null
+    avatar_url?: string | null
+    is_verified?: boolean | null
+    role?: string | null
+  }
+
+  type WorkerProfileRecord = {
+    skills?: string[] | null
+    bio?: string | null
+    availability?: "available" | "busy" | null
+    rating?: number | null
+    jobs_completed?: number | null
+  }
+
   const [fullName, setFullName] = useState("")
   const [location, setLocation] = useState("")
   const [skills, setSkills] = useState("")
@@ -32,31 +48,94 @@ export default function WorkerProfileForm() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser()
-      const user = userData.user
-      if (!user) { toast.error("Session expired."); window.location.href = "/login"; return }
+      try {
+        const { data: userData } = await supabase.auth.getUser()
+        const user = userData.user
+        if (!user) {
+          toast.error("Session expired.")
+          window.location.href = "/login"
+          return
+        }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, location, avatar_url, is_verified")
-        .eq("id", user.id)
-        .single()
-      if (profile) {
-        setFullName(profile.full_name || "")
-        setLocation(profile.location || "")
-        if (profile.avatar_url) setAvatarUrl(profile.avatar_url)
-        setIsVerified(profile.is_verified || false)
-      }
+        let profile: ProfileRecord | null = null
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("full_name, location, avatar_url, is_verified, role")
+          .eq("id", user.id)
+          .maybeSingle()
 
-      const { data: wp } = await supabase.from("worker_profiles").select("*").eq("user_id", user.id).single()
-      if (wp) {
-        setSkills(wp.skills?.join(", ") || "")
-        setBio(wp.bio || "")
-        if (wp.availability) setAvailability(wp.availability)
-        setRating(wp.rating || 0)
-        setJobsCompleted(wp.jobs_completed || 0)
+        if (profileError && profileError.code !== "PGRST116") {
+          throw profileError
+        }
+
+        profile = profileData
+
+        if (!profile) {
+          const { data: createdProfile, error: createProfileError } = await supabase
+            .from("profiles")
+            .upsert({
+              id: user.id,
+              full_name: user.user_metadata?.full_name || "",
+              location: user.user_metadata?.location || "",
+              role: "worker",
+              avatar_url: user.user_metadata?.avatar_url || null,
+            }, { onConflict: "id" })
+            .select("full_name, location, avatar_url, is_verified, role")
+            .single()
+
+          if (createProfileError) throw createProfileError
+          profile = createdProfile
+        }
+
+        const currentProfile = profile
+
+        setFullName(currentProfile?.full_name || "")
+        setLocation(currentProfile?.location || "")
+        if (currentProfile?.avatar_url) setAvatarUrl(currentProfile.avatar_url)
+        setIsVerified(Boolean(currentProfile?.is_verified))
+
+        let wp: WorkerProfileRecord | null = null
+        const { data: workerProfileData, error: workerProfileError } = await supabase
+          .from("worker_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+
+        if (workerProfileError && workerProfileError.code !== "PGRST116") {
+          throw workerProfileError
+        }
+
+        wp = workerProfileData
+
+        if (!wp) {
+          const { data: createdWp, error: createWorkerProfileError } = await supabase
+            .from("worker_profiles")
+            .insert({
+              user_id: user.id,
+              skills: [],
+              bio: "",
+              availability: "available",
+              verified: false,
+            })
+            .select("*")
+            .single()
+
+          if (createWorkerProfileError) throw createWorkerProfileError
+          wp = createdWp
+        }
+
+        const currentWorkerProfile = wp
+
+        setSkills(currentWorkerProfile?.skills?.join(", ") || "")
+        setBio(currentWorkerProfile?.bio || "")
+        if (currentWorkerProfile?.availability) setAvailability(currentWorkerProfile.availability)
+        setRating(currentWorkerProfile?.rating || 0)
+        setJobsCompleted(currentWorkerProfile?.jobs_completed || 0)
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Failed to load worker profile")
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchProfile()
   }, [])
@@ -74,6 +153,7 @@ export default function WorkerProfileForm() {
       const { data: userData } = await supabase.auth.getUser()
       const user = userData.user
       if (!user) throw new Error("Not logged in")
+
       let finalAvatarUrl = avatarUrl
 
       if (avatarFile) {
@@ -85,10 +165,33 @@ export default function WorkerProfileForm() {
         finalAvatarUrl = data.publicUrl
       }
 
-      await supabase.from("profiles").update({ full_name: fullName, location, avatar_url: finalAvatarUrl }).eq("id", user.id)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          full_name: fullName.trim(),
+          location: location.trim(),
+          avatar_url: finalAvatarUrl || null,
+          role: "worker",
+        }, { onConflict: "id" })
+
+      if (profileError) throw profileError
+
       const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
-      await supabase.from("worker_profiles").upsert({ user_id: user.id, skills: skillsArray, bio, availability })
+      const { error: workerProfileError } = await supabase
+        .from("worker_profiles")
+        .upsert({
+          user_id: user.id,
+          skills: skillsArray,
+          bio: bio.trim(),
+          availability,
+          verified: isVerified,
+        }, { onConflict: "user_id" })
+
+      if (workerProfileError) throw workerProfileError
+
       toast.success("Profile updated successfully!")
+      setAvatarFile(null)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to save profile")
     } finally {

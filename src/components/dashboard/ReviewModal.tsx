@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { X, Star } from "lucide-react"
@@ -19,6 +20,7 @@ interface Props {
 export default function ReviewModal({
   jobId, jobTitle, revieweeId, revieweeName, reviewerId, role, onClose, onSubmitted
 }: Props) {
+  const router = useRouter()
   const [rating, setRating]   = useState(0)
   const [hovered, setHovered] = useState(0)
   const [comment, setComment] = useState("")
@@ -34,8 +36,31 @@ export default function ReviewModal({
 
   const handleSubmit = async () => {
     if (rating === 0) { toast.error("Please select a star rating"); return }
+    if (revieweeId === reviewerId) {
+      toast.error("You cannot leave a review for yourself.")
+      onClose()
+      return
+    }
+
     setLoading(true)
     try {
+      const { data: existingReview, error: existingReviewError } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("job_id", jobId)
+        .eq("reviewer_id", reviewerId)
+        .maybeSingle()
+
+      if (existingReviewError && existingReviewError.code !== "PGRST116") {
+        throw existingReviewError
+      }
+
+      if (existingReview) {
+        toast.error("You have already left a review for this job.")
+        onClose()
+        return
+      }
+
       const { error } = await supabase.from("reviews").insert({
         job_id:       jobId,
         reviewer_id:  reviewerId,
@@ -45,9 +70,10 @@ export default function ReviewModal({
       })
 
       if (error) {
-        // Graceful fallback: table may not exist yet
         if (error.code === "42P01") {
           toast.error("Reviews table not set up yet — ask your admin to run the SQL migration.")
+        } else if (error.code === "23505") {
+          toast.error("You have already left a review for this job.")
         } else {
           throw error
         }
@@ -57,6 +83,7 @@ export default function ReviewModal({
       toast.success("Review submitted — thank you!")
       onSubmitted?.()
       onClose()
+      router.push(`/dashboard/jobs/${jobId}?review_success=1`)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to submit review")
     } finally {

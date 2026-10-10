@@ -11,7 +11,7 @@ interface QuoteModalProps {
     jobTitle: string
     clientPrice: number
     onClose: () => void
-    onSuccess: () => void
+    onSuccess: (quote: { id: string; job_id: string; amount: number; status: string; created_at: string }) => void
 }
 
 export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSuccess }: QuoteModalProps) {
@@ -22,6 +22,16 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        const proposalAmount = Number(amount)
+        const proposalMessage = description.trim()
+        if (!Number.isFinite(proposalAmount) || proposalAmount <= 0) {
+            toast.error("Enter a proposal amount greater than zero.")
+            return
+        }
+        if (!proposalMessage) {
+            toast.error("Add a short message for the client.")
+            return
+        }
         setLoading(true)
 
         const { data: userData } = await supabase.auth.getUser()
@@ -32,15 +42,17 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
         }
 
         // 🔹 Create Quote
-        const { error } = await supabase
+        const { data: quote, error } = await supabase
             .from("quotes")
             .insert({
                 job_id: jobId,
                 worker_id: userData.user.id,
-                amount: parseFloat(amount),
-                description: description,
+                amount: proposalAmount,
+                description: proposalMessage,
                 status: "pending"
             })
+            .select("id, job_id, amount, status, created_at")
+            .single()
 
         if (error) {
             if (error.code === '42P01') {
@@ -52,7 +64,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
             }
         } else {
             toast.success("Quote sent successfully!")
-            onSuccess()
+            onSuccess(quote)
             setSubmitted(true)
         }
         setLoading(false)
@@ -82,7 +94,7 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                             </div>
                             <div className="flex flex-col gap-3 sm:flex-row">
                                 <button type="button" onClick={onClose} className="min-h-11 flex-1 rounded-full border border-white/20 px-5 text-sm font-bold text-white hover:bg-white/10">Close</button>
-                                <Link href="/dashboard/worker#proposal-tracker" onClick={onClose} className="btn-luxury flex min-h-11 flex-1 items-center justify-center bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]">View proposal status</Link>
+                                <Link href="/dashboard/worker/jobs#my-proposals" onClick={onClose} className="btn-luxury flex min-h-11 flex-1 items-center justify-center bg-[#D4AF37] px-5 text-sm font-black text-black hover:bg-[#b8962e]">View proposal status</Link>
                             </div>
                         </div>
                     ) : (
@@ -93,6 +105,8 @@ export default function QuoteModal({ jobId, jobTitle, clientPrice, onClose, onSu
                                     required
                                     type="number"
                                     id="amount"
+                                    min="0.01"
+                                    step="0.01"
                                     placeholder=" "
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
