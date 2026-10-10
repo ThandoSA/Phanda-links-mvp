@@ -187,7 +187,7 @@ export default function ClientDashboard() {
   const statusLabel = (status: string) => status.replaceAll("_", " ").replace(/\b\w/g, letter => letter.toUpperCase());
 
   return (
-    <div className="font-sans max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white">
+    <div className="font-sans max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-6 md:space-y-10 text-white">
 
       {/* ── Welcome Header ── */}
       <motion.div
@@ -245,19 +245,19 @@ export default function ClientDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-5 gap-5"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 md:gap-5"
       >
         {[
-          { label: "Jobs Posted", value: postedJobs.length, icon: <Briefcase className="w-7 h-7" /> },
-          { label: "Active Jobs", value: activeJobsCount, icon: <Clock className="w-7 h-7" /> },
-          { label: "Proposals Received", value: proposalCount, icon: <Users className="w-7 h-7" /> },
-          { label: "Workers Hired", value: hiredWorkersCount, icon: <Star className="w-7 h-7" /> },
-          { label: "Committed Budget", value: `R ${committedBudget.toLocaleString()}`, icon: <Wallet className="w-7 h-7" /> },
+          { label: "Jobs Posted", value: postedJobs.length, icon: <Briefcase className="w-6 h-6 md:w-7 md:h-7" /> },
+          { label: "Active Jobs", value: activeJobsCount, icon: <Clock className="w-6 h-6 md:w-7 md:h-7" /> },
+          { label: "Proposals Received", value: proposalCount, icon: <Users className="w-6 h-6 md:w-7 md:h-7" /> },
+          { label: "Workers Hired", value: hiredWorkersCount, icon: <Star className="w-6 h-6 md:w-7 md:h-7" /> },
+          { label: "Committed Budget", value: `R ${committedBudget.toLocaleString()}`, icon: <Wallet className="w-6 h-6 md:w-7 md:h-7" /> },
         ].map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
-            <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
-            <div className="text-4xl font-black tracking-tighter text-white">{stat.value}</div>
-            <div className="text-gray-400 text-sm mt-1.5 font-medium">{stat.label}</div>
+          <motion.div key={i} variants={itemVariants} className="card-luxury p-4 md:p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111823] border border-white/10">
+            <div className="text-[#D4AF37] mb-3 md:mb-4">{stat.icon}</div>
+            <div className="text-2xl md:text-4xl font-black tracking-tighter text-white">{stat.value}</div>
+            <div className="text-gray-400 text-xs md:text-sm mt-1.5 font-medium">{stat.label}</div>
           </motion.div>
         ))}
       </motion.div>

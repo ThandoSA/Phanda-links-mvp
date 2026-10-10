@@ -230,7 +230,7 @@ export default function WorkerDashboard() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-10 text-white bg-[#05080f] rounded-[2rem] shadow-2xl ring-1 ring-white/10">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 space-y-6 md:space-y-10 text-white bg-[#05080f] rounded-[2rem] shadow-2xl ring-1 ring-white/10">
 
       {/* ── Welcome Header ── */}
       <motion.div
@@ -303,13 +303,13 @@ export default function WorkerDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-4 gap-5"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5"
       >
         {stats.map((stat, i) => (
-          <motion.div key={i} variants={itemVariants} className="card-luxury p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111316] border border-white/10">
-            <div className="text-[#D4AF37] mb-4">{stat.icon}</div>
-            <div className="text-4xl font-black tracking-tighter text-white">{stat.value}</div>
-            <div className="text-gray-400 text-sm mt-1.5 font-medium">{stat.label}</div>
+          <motion.div key={i} variants={itemVariants} className="card-luxury p-4 md:p-7 rounded-2xl hover:scale-[1.02] transition-transform bg-[#111316] border border-white/10">
+            <div className="text-[#D4AF37] mb-3 md:mb-4">{stat.icon}</div>
+            <div className="text-2xl md:text-4xl font-black tracking-tighter text-white">{stat.value}</div>
+            <div className="text-gray-400 text-xs md:text-sm mt-1.5 font-medium">{stat.label}</div>
           </motion.div>
         ))}
       </motion.div>
