@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import Image from "next/image"
@@ -31,6 +31,7 @@ export default function WorkerProfileForm() {
     availability?: "available" | "busy" | null
     rating?: number | null
     jobs_completed?: number | null
+    verified?: boolean | null
   }
 
   const [fullName, setFullName] = useState("")
@@ -46,99 +47,143 @@ export default function WorkerProfileForm() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data: userData } = await supabase.auth.getUser()
-        const user = userData.user
-        if (!user) {
-          toast.error("Session expired.")
-          window.location.href = "/login"
-          return
-        }
+  const fetchProfile = useCallback(async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const user = userData.user
+      if (!user) {
+        toast.error("Session expired.")
+        window.location.href = "/login"
+        return
+      }
 
-        let profile: ProfileRecord | null = null
-        const { data: profileData, error: profileError } = await supabase
+      // 1. Fetch user profile with safe fallback if columns are being provisioned
+      let profile: ProfileRecord | null = null
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name, location, avatar_url, is_verified, role")
+        .eq("id", user.id)
+        .maybeSingle()
+
+      if (profileError && profileError.code !== "PGRST116") {
+        // Fallback without is_verified if column not present yet
+        const { data: fallbackData } = await supabase
           .from("profiles")
-          .select("full_name, location, avatar_url, is_verified, role")
+          .select("full_name, location, avatar_url, role")
           .eq("id", user.id)
           .maybeSingle()
-
-        if (profileError && profileError.code !== "PGRST116") {
-          throw profileError
-        }
-
+        profile = fallbackData
+      } else {
         profile = profileData
+      }
 
-        if (!profile) {
-          const { data: createdProfile, error: createProfileError } = await supabase
-            .from("profiles")
-            .upsert({
-              id: user.id,
-              full_name: user.user_metadata?.full_name || "",
-              location: user.user_metadata?.location || "",
-              role: "worker",
-              avatar_url: user.user_metadata?.avatar_url || null,
-            }, { onConflict: "id" })
-            .select("full_name, location, avatar_url, is_verified, role")
-            .single()
+      // Ensure profile exists in profiles table
+      if (!profile) {
+        const { data: createdProfile, error: createProfileError } = await supabase
+          .from("profiles")
+          .upsert({
+            id: user.id,
+            full_name: (user.user_metadata?.full_name as string) || "",
+            location: (user.user_metadata?.location as string) || "",
+            role: "worker",
+            avatar_url: (user.user_metadata?.avatar_url as string) || null,
+          }, { onConflict: "id" })
+          .select("full_name, location, avatar_url, role")
+          .single()
 
-          if (createProfileError) throw createProfileError
+        if (!createProfileError && createdProfile) {
           profile = createdProfile
         }
+      }
 
-        const currentProfile = profile
+      const currentProfile = profile
+      setFullName(currentProfile?.full_name || (user.user_metadata?.full_name as string) || "")
+      setLocation(currentProfile?.location || (user.user_metadata?.location as string) || "")
+      if (currentProfile?.avatar_url) {
+        setAvatarUrl(currentProfile.avatar_url)
+      } else if (user.user_metadata?.avatar_url) {
+        setAvatarUrl(user.user_metadata.avatar_url as string)
+      }
 
-        setFullName(currentProfile?.full_name || "")
-        setLocation(currentProfile?.location || "")
-        if (currentProfile?.avatar_url) setAvatarUrl(currentProfile.avatar_url)
-        setIsVerified(Boolean(currentProfile?.is_verified))
+      // 2. Fetch or initialize worker_profiles row
+      let wp: WorkerProfileRecord | null = null
+      const { data: workerProfileData, error: workerProfileError } = await supabase
+        .from("worker_profiles")
+        .select("skills, bio, availability, rating, jobs_completed, verified")
+        .eq("user_id", user.id)
+        .maybeSingle()
 
-        let wp: WorkerProfileRecord | null = null
-        const { data: workerProfileData, error: workerProfileError } = await supabase
-          .from("worker_profiles")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle()
-
-        if (workerProfileError && workerProfileError.code !== "PGRST116") {
-          throw workerProfileError
-        }
-
+      if (workerProfileError && workerProfileError.code !== "PGRST116") {
+        console.warn("Could not load worker_profiles:", workerProfileError)
+      } else {
         wp = workerProfileData
+      }
 
-        if (!wp) {
-          const { data: createdWp, error: createWorkerProfileError } = await supabase
-            .from("worker_profiles")
-            .insert({
-              user_id: user.id,
-              skills: [],
-              bio: "",
-              availability: "available",
-              verified: false,
-            })
-            .select("*")
-            .single()
+      if (!wp) {
+        const { data: createdWp, error: createWorkerProfileError } = await supabase
+          .from("worker_profiles")
+          .insert({
+            user_id: user.id,
+            skills: [],
+            bio: "",
+            availability: "available",
+            verified: false,
+            rating: 0,
+            jobs_completed: 0,
+          })
+          .select("skills, bio, availability, rating, jobs_completed, verified")
+          .single()
 
-          if (createWorkerProfileError) throw createWorkerProfileError
+        if (!createWorkerProfileError && createdWp) {
           wp = createdWp
         }
-
-        const currentWorkerProfile = wp
-
-        setSkills(currentWorkerProfile?.skills?.join(", ") || "")
-        setBio(currentWorkerProfile?.bio || "")
-        if (currentWorkerProfile?.availability) setAvailability(currentWorkerProfile.availability)
-        setRating(currentWorkerProfile?.rating || 0)
-        setJobsCompleted(currentWorkerProfile?.jobs_completed || 0)
-      } catch (err: unknown) {
-        toast.error(err instanceof Error ? err.message : "Failed to load worker profile")
-      } finally {
-        setLoading(false)
       }
+
+      const currentWorkerProfile = wp
+      setSkills(currentWorkerProfile?.skills?.join(", ") || "")
+      setBio(currentWorkerProfile?.bio || "")
+      if (currentWorkerProfile?.availability) {
+        setAvailability(currentWorkerProfile.availability)
+      }
+
+      // 3. System-driven Trust Summary metrics
+      // Verification: consistent read from profile or worker_profile
+      const verifiedStatus = Boolean(currentProfile?.is_verified ?? currentWorkerProfile?.verified ?? false)
+      setIsVerified(verifiedStatus)
+
+      // Jobs Done: Calculated live from completed jobs
+      const { count: completedJobsCount } = await supabase
+        .from("jobs")
+        .select("id", { count: "exact", head: true })
+        .eq("worker_id", user.id)
+        .eq("status", "completed")
+
+      setJobsCompleted(completedJobsCount ?? currentWorkerProfile?.jobs_completed ?? 0)
+
+      // Rating: Calculated live from reviews table (average where reviewee_id = current user)
+      const { data: reviewsData } = await supabase
+        .from("reviews")
+        .select("rating")
+        .eq("reviewee_id", user.id)
+
+      if (reviewsData && reviewsData.length > 0) {
+        const sum = reviewsData.reduce((acc, r) => acc + Number(r.rating || 0), 0)
+        const avg = sum / reviewsData.length
+        setRating(Number(avg.toFixed(1)))
+      } else {
+        setRating(Number(currentWorkerProfile?.rating || 0))
+      }
+    } catch (err: unknown) {
+      console.error("WorkerProfile load error:", err)
+      toast.error(err instanceof Error ? err.message : "Failed to load worker profile")
+    } finally {
+      setLoading(false)
     }
-    fetchProfile()
   }, [])
+
+  useEffect(() => {
+    void fetchProfile()
+  }, [fetchProfile])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -152,19 +197,34 @@ export default function WorkerProfileForm() {
     try {
       const { data: userData } = await supabase.auth.getUser()
       const user = userData.user
-      if (!user) throw new Error("Not logged in")
+      if (!user) throw new Error("Not logged in. Please sign in again.")
 
       let finalAvatarUrl = avatarUrl
 
+      // 1. Storage upload if a new photo was selected
       if (avatarFile) {
-        const fileExt = avatarFile.name.split(".").pop()
+        const fileExt = avatarFile.name.split(".").pop() || "jpg"
         const filePath = `avatars/${user.id}-${Date.now()}.${fileExt}`
-        const { error: uploadError } = await supabase.storage.from("worker-images").upload(filePath, avatarFile, { upsert: true })
-        if (uploadError) throw uploadError
-        const { data } = supabase.storage.from("worker-images").getPublicUrl(filePath)
-        finalAvatarUrl = data.publicUrl
+        const { error: uploadError } = await supabase.storage
+          .from("worker-images")
+          .upload(filePath, avatarFile, { upsert: true })
+
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError)
+          throw new Error(`Failed to upload avatar: ${uploadError.message}`)
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from("worker-images")
+          .getPublicUrl(filePath)
+
+        if (publicUrlData?.publicUrl) {
+          finalAvatarUrl = publicUrlData.publicUrl
+          setAvatarUrl(finalAvatarUrl)
+        }
       }
 
+      // 2. Persist full_name, location, avatar_url to profiles table
       const { error: profileError } = await supabase
         .from("profiles")
         .upsert({
@@ -175,8 +235,13 @@ export default function WorkerProfileForm() {
           role: "worker",
         }, { onConflict: "id" })
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.error("Profile update error:", profileError)
+        throw new Error(`Failed to save profile: ${profileError.message}`)
+      }
 
+      // 3. Persist skills, bio, availability to worker_profiles table
+      // (System metrics: rating, jobs_completed, verified are preserved/system-managed)
       const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean)
       const { error: workerProfileError } = await supabase
         .from("worker_profiles")
@@ -185,12 +250,14 @@ export default function WorkerProfileForm() {
           skills: skillsArray,
           bio: bio.trim(),
           availability,
-          verified: isVerified,
         }, { onConflict: "user_id" })
 
-      if (workerProfileError) throw workerProfileError
+      if (workerProfileError) {
+        console.error("Worker profile update error:", workerProfileError)
+        throw new Error(`Failed to save worker details: ${workerProfileError.message}`)
+      }
 
-      toast.success("Profile updated successfully!")
+      toast.success("Profile saved successfully!")
       setAvatarFile(null)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to save profile")
@@ -231,7 +298,13 @@ export default function WorkerProfileForm() {
           {/* Avatar Card */}
           <div className="glass-card p-8 text-center">
             <div className="relative w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border border-gray-200 group cursor-pointer shadow-sm bg-white">
-              <Image src={avatarUrl || "/images/default-avatar.svg"} alt="Avatar" fill sizes="144px" className="object-cover" />
+              <Image 
+                src={avatarUrl || "/images/default-avatar.svg"} 
+                alt="Avatar" 
+                fill 
+                sizes="144px" 
+                className="object-cover" 
+              />
               <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
                 <Camera className="w-6 h-6 text-white" />
                 Change Photo
@@ -242,7 +315,7 @@ export default function WorkerProfileForm() {
             <p className="text-sm text-gray-600 font-medium mt-2 leading-6">A clear profile photo helps clients feel confident before they contact you.</p>
           </div>
 
-          {/* Stats details */}
+          {/* Stats details - Trust Summary */}
           <div className="glass-card p-8 space-y-6">
             <h3 className="text-black font-black text-lg tracking-tight border-b border-gray-200 pb-4">Trust Summary</h3>
             

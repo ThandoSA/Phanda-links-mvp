@@ -326,6 +326,12 @@ button:not([class*="rounded-full"]):not(.no-pill),
     border-color: rgba(212, 175, 55, 0.2);
   }
 
+  .status-quoted {
+    background: rgba(212, 175, 55, 0.12);
+    color: #D4AF37;
+    border-color: rgba(212, 175, 55, 0.25);
+  }
+
   .status-accepted {
     background: rgba(0, 0, 0, 0.05);
     color: #000000;

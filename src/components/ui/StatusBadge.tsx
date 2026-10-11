@@ -4,6 +4,7 @@ export default function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`status-badge status-${normalized}`}>
       {normalized === "open" && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />}
+      {normalized === "quoted" && <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse inline-block" />}
       {normalized === "accepted" && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />}
       {normalized === "pending" && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block" />}
       {normalized === "rejected" && <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />}

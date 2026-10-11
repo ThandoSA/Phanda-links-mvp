@@ -76,7 +76,7 @@ export async function fetchOpenJobs(supabase: SupabaseClient) {
       category,
       client:profiles!client_id (full_name, avatar_url)
     `)
-    .eq("status", "open")
+    .in("status", ["open", "quoted"])
     .is("worker_id", null)
     .order("created_at", { ascending: false })
 }
