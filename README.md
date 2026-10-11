@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Phanda Links
 
-## Getting Started
+**Connecting hustle to opportunity.**
 
-First, run the development server:
+Phanda Links is a South African startup building a marketplace that connects skilled local workers with clients who need trusted services.
+
+Too many talented people still depend on word-of-mouth and luck to find work.  
+Too many clients still struggle to find reliable help nearby.
+
+Phanda Links was built to change that — making local talent more visible, accessible, and trusted.
+
+🌐 Live platform: [https://phanda-links.vercel.app](https://phanda-links.vercel.app)
+
+🚀 **Launching soon across South Africa**
+
+---
+
+## Our Mission
+
+To connect hardworking people with meaningful opportunities and help local talent get discovered, hired, and trusted.
+
+## Our Vision
+
+To become South Africa’s leading platform for connecting skilled workers with clients, while creating economic opportunity in local communities.
+
+---
+
+## The Problem We Solve
+
+Across South Africa, skilled workers — plumbers, painters, cleaners, handymen, and more — often struggle to find consistent work.
+
+Many rely on referrals from friends, family, or previous customers.  
+If nobody recommends them, opportunities become limited.
+
+At the same time, clients need trusted help and don’t always know where to look.
+
+**Phanda Links bridges that gap.**
+
+---
+
+## What You Can Do on Phanda Links
+
+### For Workers
+- Create a professional profile
+- Showcase skills, experience, and portfolio
+- Receive and respond to job opportunities
+- Submit quotes
+- Communicate directly with clients
+- Build trust through ratings and reviews
+
+### For Clients
+- Post jobs quickly
+- Browse verified local workers
+- Compare quotes
+- Hire with confidence
+- Track job progress
+- Rate completed work
+
+---
+
+## Platform Features
+
+- Secure authentication
+- Role-based dashboards (Worker & Client)
+- Job posting and quoting
+- Job status tracking
+- Direct messaging
+- Reviews and ratings
+- Profile and portfolio management
+- Admin verification tools
+- Mobile-friendly experience
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|--------|------------|
+| Frontend | Next.js 16, React 19, TypeScript |
+| Styling | Tailwind CSS, Framer Motion |
+| Backend | Supabase (Auth, Database, Storage, Realtime) |
+| Hosting | Vercel |
+
+---
+
+## Getting Started (Developers)
+
+### 1. Clone the repo
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+git clone https://github.com/ThandoSA/Phanda-links-mvp.git
+cd Phanda-links-mvp
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run locally
+Bashnpm run dev
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Job Flow
+textopen → quoted → accepted → en_route → in_progress → completed
+Once a job is completed, both the client and worker can leave a review.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Project Status
+Phanda Links is a startup product currently in final pre-launch preparation.
+We are actively improving:
 
-## Learn More
+Job lifecycle experience
+Profile reliability
+Reviews and trust systems
+Mobile experience
+Production readiness
 
-To learn more about Next.js, take a look at the following resources:
+Public launch coming soon.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Why “Phanda”?
+In South Africa, phanda speaks to hustle, determination, and creating opportunity through effort.
+That spirit is at the heart of Phanda Links.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contact
+Built by the Phanda Links team
+GitHub: https://github.com/ThandoSA/Phanda-links-mvp
 
-## Deploy on Vercel
+Live app: https://phanda-links.vercel.app
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© Phanda Links. All rights reserved.
