@@ -81,24 +81,6 @@ At the same time, clients need trusted help and don’t always know where to loo
 | Backend | Supabase (Auth, Database, Storage, Realtime) |
 | Hosting | Vercel |
 
----
-
-## Getting Started (Developers)
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/ThandoSA/Phanda-links-mvp.git
-cd Phanda-links-mvp
-
-Run locally
-Bashnpm run dev
-Open http://localhost:3000
-
-Job Flow
-textopen → quoted → accepted → en_route → in_progress → completed
-Once a job is completed, both the client and worker can leave a review.
-
 Project Status
 Phanda Links is a startup product currently in final pre-launch preparation.
 We are actively improving:
@@ -117,8 +99,10 @@ That spirit is at the heart of Phanda Links.
 
 Contact
 Built by the Phanda Links team
+
 GitHub: https://github.com/ThandoSA/Phanda-links-mvp
 
 Live app: https://phanda-links.vercel.app
 
-© Phanda Links. All rights reserved.
+Email: phandalinks@gmail.com
+
