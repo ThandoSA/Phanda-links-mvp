@@ -6,33 +6,42 @@ import { useRouter, useSearchParams } from "next/navigation"
 import toast from "react-hot-toast"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Briefcase, Hammer } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 import { getSafeNextPath } from "@/lib/safeNextPath"
+import { getAuthRedirectUrl, type AccountRole } from "@/lib/authRedirect"
+import { ensureAuthProfile } from "@/lib/authProfiles"
+import { getAuthErrorMessage, getAuthQueryErrorMessage } from "@/lib/authErrors"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [googleRole, setGoogleRole] = useState<AccountRole>("worker")
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextPath = getSafeNextPath(searchParams.get("next"))
+  const callbackError = getAuthQueryErrorMessage(searchParams.get("error"))
 
   const handleGoogleLogin = async () => {
+    setGoogleLoading(true)
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+          redirectTo: getAuthRedirectUrl({ next: nextPath, role: googleRole }),
         }
       })
       if (error) {
-        toast.error(error.message)
+        toast.error(getAuthErrorMessage(error))
+        setGoogleLoading(false)
       }
     } catch (err) {
       console.error("Google login error:", err)
-      toast.error("An error occurred during Google sign-in.")
+      toast.error(getAuthErrorMessage(err))
+      setGoogleLoading(false)
     }
   }
 
@@ -45,22 +54,30 @@ function LoginForm() {
       
       if (error) {
         console.error("Login error details:", error)
+        toast.error(getAuthErrorMessage(error))
         if (error.message.toLowerCase().includes("email not confirmed")) {
-          toast.error("Please confirm your email address before logging in. Check your inbox!")
-        } else {
-          toast.error(error.message)
+          const confirmParams = new URLSearchParams({ next: nextPath })
+          router.replace(`/auth/confirm?${confirmParams.toString()}`)
         }
-        setLoading(false)
         return
       }
 
       if (data?.user) {
+        try {
+          await ensureAuthProfile(supabase, data.user)
+        } catch (profileError) {
+          console.error("Login profile setup failed.", profileError)
+          toast.error(getAuthErrorMessage(profileError))
+          router.replace("/dashboard")
+          return
+        }
+
         toast.success("Welcome back!")
         router.replace(nextPath)
       }
     } catch (err) {
       console.error("Unexpected login error:", err)
-      toast.error("An unexpected error occurred. Please try again.")
+      toast.error(getAuthErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -123,6 +140,20 @@ function LoginForm() {
                 Welcome <span className="text-[#D4AF37]">Back</span>
               </h2>
               <p className="text-gray-400 text-sm font-medium">Sign in to your premium account</p>
+              {callbackError && (
+                <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-left text-sm text-red-200">
+                  {callbackError}
+                </p>
+              )}
+              {(searchParams.get("error") === "confirmation_expired" ||
+                searchParams.get("error") === "auth_callback_failed") && (
+                <Link
+                  href={`/auth/confirm?next=${encodeURIComponent(nextPath)}`}
+                  className="inline-block text-sm font-bold text-[#D4AF37] hover:text-[#F3E5AB]"
+                >
+                  Resend a confirmation email
+                </Link>
+              )}
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
@@ -175,7 +206,7 @@ function LoginForm() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || googleLoading}
                 className="btn-luxury bg-[#D4AF37] text-black hover:bg-[#F3E5AB] hover:text-black border border-[#D4AF37] w-full py-4 text-sm mt-8 disabled:opacity-50 flex items-center justify-center gap-3"
               >
                 {loading ? (
@@ -190,10 +221,37 @@ function LoginForm() {
               <div className="flex-grow border-t border-white/10"></div>
             </div>
 
+            <div className="mb-4">
+              <p className="mb-3 text-center text-xs font-bold uppercase tracking-wider text-gray-500">
+                If you&apos;re new to Phanda Links, choose your account type
+              </p>
+              <div className="flex gap-3">
+                {[
+                  { value: "worker" as const, label: "Find Work", icon: <Hammer className="h-4 w-4" /> },
+                  { value: "client" as const, label: "Hire Talent", icon: <Briefcase className="h-4 w-4" /> },
+                ].map(({ value, label, icon }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={googleRole === value}
+                    onClick={() => setGoogleRole(value)}
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-full border px-3 py-2 text-sm font-bold transition-colors ${
+                      googleRole === value
+                        ? "border-[#D4AF37] bg-[#D4AF37] text-black"
+                        : "border-white/10 bg-white/5 text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {icon}{label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="btn-luxury border border-[#D4AF37]/40 bg-black/40 text-white hover:bg-[#111111] w-full py-4 text-sm flex items-center justify-center gap-3"
+              disabled={loading || googleLoading}
+              className="btn-luxury border border-[#D4AF37]/40 bg-black/40 text-white hover:bg-[#111111] w-full py-4 text-sm flex items-center justify-center gap-3 disabled:opacity-50"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -201,7 +259,7 @@ function LoginForm() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
               </svg>
-              Google
+              {googleLoading ? "Connecting to Google..." : "Continue with Google"}
             </button>
 
             <p className="text-center text-gray-400 text-sm font-medium mt-8">

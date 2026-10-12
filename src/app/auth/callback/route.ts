@@ -1,48 +1,75 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabaseServer'
-import { getSafeNextPath } from '@/lib/safeNextPath'
+import { NextResponse } from "next/server"
+import { ensureAuthProfile } from "@/lib/authProfiles"
+import { getAuthSiteOrigin } from "@/lib/authRedirect"
+import { getSafeNextPath } from "@/lib/safeNextPath"
+import { createClient } from "@/lib/supabaseServer"
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const next = getSafeNextPath(searchParams.get('next'))
+  const requestUrl = new URL(request.url)
+  const { searchParams } = requestUrl
+  const origin = getAuthSiteOrigin(requestUrl.origin)
+  const next = getSafeNextPath(searchParams.get("next"))
+  const roleHint = searchParams.get("role")
+  const callbackError = searchParams.get("error")
+  const errorDescription = searchParams.get("error_description")?.toLowerCase() || ""
 
-  if (code) {
-    const supabase = await createClient()
-    const { data: authData, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error && authData.user) {
-      // Determine the user's role to redirect correctly
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', authData.user.id)
-        .maybeSingle()
-
-      if (profileError) {
-        return NextResponse.redirect(new URL('/auth/error', origin))
-      }
-      
-      const role = profile?.role?.toLowerCase()
-      
-      if (role === 'client') {
-        return NextResponse.redirect(new URL('/dashboard/client', origin))
-      } else if (role === 'worker') {
-        const { error: workerProfileError } = await supabase
-          .from('worker_profiles')
-          .upsert({ user_id: authData.user.id, skills: [], bio: '' }, { onConflict: 'user_id' })
-
-        if (workerProfileError) {
-          return NextResponse.redirect(new URL('/auth/error', origin))
-        }
-
-        return NextResponse.redirect(new URL('/dashboard/worker', origin))
-      }
-      
-      // Fallback if role is unknown or not set
-      return NextResponse.redirect(new URL(next, origin))
-    }
+  const redirectToLogin = (error: string) => {
+    const loginUrl = new URL("/login", origin)
+    loginUrl.searchParams.set("error", error)
+    if (next !== "/dashboard") loginUrl.searchParams.set("next", next)
+    return NextResponse.redirect(loginUrl)
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(new URL('/auth/error', origin))
+  if (callbackError) {
+    const authError = `${callbackError} ${errorDescription}`
+    if (/access_denied|cancel/.test(authError)) return redirectToLogin("oauth_cancelled")
+    if (/expired|otp_expired|invalid.*token/.test(authError)) {
+      return redirectToLogin("confirmation_expired")
+    }
+    return redirectToLogin("auth_callback_failed")
+  }
+
+  const supabase = await createClient()
+  let user = null
+  let authError: { message: string } | null = null
+  const code = searchParams.get("code")
+  const tokenHash = searchParams.get("token_hash")
+  const otpType = searchParams.get("type")
+
+  if (code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    user = data.user
+    authError = error
+  } else if (tokenHash && (otpType === "signup" || otpType === "email")) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: otpType,
+    })
+    user = data.user
+    authError = error
+  } else {
+    return redirectToLogin("auth_callback_failed")
+  }
+
+  if (authError || !user) {
+    const message = authError?.message.toLowerCase() || ""
+    return redirectToLogin(
+      /expired|otp_expired|invalid.*token|flow_state_not_found/.test(message)
+        ? "confirmation_expired"
+        : "auth_callback_failed",
+    )
+  }
+
+  try {
+    const { role } = await ensureAuthProfile(supabase, user, roleHint)
+    const destination =
+      next === "/dashboard" && (role === "worker" || role === "client")
+        ? `/dashboard/${role}`
+        : next
+
+    return NextResponse.redirect(new URL(destination, origin))
+  } catch (error) {
+    console.error("Authentication callback profile setup failed.", error)
+    return redirectToLogin("profile_setup_failed")
+  }
 }

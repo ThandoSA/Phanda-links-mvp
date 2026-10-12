@@ -9,6 +9,9 @@ import Image from "next/image"
 import { Hammer, Briefcase, ArrowRight, ArrowLeft, Eye, EyeOff } from "lucide-react"
 import Logo from "@/components/ui/Logo"
 import { getSafeNextPath } from "@/lib/safeNextPath"
+import { getAuthRedirectUrl } from "@/lib/authRedirect"
+import { ensureAuthProfile } from "@/lib/authProfiles"
+import { getAuthErrorMessage } from "@/lib/authErrors"
 
 function SignupForm() {
   const router = useRouter()
@@ -16,6 +19,7 @@ function SignupForm() {
   const nextPath = getSafeNextPath(searchParams.get("next"))
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
@@ -29,19 +33,22 @@ function SignupForm() {
   if (!mounted) return null
 
   const handleGoogleSignup = async () => {
+    setGoogleLoading(true)
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
+          redirectTo: getAuthRedirectUrl({ next: nextPath, role }),
         }
       })
       if (error) {
-        toast.error(error.message)
+        toast.error(getAuthErrorMessage(error))
+        setGoogleLoading(false)
       }
     } catch (err) {
       console.error("Google signup error:", err)
-      toast.error("An error occurred during Google sign-up.")
+      toast.error(getAuthErrorMessage(err))
+      setGoogleLoading(false)
     }
   }
 
@@ -54,12 +61,12 @@ function SignupForm() {
         password,
         options: {
           data: { full_name: fullName, role, location },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+          emailRedirectTo: getAuthRedirectUrl({ next: nextPath, role }),
         },
       })
 
       if (error) {
-        toast.error(error.message)
+        toast.error(getAuthErrorMessage(error))
         return
       }
 
@@ -67,31 +74,33 @@ function SignupForm() {
         throw new Error("Account creation did not return a user.")
       }
 
-      if (!data.session) {
-        toast.success("Account created! Check your email to confirm.")
-        router.replace("/auth/confirm")
+      if (data.user.identities?.length === 0) {
+        toast.error("An account with this email already exists. Sign in instead.")
         return
       }
 
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: fullName,
-        role,
-        location,
-      })
-      if (profileError) throw profileError
+      if (!data.session) {
+        toast.success("Account created. Check your email to confirm your address.")
+        const confirmParams = new URLSearchParams({ next: nextPath, role })
+        router.replace(`/auth/confirm?${confirmParams.toString()}`)
+        return
+      }
 
-      if (role === "worker") {
-        const { error: workerProfileError } = await supabase
-          .from("worker_profiles")
-          .upsert({ user_id: data.user.id, skills: [], bio: "" })
-        if (workerProfileError) throw workerProfileError
+      try {
+        await ensureAuthProfile(supabase, data.user, role)
+      } catch (profileError) {
+        console.error("Signup profile setup failed.", profileError)
+        toast.error(getAuthErrorMessage(profileError))
+        router.replace("/dashboard")
+        return
       }
 
       toast.success("Account created successfully!")
-      router.replace(nextPath)
+      router.replace(
+        nextPath === "/dashboard" ? `/dashboard/${role}` : nextPath,
+      )
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Could not create your account.")
+      toast.error(getAuthErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -209,7 +218,7 @@ function SignupForm() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || googleLoading}
                 className="btn-luxury bg-[#D4AF37] text-black hover:bg-[#F3E5AB] hover:text-black border border-[#D4AF37] w-full py-4 text-sm mt-8 disabled:opacity-50 flex items-center justify-center gap-3"
               >
                 {loading ? (
@@ -229,7 +238,8 @@ function SignupForm() {
             <button
               type="button"
               onClick={handleGoogleSignup}
-              className="btn-luxury border border-[#D4AF37]/40 bg-black/40 text-white hover:bg-[#111111] w-full py-4 text-sm flex items-center justify-center gap-3"
+              disabled={loading || googleLoading}
+              className="btn-luxury border border-[#D4AF37]/40 bg-black/40 text-white hover:bg-[#111111] w-full py-4 text-sm flex items-center justify-center gap-3 disabled:opacity-50"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -237,7 +247,7 @@ function SignupForm() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
               </svg>
-              Google
+              {googleLoading ? "Connecting to Google..." : "Continue with Google"}
             </button>
 
             <p className="text-center text-gray-400 text-sm font-medium mt-8">
