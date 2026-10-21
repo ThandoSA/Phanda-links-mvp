@@ -33,11 +33,24 @@ export async function ensureAuthProfile(
   const metadata = user.user_metadata
   const role = isAccountRole(existing?.role)
     ? existing.role
-    : isAccountRole(roleHint)
-      ? roleHint
-      : isAccountRole(metadata.role)
-        ? metadata.role
-        : undefined
+    : existing?.role == null
+      ? isAccountRole(roleHint)
+        ? roleHint
+        : isAccountRole(metadata.role)
+          ? metadata.role
+          : undefined
+      : undefined
+
+  if (!role) {
+    console.error("The authenticated user's profile has no assignable account role.", {
+      userId: user.id,
+      existingRole: existing?.role,
+    })
+    throw new Error(
+      "Your account is missing a client or worker role. Please restart signup or contact support.",
+    )
+  }
+
   const fullName =
     existing?.full_name ||
     metadataString(metadata, "full_name", "name") ||
@@ -53,7 +66,8 @@ export async function ensureAuthProfile(
     location,
   }
 
-  if (role) profile.role = role
+  const mayAssignRole = !existing || existing.role == null
+  if (mayAssignRole) profile.role = role
   if (avatarUrl) profile.avatar_url = avatarUrl
 
   const { error: profileError } = await supabase
@@ -62,7 +76,7 @@ export async function ensureAuthProfile(
 
   if (profileError) {
     const minimalProfile: Record<string, string> = { id: user.id }
-    if (role) minimalProfile.role = role
+    if (mayAssignRole) minimalProfile.role = role
 
     const { error: retryError } = await supabase
       .from("profiles")

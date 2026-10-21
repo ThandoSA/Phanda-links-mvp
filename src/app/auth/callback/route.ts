@@ -62,10 +62,7 @@ export async function GET(request: Request) {
 
   try {
     const { role } = await ensureAuthProfile(supabase, user, roleHint)
-    const destination =
-      next === "/dashboard" && (role === "worker" || role === "client")
-        ? `/dashboard/${role}`
-        : next
+    const destination = next === "/dashboard" ? `/dashboard/${role}` : next
 
     return NextResponse.redirect(new URL(destination, origin))
   } catch (error) {

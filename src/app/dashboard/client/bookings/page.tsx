@@ -11,6 +11,7 @@ import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal"
 import PaymentConfirmModal from "@/components/dashboard/PaymentConfirmModal"
 import ReviewModal from "@/components/dashboard/ReviewModal"
 import ReviewsModal from "@/components/dashboard/ReviewsModal"
+import JobStatusTimeline from "@/components/dashboard/JobStatusTimeline"
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -173,6 +174,9 @@ export default function BookingsPage() {
                 <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 font-bold text-sm">
                   <User className="w-4 h-4 text-gold" />
                   {job.worker?.full_name || "Premium Professional"}
+                </div>
+                <div className="pt-3">
+                  <JobStatusTimeline status={job.status} />
                 </div>
                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 text-gray-500 text-[10px] font-black uppercase tracking-widest">
                   <div className="flex items-center gap-1.5">

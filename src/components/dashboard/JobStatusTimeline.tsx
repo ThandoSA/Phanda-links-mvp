@@ -5,6 +5,7 @@ import { CheckCircle2 } from "lucide-react"
 const steps = [
   { key: "open", label: "Open" },
   { key: "quoted", label: "Quoted" },
+  { key: "pending", label: "Request sent" },
   { key: "accepted", label: "Accepted" },
   { key: "en_route", label: "En route" },
   { key: "in_progress", label: "In progress" },
@@ -12,7 +13,6 @@ const steps = [
 ]
 
 const stepIndex = (status: string) => {
-  if (status === "pending") return 2 // Direct booking pending acceptance maps to accepted step
   return Math.max(0, steps.findIndex((step) => step.key === status))
 }
 

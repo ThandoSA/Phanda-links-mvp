@@ -87,18 +87,16 @@ function SignupForm() {
       }
 
       try {
-        await ensureAuthProfile(supabase, data.user, role)
+        const { role: assignedRole } = await ensureAuthProfile(supabase, data.user, role)
+        toast.success("Account created successfully!")
+        router.replace(
+          nextPath === "/dashboard" ? `/dashboard/${assignedRole}` : nextPath,
+        )
       } catch (profileError) {
         console.error("Signup profile setup failed.", profileError)
         toast.error(getAuthErrorMessage(profileError))
         router.replace("/dashboard")
-        return
       }
-
-      toast.success("Account created successfully!")
-      router.replace(
-        nextPath === "/dashboard" ? `/dashboard/${role}` : nextPath,
-      )
     } catch (err: unknown) {
       toast.error(getAuthErrorMessage(err))
     } finally {

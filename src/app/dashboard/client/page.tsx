@@ -8,6 +8,7 @@ import { Plus, Briefcase, Users, Clock, Star, FileText, AlertCircle, ArrowRight,
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import QuoteReviewModal from "@/components/dashboard/client/QuoteReviewModal";
+import JobStatusTimeline from "@/components/dashboard/JobStatusTimeline";
 
 interface PostedJob {
   id: string;
@@ -26,6 +27,8 @@ interface Profile {
   full_name: string;
   avatar_url?: string;
 }
+
+const TRACKABLE_BOOKING_STATUSES = ["pending", "accepted", "en_route", "in_progress", "completed"];
 
 function getGreeting(firstName: string): { greeting: string; tagline: string } {
   const hour = new Date().getHours();
@@ -89,8 +92,7 @@ export default function ClientDashboard() {
         .from("jobs")
         .select("id, title, status, price, created_at, updated_at, location, worker_id, scheduled_time")
         .eq("client_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(6);
+        .order("created_at", { ascending: false });
 
       const missingScheduleColumn = jobsWithSchedule.error?.code === "42703"
         || jobsWithSchedule.error?.code === "PGRST204"
@@ -101,7 +103,6 @@ export default function ClientDashboard() {
             .select("id, title, status, price, created_at, updated_at, location, worker_id")
             .eq("client_id", user.id)
             .order("created_at", { ascending: false })
-            .limit(6)
         : jobsWithSchedule;
       const { data: jobsData, error: jobsError } = jobsResult;
 
@@ -154,6 +155,9 @@ export default function ClientDashboard() {
 
   const activeStatuses = ["open", "pending", "accepted", "en_route", "in_progress"];
   const activeJobs = postedJobs.filter(job => activeStatuses.includes(job.status));
+  const bookedJobs = postedJobs
+    .filter((job) => TRACKABLE_BOOKING_STATUSES.includes(job.status))
+    .sort((a, b) => new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime());
   const activeJobsCount = activeJobs.length;
   const completedJobsCount = postedJobs.filter(job => job.status === "completed").length;
   const hiredWorkersCount = postedJobs.filter(job => job.worker_id && ["accepted", "en_route", "in_progress", "completed"].includes(job.status)).length;
@@ -273,6 +277,44 @@ export default function ClientDashboard() {
             return <Link key={stage.label} href="/dashboard/client/bookings" className="rounded-2xl border border-white/10 p-4 transition-colors hover:border-[#D4AF37]/50"><p className="text-2xl font-black text-white">{count}</p><p className="mt-1 text-xs font-bold leading-5 text-gray-400">{stage.label}</p></Link>
           })}
         </div>
+      </section>
+
+      <section className="card-luxury rounded-2xl border border-[#D4AF37]/20 bg-[#111316] p-6 md:p-8">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-black text-white">Booked jobs &amp; tracking</h2>
+            <p className="mt-1 text-sm font-medium text-gray-400">Follow accepted requests through completion.</p>
+          </div>
+          <Link href="/dashboard/client/bookings" className="inline-flex items-center gap-1 text-sm font-bold text-[#D4AF37] hover:underline">
+            All bookings <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+        {loading ? (
+          <div className="h-28 animate-pulse rounded-xl bg-white/5" />
+        ) : bookedJobs.length > 0 ? (
+          <div className="space-y-5">
+            {bookedJobs.map((job) => (
+              <article key={job.id} className="space-y-4 rounded-xl border border-white/10 p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="font-black text-white">{job.title}</h3>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
+                      {statusLabel(job.status)}
+                    </p>
+                  </div>
+                  <Link href={`/dashboard/jobs/${job.id}`} className="inline-flex min-h-10 items-center gap-2 text-sm font-bold text-white hover:text-[#D4AF37]">
+                    Track job <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <JobStatusTimeline status={job.status} />
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-white/10 p-5 text-sm font-medium text-gray-400">
+            Accepted bookings and their progress will appear here.
+          </p>
+        )}
       </section>
 
       <section className="card-luxury rounded-2xl border border-white/10 bg-[#111316] p-6 md:p-8">
