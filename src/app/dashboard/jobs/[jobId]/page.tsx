@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import toast from "react-hot-toast"
 import { supabase } from "@/lib/supabaseClient"
+import { getErrorMessage } from "@/lib/errorMessage"
 import StatusBadge from "@/components/ui/StatusBadge"
 import JobStatusTimeline from "@/components/dashboard/JobStatusTimeline"
 import ReviewModal from "@/components/dashboard/ReviewModal"
@@ -233,7 +234,8 @@ export default function JobDetailPage() {
       )
       void fetchJob()
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Failed to update job status")
+      toast.error(getErrorMessage(error, "Failed to update job status"))
+      void fetchJob()
     } finally {
       setUpdatingStatus(false)
     }

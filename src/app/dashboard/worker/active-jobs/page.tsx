@@ -7,6 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Job } from "@/types"
+import { getErrorMessage } from "@/lib/errorMessage"
 import ReviewModal from "@/components/dashboard/ReviewModal"
 import ReviewsModal from "@/components/dashboard/ReviewsModal"
 import {
@@ -124,7 +125,8 @@ export default function ActiveJobsPage() {
         setReviewJob({ ...job, status: "completed" })
       }
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to update status")
+      toast.error(getErrorMessage(err, "Failed to update status"))
+      void fetchActiveJobs()
     } finally {
       setUpdatingId(null)
     }

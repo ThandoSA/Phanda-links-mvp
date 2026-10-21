@@ -28,8 +28,8 @@ export default function BookingsPage() {
     if (!userData.user) return
     setUserId(userData.user.id)
 
-    const primarySelect = `id, status, created_at, title, description, price, location, worker_id, client_id, client_payment_confirmed_at, worker:profiles!worker_id (full_name, avatar_url, rating)`
-    const fallbackSelect = `id, status, created_at, title, description, price, location, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url, rating)`
+    const primarySelect = `id, status, created_at, title, description, price, location, worker_id, client_id, client_payment_confirmed_at, worker:profiles!worker_id (full_name, avatar_url)`
+    const fallbackSelect = `id, status, created_at, title, description, price, location, worker_id, client_id, worker:profiles!worker_id (full_name, avatar_url)`
 
     const { data, error } = await supabase
       .from("jobs")
@@ -50,6 +50,7 @@ export default function BookingsPage() {
     const { data: jobData, error: jobError } = resolved
 
     if (jobError) {
+      console.error("Client bookings fetch error:", jobError)
       toast.error("Failed to load bookings")
     } else {
       const clientJobs = (jobData as unknown as Job[]) || []
