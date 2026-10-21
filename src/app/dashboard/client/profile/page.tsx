@@ -17,6 +17,10 @@ export default function ClientProfileForm() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
 
+    useEffect(() => () => {
+        if (avatarUrl.startsWith("blob:")) URL.revokeObjectURL(avatarUrl)
+    }, [avatarUrl])
+
     useEffect(() => {
         const fetchProfile = async () => {
             const { data: userData } = await supabase.auth.getUser()
@@ -43,10 +47,20 @@ export default function ClientProfileForm() {
     }, [])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setAvatarFile(e.target.files[0])
-            setAvatarUrl(URL.createObjectURL(e.target.files[0]))
+        const file = e.target.files?.[0]
+        if (!file) return
+        if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+            toast.error("Choose a JPEG, PNG, WebP, or GIF image.")
+            e.target.value = ""
+            return
         }
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Avatar images must be 5 MB or smaller.")
+            e.target.value = ""
+            return
+        }
+        setAvatarFile(file)
+        setAvatarUrl(URL.createObjectURL(file))
     }
 
     const handleSave = async () => {
@@ -93,6 +107,8 @@ export default function ClientProfileForm() {
             }
 
             toast.success("Profile updated successfully!")
+            setAvatarUrl(finalAvatarUrl)
+            setAvatarFile(null)
             router.refresh()
         } catch (error: unknown) {
             console.error("Save error:", error)
@@ -141,7 +157,7 @@ export default function ClientProfileForm() {
                             <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-xs font-bold cursor-pointer gap-2 backdrop-blur-sm">
                                 <Camera className="w-6 h-6 text-[#D4AF37]" />
                                 Change Photo
-                                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                                <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFileChange} />
                             </label>
                         </div>
                         <h3 className="text-white font-black text-xl tracking-tight">{fullName || "Your Name"}</h3>

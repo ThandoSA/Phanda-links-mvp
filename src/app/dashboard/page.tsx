@@ -5,17 +5,25 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { BriefcaseBusiness, UserRoundCog } from "lucide-react"
+import { ensureAuthProfile } from "@/lib/authProfiles"
+import type { AccountRole } from "@/lib/authRedirect"
+
+function isAccountRole(role: unknown): role is AccountRole {
+  return role === "client" || role === "worker"
+}
 
 export default function DashboardRouter() {
   const router = useRouter()
   const [roleUnknown, setRoleUnknown] = useState(false)
+  const [setupError, setSetupError] = useState<string | null>(null)
+  const [assigningRole, setAssigningRole] = useState<AccountRole | null>(null)
 
   useEffect(() => {
     const checkUserRole = async () => {
-      const { data: userData } = await supabase.auth.getUser()
+      const { data: userData, error: authError } = await supabase.auth.getUser()
       const user = userData.user
 
-      if (!user) {
+      if (authError || !user) {
         router.push("/login")
         return
       }
@@ -24,74 +32,76 @@ export default function DashboardRouter() {
         .from("profiles")
         .select("role")
         .eq("id", user.id)
-        .single()
-      let profile = data
+        .maybeSingle()
 
-      if (error || !profile) {
-        console.log("Profile not found, checking metadata...")
-        const metadata = user.user_metadata
-        if (metadata?.role) {
-          // Auto-create profile from metadata
-          const { data: newProfile, error: createError } = await supabase
-            .from("profiles")
-            .upsert({
-              id: user.id,
-              full_name: metadata.full_name || "",
-              role: metadata.role,
-            })
-            .select("id, role")
-            .single()
-          
-          if (!createError) {
-            profile = newProfile
-          }
-        }
-      }
-
-      if (!profile || !profile.role) {
-        setRoleUnknown(true)
+      if (error) {
+        console.error("Could not load the account role.", error)
+        setSetupError("We couldn't check your account role. Please refresh and try again.")
         return
       }
 
-      const role = profile.role.toLowerCase()
-      if (role === "client") {
-        router.replace("/dashboard/client")
-      } else if (role === "worker") {
-        router.replace("/dashboard/worker")
-      } else {
-        // If role exists but is invalid, force them to re-select
+      if (data?.role) {
+        if (!isAccountRole(data.role)) {
+          setSetupError("Your account has an unsupported role. Please contact support.")
+          return
+        }
+        router.replace(`/dashboard/${data.role}`)
+        return
+      }
+
+      const metadataRole = user.user_metadata?.role
+      if (isAccountRole(metadataRole)) {
+        try {
+          const { role } = await ensureAuthProfile(supabase, user, metadataRole)
+          router.replace(`/dashboard/${role}`)
+          return
+        } catch (profileError) {
+          console.error("Could not restore the account profile.", profileError)
+          setSetupError(
+            profileError instanceof Error
+              ? profileError.message
+              : "We couldn't restore your account profile. Please try again.",
+          )
+          return
+        }
+      }
+
+      if (!data || data.role == null) {
         setRoleUnknown(true)
       }
     }
 
-    checkUserRole()
+    void checkUserRole()
   }, [router])
 
-  const handleRoleSelection = async (selectedRole: string) => {
-    const { data: userData } = await supabase.auth.getUser()
-    if (!userData.user) return
-
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({
-        id: userData.user.id,
-        full_name: userData.user.user_metadata?.full_name || "",
-        role: selectedRole,
-      })
-
-    if (error) {
-      toast.error("Failed to save role: " + error.message)
-    } else {
-      if (selectedRole === "worker") {
-        await supabase.from("worker_profiles").upsert({
-          user_id: userData.user.id,
-          skills: [],
-          bio: "",
-        })
+  const handleRoleSelection = async (selectedRole: AccountRole) => {
+    if (assigningRole) return
+    setAssigningRole(selectedRole)
+    try {
+      const { data: userData, error: authError } = await supabase.auth.getUser()
+      if (authError || !userData.user) {
+        throw new Error("Your session has expired. Please sign in again.")
       }
+
+      const { role } = await ensureAuthProfile(supabase, userData.user, selectedRole)
       toast.success("Welcome! Redirecting...")
-      router.replace(selectedRole === "client" ? "/dashboard/client" : "/dashboard/worker")
+      router.replace(`/dashboard/${role}`)
+    } catch (error) {
+      console.error("Could not assign the initial account role.", error)
+      toast.error(error instanceof Error ? error.message : "Failed to save your role.")
+    } finally {
+      setAssigningRole(null)
     }
+  }
+
+  if (setupError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050505] p-6">
+        <div role="alert" className="max-w-lg rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center text-sm font-medium text-red-100">
+          {setupError}
+        </div>
+      </div>
+    )
   }
 
   if (roleUnknown) {
@@ -113,23 +123,25 @@ export default function DashboardRouter() {
 
           <div className="mt-8 grid gap-4 text-left">
             <button
+              disabled={assigningRole !== null}
               onClick={() => handleRoleSelection("client")}
-              className="group flex items-center justify-between rounded-[1.5rem] border border-[#D4AF37]/20 bg-[#111111] px-5 py-4 text-left transition-all hover:border-[#D4AF37]/50 hover:bg-[#161616]"
+              className="group flex items-center justify-between rounded-[1.5rem] border border-[#D4AF37]/20 bg-[#111111] px-5 py-4 text-left transition-all hover:border-[#D4AF37]/50 hover:bg-[#161616] disabled:cursor-wait disabled:opacity-50"
             >
               <div>
                 <p className="text-lg font-black text-white">I’m a client</p>
-                <p className="text-sm text-gray-400">Hire vetted professionals for my work</p>
+                <p className="text-sm text-gray-400">{assigningRole === "client" ? "Saving your choice..." : "Hire vetted professionals for my work"}</p>
               </div>
               <BriefcaseBusiness className="h-6 w-6 text-[#D4AF37] transition-transform group-hover:translate-x-1" />
             </button>
 
             <button
+              disabled={assigningRole !== null}
               onClick={() => handleRoleSelection("worker")}
-              className="group flex items-center justify-between rounded-[1.5rem] border border-white/10 bg-[#111111]/80 px-5 py-4 text-left transition-all hover:border-[#D4AF37]/50 hover:bg-[#161616]"
+              className="group flex items-center justify-between rounded-[1.5rem] border border-white/10 bg-[#111111]/80 px-5 py-4 text-left transition-all hover:border-[#D4AF37]/50 hover:bg-[#161616] disabled:cursor-wait disabled:opacity-50"
             >
               <div>
                 <p className="text-lg font-black text-white">I’m a worker</p>
-                <p className="text-sm text-gray-400">Find jobs and grow my profile</p>
+                <p className="text-sm text-gray-400">{assigningRole === "worker" ? "Saving your choice..." : "Find jobs and grow my profile"}</p>
               </div>
               <UserRoundCog className="h-6 w-6 text-[#D4AF37] transition-transform group-hover:translate-x-1" />
             </button>

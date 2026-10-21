@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     user = data.user
     authError = error
-  } else if (tokenHash && (otpType === "signup" || otpType === "email")) {
+  } else if (tokenHash && (otpType === "signup" || otpType === "email" || otpType === "recovery")) {
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: otpType,
@@ -48,7 +48,17 @@ export async function GET(request: Request) {
     user = data.user
     authError = error
   } else {
-    return redirectToLogin("auth_callback_failed")
+    const { data, error } = await supabase.auth.getUser()
+    user = data.user
+    authError = error
+  }
+
+  if (authError) {
+    const { data, error } = await supabase.auth.getUser()
+    if (!error && data.user) {
+      user = data.user
+      authError = null
+    }
   }
 
   if (authError || !user) {
@@ -61,8 +71,22 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { role } = await ensureAuthProfile(supabase, user, roleHint)
-    const destination = next === "/dashboard" ? `/dashboard/${role}` : next
+    let destination = next
+    if (next !== "/reset-password") {
+      try {
+        const { role } = await ensureAuthProfile(supabase, user, roleHint)
+        if (next === "/dashboard") destination = `/dashboard/${role}`
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("missing a client or worker role")
+        ) {
+          destination = "/dashboard"
+        } else {
+          throw error
+        }
+      }
+    }
 
     return NextResponse.redirect(new URL(destination, origin))
   } catch (error) {

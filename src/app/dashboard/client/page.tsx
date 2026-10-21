@@ -28,7 +28,7 @@ interface Profile {
   avatar_url?: string;
 }
 
-const TRACKABLE_BOOKING_STATUSES = ["pending", "accepted", "en_route", "in_progress", "completed"];
+const TRACKABLE_BOOKING_STATUSES = ["quoted", "pending", "accepted", "en_route", "in_progress", "completed"];
 
 function getGreeting(firstName: string): { greeting: string; tagline: string } {
   const hour = new Date().getHours();
@@ -153,7 +153,7 @@ export default function ClientDashboard() {
   const firstName = profile?.full_name?.split(" ")[0] || "";
   const { greeting, tagline } = getGreeting(firstName);
 
-  const activeStatuses = ["open", "pending", "accepted", "en_route", "in_progress"];
+  const activeStatuses = ["open", "quoted", "pending", "accepted", "en_route", "in_progress"];
   const activeJobs = postedJobs.filter(job => activeStatuses.includes(job.status));
   const bookedJobs = postedJobs
     .filter((job) => TRACKABLE_BOOKING_STATUSES.includes(job.status))
@@ -169,7 +169,7 @@ export default function ClientDashboard() {
     .slice(0, 3);
   const pipeline = [
     { label: "Open", statuses: ["open"] },
-    { label: "Reviewing quotes", statuses: ["pending"] },
+    { label: "Reviewing quotes", statuses: ["quoted", "pending"] },
     { label: "Worker selected", statuses: ["accepted"] },
     { label: "In progress", statuses: ["en_route", "in_progress"] },
     { label: "Completed", statuses: ["completed"] },

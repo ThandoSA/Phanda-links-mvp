@@ -96,7 +96,7 @@ export default function BookingsPage() {
   }, [fetchBookings, userId])
 
   const filteredBookings = bookings.filter(job => {
-    if (filter === "active") return ["open", "pending", "accepted", "en_route", "in_progress"].includes(job.status)
+    if (filter === "active") return ["open", "quoted", "pending", "accepted", "en_route", "in_progress"].includes(job.status)
     if (filter === "completed") return job.status === "completed"
     return true
   })
@@ -163,6 +163,7 @@ export default function BookingsPage() {
                 <div className="flex flex-col md:flex-row md:items-center gap-3 mb-1">
                   <h3 className="text-xl font-black text-white group-hover:text-gold transition-colors uppercase tracking-tight">{job.title}</h3>
                   <div className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-1 border border-gold/30 tracking-[0.2em] uppercase whitespace-nowrap">
+                    {job.status === 'quoted' && '[01 // PROPOSALS_RECEIVED]'}
                     {job.status === 'pending' && '[01 // REQUEST_SENT]'}
                     {job.status === 'accepted' && '[02 // WORKER_ACCEPTED]'}
                     {job.status === 'en_route' && '[03 // EN_ROUTE]'}

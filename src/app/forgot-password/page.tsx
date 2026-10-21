@@ -5,6 +5,7 @@ import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
 import toast from "react-hot-toast"
 import { KeyRound, ArrowRight, ArrowLeft, Mail, CheckCircle2 } from "lucide-react"
+import { getAuthRedirectUrl } from "@/lib/authRedirect"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -21,7 +22,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/profile`,
+        redirectTo: getAuthRedirectUrl({ next: "/reset-password" }),
       })
 
       if (error) {

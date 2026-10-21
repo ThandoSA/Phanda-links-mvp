@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import PortfolioManagement from "@/components/dashboard/worker/PortfolioManagement"
+import { ensureAuthProfile } from "@/lib/authProfiles"
 
 export default function WorkerProfileForm() {
   type ProfileRecord = {
@@ -46,18 +47,25 @@ export default function WorkerProfileForm() {
   const [isVerified, setIsVerified] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const fetchProfile = useCallback(async () => {
     try {
-      const { data: userData } = await supabase.auth.getUser()
+      const { data: userData, error: authError } = await supabase.auth.getUser()
       const user = userData.user
-      if (!user) {
+      if (authError || !user) {
         toast.error("Session expired.")
         window.location.href = "/login"
         return
       }
 
-      // 1. Fetch user profile with safe fallback if columns are being provisioned
+      const { role } = await ensureAuthProfile(supabase, user)
+      if (role !== "worker") {
+        window.location.replace("/dashboard")
+        return
+      }
+
+      // 1. Fetch the public profile fields, with a fallback for deployments missing is_verified.
       let profile: ProfileRecord | null = null
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
@@ -65,35 +73,26 @@ export default function WorkerProfileForm() {
         .eq("id", user.id)
         .maybeSingle()
 
-      if (profileError && profileError.code !== "PGRST116") {
-        // Fallback without is_verified if column not present yet
+      if (
+        profileError &&
+        (profileError.code === "42703" || profileError.code === "PGRST204" ||
+          profileError.message.includes("is_verified"))
+      ) {
         const { data: fallbackData } = await supabase
           .from("profiles")
           .select("full_name, location, avatar_url, role")
           .eq("id", user.id)
           .maybeSingle()
+        if (!fallbackData) throw new Error("Could not load your profile details.")
         profile = fallbackData
+      } else if (profileError) {
+        throw profileError
       } else {
         profile = profileData
       }
 
-      // Ensure profile exists in profiles table
       if (!profile) {
-        const { data: createdProfile, error: createProfileError } = await supabase
-          .from("profiles")
-          .upsert({
-            id: user.id,
-            full_name: (user.user_metadata?.full_name as string) || "",
-            location: (user.user_metadata?.location as string) || "",
-            role: "worker",
-            avatar_url: (user.user_metadata?.avatar_url as string) || null,
-          }, { onConflict: "id" })
-          .select("full_name, location, avatar_url, role")
-          .single()
-
-        if (!createProfileError && createdProfile) {
-          profile = createdProfile
-        }
+        throw new Error("Your worker profile could not be found. Please refresh or contact support.")
       }
 
       const currentProfile = profile
@@ -113,11 +112,8 @@ export default function WorkerProfileForm() {
         .eq("user_id", user.id)
         .maybeSingle()
 
-      if (workerProfileError && workerProfileError.code !== "PGRST116") {
-        console.warn("Could not load worker_profiles:", workerProfileError)
-      } else {
-        wp = workerProfileData
-      }
+      if (workerProfileError) throw workerProfileError
+      wp = workerProfileData
 
       if (!wp) {
         const { data: createdWp, error: createWorkerProfileError } = await supabase
@@ -127,16 +123,13 @@ export default function WorkerProfileForm() {
             skills: [],
             bio: "",
             availability: "available",
-            verified: false,
-            rating: 0,
-            jobs_completed: 0,
           })
           .select("skills, bio, availability, rating, jobs_completed, verified")
           .single()
 
-        if (!createWorkerProfileError && createdWp) {
-          wp = createdWp
-        }
+        if (createWorkerProfileError) throw createWorkerProfileError
+        if (!createdWp) throw new Error("Could not initialize your worker profile.")
+        wp = createdWp
       }
 
       const currentWorkerProfile = wp
@@ -152,19 +145,30 @@ export default function WorkerProfileForm() {
       setIsVerified(verifiedStatus)
 
       // Jobs Done: Calculated live from completed jobs
-      const { count: completedJobsCount } = await supabase
+      const { count: completedJobsCount, error: completedJobsError } = await supabase
         .from("jobs")
         .select("id", { count: "exact", head: true })
         .eq("worker_id", user.id)
         .eq("status", "completed")
 
-      setJobsCompleted(completedJobsCount ?? currentWorkerProfile?.jobs_completed ?? 0)
+      if (completedJobsError) {
+        console.error("Could not load completed-job count.", completedJobsError)
+        toast.error("Could not load your completed-job total.")
+      }
+      setJobsCompleted(completedJobsError
+        ? currentWorkerProfile?.jobs_completed ?? 0
+        : completedJobsCount ?? 0)
 
       // Rating: Calculated live from reviews table (average where reviewee_id = current user)
-      const { data: reviewsData } = await supabase
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from("reviews")
         .select("rating")
         .eq("reviewee_id", user.id)
+
+      if (reviewsError) {
+        console.error("Could not load worker reviews.", reviewsError)
+        toast.error("Could not load your rating.")
+      }
 
       if (reviewsData && reviewsData.length > 0) {
         const sum = reviewsData.reduce((acc, r) => acc + Number(r.rating || 0), 0)
@@ -175,7 +179,9 @@ export default function WorkerProfileForm() {
       }
     } catch (err: unknown) {
       console.error("WorkerProfile load error:", err)
-      toast.error(err instanceof Error ? err.message : "Failed to load worker profile")
+      const message = err instanceof Error ? err.message : "Failed to load worker profile"
+      setLoadError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
@@ -185,11 +191,25 @@ export default function WorkerProfileForm() {
     void fetchProfile()
   }, [fetchProfile])
 
+  useEffect(() => () => {
+    if (avatarUrl.startsWith("blob:")) URL.revokeObjectURL(avatarUrl)
+  }, [avatarUrl])
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setAvatarFile(e.target.files[0])
-      setAvatarUrl(URL.createObjectURL(e.target.files[0]))
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+      toast.error("Choose a JPEG, PNG, WebP, or GIF image.")
+      e.target.value = ""
+      return
     }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Avatar images must be 5 MB or smaller.")
+      e.target.value = ""
+      return
+    }
+    setAvatarFile(file)
+    setAvatarUrl(URL.createObjectURL(file))
   }
 
   const handleSave = async () => {
@@ -232,7 +252,6 @@ export default function WorkerProfileForm() {
           full_name: fullName.trim(),
           location: location.trim(),
           avatar_url: finalAvatarUrl || null,
-          role: "worker",
         }, { onConflict: "id" })
 
       if (profileError) {
@@ -278,6 +297,14 @@ export default function WorkerProfileForm() {
             <div className="h-96 skeleton" />
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div role="alert" className="mx-auto max-w-3xl rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-sm font-medium text-red-100">
+        Your worker profile could not be loaded: {loadError}
       </div>
     )
   }

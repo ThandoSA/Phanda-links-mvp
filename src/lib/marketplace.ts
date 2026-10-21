@@ -87,17 +87,32 @@ export async function ensureUserProfile(
   user: { id: string; email?: string; user_metadata?: Record<string, unknown> },
   role: "client" | "worker" = "client"
 ) {
+  const { data: existing, error: readError } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (readError) return { error: readError }
+  if (existing?.role && existing.role !== role) {
+    return { error: new Error(`This account is registered as a ${existing.role}.`) }
+  }
+
   const fullName =
     (user.user_metadata?.full_name as string) ||
     user.email?.split("@")[0] ||
     "User"
 
-  return supabase.from("profiles").upsert(
-    {
-      id: user.id,
-      full_name: fullName,
-      role,
-    },
-    { onConflict: "id" }
-  )
+  const profile: { id: string; full_name: string; role?: "client" | "worker" } = {
+    id: user.id,
+    full_name: fullName,
+  }
+
+  if (!existing || existing.role == null) profile.role = role
+
+  const { error } = await supabase
+    .from("profiles")
+    .upsert(profile, { onConflict: "id", defaultToNull: false })
+
+  return { error }
 }
